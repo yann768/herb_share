@@ -543,8 +543,35 @@ h1 {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── 页面切换按钮 ── */
+.page-switch {
+  position: absolute;
+  top: 20px; right: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--green-glow);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all .15s;
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+.page-switch:hover {
+  border-color: var(--green);
+  background: var(--green-dim);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
 /* ── 响应式 ── */
 @media (max-width: 480px) {
+  .page-switch { top: 14px; right: 12px; padding: 6px 12px; font-size: 12px; }
   header { padding: 40px 16px 28px; }
   h1 { letter-spacing: 3px; }
   .post-card { padding: 18px; }
@@ -558,6 +585,7 @@ h1 {
 
 <div class="wrap">
   <header>
+    <a class="page-switch" href="cook.html">🍳 烹饪广场 →</a>
     <span class="header-icon">🌿</span>
     <h1>草药互助广场</h1>
     <p class="header-sub">收取时间过后帖子会自动消失哦</p>
