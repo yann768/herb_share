@@ -49,9 +49,14 @@ header::after {
 @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 h1 { font-family: 'Cinzel', serif; font-size: clamp(22px, 5vw, 34px); color: var(--orange-glow); letter-spacing: 6px; text-shadow: 0 0 30px rgba(220,120,40,.4); margin-bottom: 8px; }
 .header-sub { font-size: 13px; color: var(--text-dim); letter-spacing: 2px; }
-.page-switch { position: absolute; top: 20px; right: 16px; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 24px; background: var(--bg3); border: 1px solid var(--border2); color: var(--orange-glow); font-family: 'Noto Serif SC', serif; font-size: 13px; text-decoration: none; cursor: pointer; transition: all .15s; box-shadow: 0 2px 12px rgba(0,0,0,.3); }
-.page-switch:hover { border-color: var(--orange); background: var(--orange-dim); color: #fff; transform: translateY(-1px); }
-@media (max-width: 480px) { .page-switch { top: 14px; right: 12px; padding: 6px 12px; font-size: 12px; } }
+.page-switch { position: absolute; top: 16px; right: 16px; display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 24px; background: linear-gradient(135deg, #4aaa4e 0%, #2d7a30 100%); color: #fff; font-family: 'Noto Serif SC', serif; font-size: 14px; font-weight: 600; letter-spacing: 1px; text-decoration: none; cursor: pointer; box-shadow: 0 4px 20px rgba(74,170,78,.45), inset 0 0 0 1px rgba(255,255,255,.12); transition: transform .2s ease, box-shadow .2s ease; animation: psPulse 3s ease-in-out infinite; z-index: 10; }
+.page-switch:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 28px rgba(74,170,78,.7), inset 0 0 0 1px rgba(255,255,255,.2); animation: none; }
+.page-switch:active { transform: translateY(0) scale(.98); }
+.page-switch .ps-icon { font-size: 18px; filter: drop-shadow(0 1px 3px rgba(0,0,0,.4)); }
+.page-switch .ps-arrow { font-size: 14px; opacity: .85; margin-left: 2px; transition: transform .2s; }
+.page-switch:hover .ps-arrow { transform: translateX(3px); }
+@keyframes psPulse { 0%,100% { box-shadow: 0 4px 20px rgba(74,170,78,.45), inset 0 0 0 1px rgba(255,255,255,.12); } 50% { box-shadow: 0 4px 28px rgba(74,170,78,.75), inset 0 0 0 1px rgba(255,255,255,.2); } }
+@media (max-width: 480px) { .page-switch { top: 12px; right: 12px; padding: 8px 14px; font-size: 13px; } .page-switch .ps-icon { font-size: 16px; } }
 
 .action-bar {
   position: sticky; top: 0; background: rgba(16,8,0,.92); backdrop-filter: blur(12px);
@@ -211,7 +216,7 @@ h1 { font-family: 'Cinzel', serif; font-size: clamp(22px, 5vw, 34px); color: var
 <body>
 <div class="wrap">
   <header>
-    <a class="page-switch" href="index.html">🌿 草药广场 →</a>
+    <a class="page-switch" href="index.html"><span class="ps-icon">🌿</span>草药广场<span class="ps-arrow">→</span></a>
     <span class="header-icon">🍲</span>
     <h1>烹饪互助广场</h1>
     <p class="header-sub">收取时间过后帖子会自动消失哦</p>
