@@ -543,8 +543,73 @@ h1 {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── 页面切换按钮 ── */
-.page-switch {
+/* ── 草药选择器（多选） ── */
+.item-picker-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.item-picker-row select, .item-picker-row input { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); border-radius: 10px; padding: 0 12px; height: 42px; font-family: inherit; font-size: 14px; outline: none; }
+.item-picker-row select { flex: 1; min-width: 0; cursor: pointer; }
+.item-picker-row select option { background: var(--bg2); color: var(--text); }
+.item-picker-row input.qty-input { width: 80px; text-align: center; }
+.item-add-btn { background: linear-gradient(135deg, var(--green-dim), var(--green)); color: #fff; border: none; border-radius: 10px; padding: 0 16px; height: 42px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; transition: opacity .15s; }
+.item-add-btn:hover { opacity: .9; }
+.item-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; min-height: 24px; }
+.item-list:empty::before { content: '尚未添加，至少添加一种'; color: var(--text-dim); font-size: 12px; font-style: italic; }
+.item-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 18px; padding: 5px 10px 5px 14px; font-size: 13px; color: var(--text); }
+.item-chip .chip-name { color: var(--green-glow); font-weight: 600; }
+.item-chip .chip-qty { color: var(--text-dim); }
+.item-chip .chip-del { cursor: pointer; color: var(--text-dim); margin-left: 4px; padding: 0 6px; border-radius: 50%; font-size: 14px; line-height: 1; }
+.item-chip .chip-del:hover { background: rgba(216,74,74,.2); color: #f08080; }
+
+/* ── 颜色选择器 ── */
+.color-picker { display: flex; flex-wrap: wrap; gap: 10px; }
+.color-opt { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform .15s, border-color .15s; position: relative; }
+.color-opt:hover { transform: scale(1.12); }
+.color-opt.active { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg), 0 0 12px currentColor; }
+.color-opt.active::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.color-opt[data-c="red"]    { background: #d84a4a; color: #d84a4a; }
+.color-opt[data-c="yellow"] { background: #f0d040; color: #f0d040; }
+.color-opt[data-c="pink"]   { background: #f098c0; color: #f098c0; }
+.color-opt[data-c="blue"]   { background: #4a7ad8; color: #4a7ad8; }
+.color-opt[data-c="white"]  { background: #f0f0f0; color: #f0f0f0; }
+.color-opt[data-c="black"]  { background: #2a2a2a; color: #2a2a2a; border-color: #444; }
+.color-opt[data-c="orange"] { background: #e88a30; color: #e88a30; }
+.color-opt[data-c="cyan"]   { background: #50c0d8; color: #50c0d8; }
+.color-opt[data-c="teal"]   { background: #30a890; color: #30a890; }
+.color-opt[data-c="purple"] { background: #a058d0; color: #a058d0; }
+.color-opt[data-c="lime"]   { background: #a0d040; color: #a0d040; }
+.color-opt.clear-color { background: var(--bg3); border: 1px dashed var(--border2); color: var(--text-dim); font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.color-opt.clear-color.active { background: var(--bg3); }
+.color-opt.clear-color.active::after { content: none; }
+
+/* 颜色标签（卡片/详情用） */
+.color-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 12px; font-size: 11px; color: #fff; font-weight: 600; }
+.color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; vertical-align: middle; }
+
+/* ── 时间输入优化 ── */
+.dt-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); color: var(--text); border-radius: 10px; padding: 0 14px; height: 44px; font-family: inherit; font-size: 14px; outline: none; color-scheme: dark; }
+.dt-input:focus { border-color: var(--green); }
+.quick-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.quick-btn { background: var(--bg3); border: 1px solid var(--border); color: var(--text-dim); border-radius: 14px; padding: 4px 12px; font-size: 12px; cursor: pointer; font-family: inherit; transition: all .15s; }
+.quick-btn:hover { border-color: var(--border2); color: var(--text); }
+.form-hint-inline { font-size: 11px; color: var(--text-dim); margin-top: 6px; font-style: italic; }
+
+/* ── 复制ID按钮 ── */
+.copy-id-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px;
+  padding: 2px 10px; font-size: 11px; color: var(--text-dim);
+  cursor: pointer; margin-left: 6px; transition: all .15s;
+  font-family: inherit;
+}
+.copy-id-btn:hover { border-color: var(--green); color: var(--green-glow); background: rgba(74,170,78,.1); }
+.copy-id-btn:active { transform: scale(.95); }
+
+/* ── 多 item 卡片显示 ── */
+.items-list-card { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.items-list-card .item-line { display: flex; justify-content: space-between; font-size: 13px; }
+.items-list-card .item-line .iname { color: var(--text); }
+.items-list-card .item-line .iqty { color: var(--green-glow); font-weight: 600; }
+
+
   position: absolute;
   top: 20px; right: 16px;
   display: inline-flex;
@@ -630,32 +695,67 @@ h1 {
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label class="form-label">草药名称 *</label>
-        <input class="form-input" id="fHerbName" placeholder="如：玫瑰、羽衣草…">
+        <label class="form-label">🌿 草药 *</label>
+        <div class="item-picker-row">
+          <select id="fHerbSelect">
+            <option value="">— 选择草药 —</option>
+          </select>
+          <input class="qty-input" id="fHerbQty" type="number" min="1" value="1" placeholder="数量">
+          <button type="button" class="item-add-btn" onclick="addItem()">＋</button>
+        </div>
+        <div class="item-list" id="itemList"></div>
+        <p class="form-hint-inline">可以添加多种草药</p>
       </div>
+
       <div class="form-group">
-        <label class="form-label">数量 *</label>
-        <input class="form-input" id="fQty" type="number" min="1" placeholder="可收取数量">
+        <label class="form-label">🎨 颜色（可选）</label>
+        <div class="color-picker" id="colorPicker">
+          <span class="color-opt clear-color active" data-c="" onclick="setColor(this)" title="不指定">∅</span>
+          <span class="color-opt" data-c="red"    onclick="setColor(this)" title="红"></span>
+          <span class="color-opt" data-c="yellow" onclick="setColor(this)" title="黄"></span>
+          <span class="color-opt" data-c="pink"   onclick="setColor(this)" title="粉"></span>
+          <span class="color-opt" data-c="blue"   onclick="setColor(this)" title="蓝"></span>
+          <span class="color-opt" data-c="white"  onclick="setColor(this)" title="白"></span>
+          <span class="color-opt" data-c="black"  onclick="setColor(this)" title="黑"></span>
+          <span class="color-opt" data-c="orange" onclick="setColor(this)" title="橙"></span>
+          <span class="color-opt" data-c="cyan"   onclick="setColor(this)" title="青"></span>
+          <span class="color-opt" data-c="teal"   onclick="setColor(this)" title="蓝绿"></span>
+          <span class="color-opt" data-c="purple" onclick="setColor(this)" title="紫"></span>
+          <span class="color-opt" data-c="lime"   onclick="setColor(this)" title="黄绿"></span>
+        </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">你的游戏ID *</label>
         <input class="form-input" id="fPlayerId" placeholder="方便其他玩家联系你">
         <p class="form-hint">会自动记住，下次不用再填</p>
       </div>
+
       <div class="form-group">
-        <label class="form-label">成熟时间 *</label>
-        <div class="picker-row">
-          <input class="form-input" id="fMatureDate" type="date">
-          <input class="form-input" id="fMatureTime" type="time">
+        <label class="form-label">🌸 成熟时间 *</label>
+        <input class="dt-input" id="fMatureDt" type="datetime-local">
+        <div class="quick-row">
+          <button type="button" class="quick-btn" onclick="setMatureQuick(0)">现在</button>
+          <button type="button" class="quick-btn" onclick="setMatureQuick(6)">+6小时</button>
+          <button type="button" class="quick-btn" onclick="setMatureQuick(12)">+12小时</button>
+          <button type="button" class="quick-btn" onclick="setMatureQuick(24)">+24小时</button>
+          <button type="button" class="quick-btn" onclick="setMatureQuick(48)">+48小时</button>
         </div>
       </div>
+
       <div class="form-group">
-        <label class="form-label">收取截止时间 *</label>
-        <div class="picker-row">
-          <input class="form-input" id="fExpireDate" type="date">
-          <input class="form-input" id="fExpireTime" type="time">
+        <label class="form-label">⏳ 收取截止</label>
+        <input class="dt-input" id="fExpireDt" type="datetime-local">
+        <div class="quick-row">
+          <button type="button" class="quick-btn" onclick="setExpireQuick(1)">成熟+1h</button>
+          <button type="button" class="quick-btn" onclick="setExpireQuick(2)">+2h</button>
+          <button type="button" class="quick-btn" onclick="setExpireQuick(4)">+4h</button>
+          <button type="button" class="quick-btn" onclick="setExpireQuick(8)">+8h</button>
+          <button type="button" class="quick-btn" onclick="document.getElementById('fExpireDt').value=''">清空</button>
         </div>
+        <p class="form-hint-inline">留空 = 自动设为成熟时间后 1 小时</p>
       </div>
+
       <div class="form-group">
         <label class="form-label">稀有度</label>
         <div class="rarity-picker" id="rarityPicker">
@@ -665,9 +765,10 @@ h1 {
           <span class="rarity-opt" data-r="legend" onclick="setRarity(this)">🟡 传说</span>
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">备注（可选）</label>
-        <textarea class="form-textarea" id="fNote" placeholder="其他说明，如颜色、草药台位置等"></textarea>
+        <textarea class="form-textarea" id="fNote" placeholder="其他说明，如草药台位置等"></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -701,6 +802,15 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const OWNER_KEY = 'herb_share_owner_id'
+const LAST_FORM_KEY = 'herb_share_last_form'
+
+// 草药完整列表（与游戏数据一致）
+const PLANT_LIST = ['天竺葵','玫瑰','泡泡豆荚','嗅幻草','羽衣草','曼德拉草','咬人甘蓝','牡丹','秋海棠','五月花','绣球花','水仙','囊鳃草','三色堇','绿菊','巨藻','红火焰藻','红波水草','凤眼莲','铃兰','菱叶丁香蓼','向日葵','米布米宝','睡莲','龙舌兰香草','幽兰月桂','火焰肉桂','迷迭香','鼠尾草']
+
+// 颜色定义
+const COLOR_LABELS = { red:'红', yellow:'黄', pink:'粉', blue:'蓝', white:'白', black:'黑', orange:'橙', cyan:'青', teal:'蓝绿', purple:'紫', lime:'黄绿' }
+const COLOR_HEX = { red:'#d84a4a', yellow:'#f0d040', pink:'#f098c0', blue:'#4a7ad8', white:'#f0f0f0', black:'#2a2a2a', orange:'#e88a30', cyan:'#50c0d8', teal:'#30a890', purple:'#a058d0', lime:'#a0d040' }
+
 const FILTERS = [
   { id:'all',      label:'全部' },
   { id:'ready',    label:'✅ 已成熟' },
@@ -729,6 +839,8 @@ let filteredPosts = []
 let activeFilter = 'all'
 let searchKw = ''
 let selectedRarity = 'common'
+let selectedColor = ''
+let pendingItems = []  // 发布表单里临时累积的 [{n,q}]
 let myOwnerId = ''
 let realtimeSub = null
 let refreshTimer = null
@@ -742,9 +854,13 @@ async function init() {
   }
   document.getElementById('myIdDisplay').textContent = myOwnerId
 
-  const today = new Date().toISOString().split('T')[0]
-  document.getElementById('fMatureDate').value = today
-  document.getElementById('fExpireDate').value = today
+  // 填充草药下拉
+  const sel = document.getElementById('fHerbSelect')
+  PLANT_LIST.slice().sort((a,b)=>a.localeCompare(b,'zh')).forEach(n => {
+    const opt = document.createElement('option')
+    opt.value = n; opt.textContent = n
+    sel.appendChild(opt)
+  })
 
   buildFilters()
   await loadPosts()
@@ -819,13 +935,34 @@ async function loadPosts() {
   }
 }
 
+function parseItemsField(s) {
+  // 兼容新旧数据格式
+  try {
+    const o = JSON.parse(s)
+    if (o && Array.isArray(o.items) && o.items.length) {
+      return { items: o.items, color: o.color || '' }
+    }
+  } catch(e) {}
+  // 旧数据：纯字符串当成单个 item
+  return { items: [{ n: String(s||''), q: null }], color: '' }
+}
+
 function processPost(p, now) {
   // Supabase 返回 snake_case，统一转换
   const matureTime = p.mature_time || p.matureTime
   const expireTime = p.expire_time || p.expireTime
-  const herbName   = p.herb_name  || p.herbName
+  const rawName    = p.herb_name  || p.herbName || ''
   const playerId   = p.player_id  || p.playerId
   const ownerId    = p.owner_id   || p.ownerId
+
+  const { items, color } = parseItemsField(rawName)
+  const firstName = items[0]?.n || ''
+  // 显示主名（多 item 时附加 +N）
+  const displayName = items.length > 1
+    ? `${firstName} 等 ${items.length} 种`
+    : firstName
+  // 搜索用的全名串
+  const searchName = items.map(it => it.n).join(' ')
 
   const isMature   = now >= matureTime
   const timeLeft   = expireTime - now
@@ -846,7 +983,10 @@ function processPost(p, now) {
 
   return {
     id: p.id,
-    herbName, quantity: p.quantity,
+    herbName: displayName,
+    searchName,
+    items, color,
+    quantity: p.quantity,
     playerId, ownerId,
     matureTime, expireTime,
     rarity: p.rarity || 'common',
@@ -856,7 +996,7 @@ function processPost(p, now) {
     matureStr: fmtDt(matureTime),
     expireStr:  fmtDt(expireTime),
     rarityLabel: RARITY_LABELS[p.rarity] || '普通',
-    icon: HERB_ICONS[herbName] || HERB_ICONS.default,
+    icon: HERB_ICONS[firstName] || HERB_ICONS.default,
     isOwn: ownerId === myOwnerId,
   }
 }
@@ -886,7 +1026,7 @@ function applyFilter() {
   if (searchKw.trim()) {
     const kw = searchKw.trim().toLowerCase()
     list = list.filter(p =>
-      p.herbName.toLowerCase().includes(kw) ||
+      (p.searchName||'').toLowerCase().includes(kw) ||
       p.playerId.toLowerCase().includes(kw) ||
       (p.note||'').toLowerCase().includes(kw)
     )
@@ -916,16 +1056,25 @@ function renderList() {
     el.innerHTML = `<div class="empty-state"><span class="ei">🌱</span><p>暂无相关草药帖子</p></div>`
     return
   }
-  el.innerHTML = filteredPosts.map((p, i) => `
+  el.innerHTML = filteredPosts.map((p, i) => {
+    const itemsLine = p.items.length === 1
+      ? `<span class="herb-name">${esc(p.items[0].n)}${p.items[0].q?` <span style="font-size:13px;color:var(--text-dim)">×${p.items[0].q}</span>`:''}</span>`
+      : `<span class="herb-name">${esc(p.items[0].n)} <span style="font-size:12px;color:var(--text-dim)">等${p.items.length}种</span></span>`
+    const colorBadge = p.color
+      ? `<span class="color-tag" style="background:${COLOR_HEX[p.color]||'#888'}"><span class="color-dot" style="background:#fff;opacity:.7"></span>${COLOR_LABELS[p.color]||p.color}</span>`
+      : ''
+    const qtyTotal = p.items.reduce((s,it)=>s+(+it.q||0),0) || p.quantity || ''
+    return `
     <div class="post-card rarity-${p.rarity}" style="animation-delay:${i*40}ms" onclick="openDetail('${p.id}')">
       <span class="rarity-badge ${p.rarity}">${p.rarityLabel}</span>
       <div class="card-header">
         <div class="herb-avatar">${p.icon}</div>
         <div class="card-meta">
-          <span class="herb-name">${esc(p.herbName)}</span>
-          <span class="player-id">玩家：${esc(p.playerId)}</span>
+          ${itemsLine}
+          <span class="player-id">玩家：${esc(p.playerId)} ${!p.isOwn?`<span class="copy-id-btn" onclick="event.stopPropagation();copyToClipboard('${esc(p.playerId)}', this)">📋 复制</span>`:''}</span>
+          ${colorBadge?`<div style="margin-top:6px">${colorBadge}</div>`:''}
         </div>
-        <span class="qty-badge">×${p.quantity}</span>
+        ${qtyTotal?`<span class="qty-badge">×${qtyTotal}</span>`:''}
       </div>
       <div class="card-times">
         <div class="time-row">
@@ -945,16 +1094,27 @@ function renderList() {
       ${p.note ? `<div class="card-note">💬 ${esc(p.note)}</div>` : ''}
       ${p.isOwn ? `<span class="delete-btn" onclick="deletePost(event,'${p.id}')">删除</span>` : ''}
     </div>
-  `).join('')
+  `}).join('')
 }
 
 // ── 发布 ──
 function openPublish() {
-  if (myOwnerId && !myOwnerId.startsWith('user_')) {
-    document.getElementById('fPlayerId').value = myOwnerId
-  } else {
-    document.getElementById('fPlayerId').value = ''
+  // 重置 items
+  pendingItems = []
+  renderItemList()
+
+  // 填回 playerId
+  document.getElementById('fPlayerId').value = (myOwnerId && !myOwnerId.startsWith('user_')) ? myOwnerId : ''
+
+  // 加载上次填写
+  loadLastForm()
+
+  // 默认成熟时间 = 当前时间
+  if (!document.getElementById('fMatureDt').value) {
+    document.getElementById('fMatureDt').value = toLocalDtStr(Date.now())
   }
+  // 收取截止默认留空
+
   document.getElementById('publishModal').classList.add('open')
 }
 
@@ -968,28 +1128,126 @@ function setRarity(el) {
   selectedRarity = el.dataset.r
 }
 
+function setColor(el) {
+  document.querySelectorAll('#colorPicker .color-opt').forEach(o => o.classList.remove('active'))
+  el.classList.add('active')
+  selectedColor = el.dataset.c || ''
+}
+
+// ── 多 item 管理 ──
+function addItem() {
+  const name = document.getElementById('fHerbSelect').value
+  const qty = +document.getElementById('fHerbQty').value
+  if (!name) return showToast('请先选择草药', true)
+  if (!qty || qty < 1) return showToast('数量需 ≥ 1', true)
+  // 同名合并
+  const exist = pendingItems.find(it => it.n === name)
+  if (exist) exist.q = (+exist.q || 0) + qty
+  else pendingItems.push({ n: name, q: qty })
+  document.getElementById('fHerbSelect').value = ''
+  document.getElementById('fHerbQty').value = '1'
+  renderItemList()
+}
+
+function removeItem(idx) {
+  pendingItems.splice(idx, 1)
+  renderItemList()
+}
+
+function renderItemList() {
+  const el = document.getElementById('itemList')
+  el.innerHTML = pendingItems.map((it, i) =>
+    `<span class="item-chip"><span class="chip-name">${esc(it.n)}</span><span class="chip-qty">×${it.q}</span><span class="chip-del" onclick="removeItem(${i})">✕</span></span>`
+  ).join('')
+}
+
+// ── 时间快捷 ──
+function toLocalDtStr(ts) {
+  const d = new Date(ts), pad = n => String(n).padStart(2,'0')
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+function setMatureQuick(hoursFromNow) {
+  document.getElementById('fMatureDt').value = toLocalDtStr(Date.now() + hoursFromNow*3600*1000)
+}
+function setExpireQuick(hoursAfterMature) {
+  const mv = document.getElementById('fMatureDt').value
+  if (!mv) return showToast('请先填成熟时间', true)
+  const matTs = new Date(mv).getTime()
+  if (isNaN(matTs)) return
+  document.getElementById('fExpireDt').value = toLocalDtStr(matTs + hoursAfterMature*3600*1000)
+}
+
+// ── 上次表单缓存 ──
+function saveLastForm() {
+  try {
+    localStorage.setItem(LAST_FORM_KEY, JSON.stringify({
+      rarity: selectedRarity,
+      color: selectedColor,
+      note: document.getElementById('fNote').value,
+    }))
+  } catch(e) {}
+}
+function loadLastForm() {
+  try {
+    const raw = localStorage.getItem(LAST_FORM_KEY)
+    if (!raw) return
+    const o = JSON.parse(raw)
+    if (o.rarity) {
+      const target = document.querySelector(`#rarityPicker .rarity-opt[data-r="${o.rarity}"]`)
+      if (target) setRarity(target)
+    }
+    if (o.color !== undefined) {
+      const target = document.querySelector(`#colorPicker .color-opt[data-c="${o.color||''}"]`)
+      if (target) setColor(target)
+    }
+    if (o.note !== undefined) document.getElementById('fNote').value = o.note || ''
+  } catch(e) {}
+}
+
+// ── 复制ID ──
+async function copyToClipboard(text, btnEl) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text)
+    } else {
+      const ta = document.createElement('textarea')
+      ta.value = text; ta.style.position='fixed'; ta.style.opacity='0'
+      document.body.appendChild(ta); ta.select()
+      document.execCommand('copy'); document.body.removeChild(ta)
+    }
+    showToast('已复制：' + text)
+    if (btnEl) {
+      const old = btnEl.textContent
+      btnEl.textContent = '✓ 已复制'
+      setTimeout(()=> btnEl.textContent = old, 1500)
+    }
+  } catch(e) {
+    showToast('复制失败', true)
+  }
+}
+
 async function submitPost() {
-  const herbName = document.getElementById('fHerbName').value.trim()
-  const qty      = document.getElementById('fQty').value.trim()
   const playerId = document.getElementById('fPlayerId').value.trim()
-  const md = document.getElementById('fMatureDate').value
-  const mt = document.getElementById('fMatureTime').value
-  const ed = document.getElementById('fExpireDate').value
-  const et = document.getElementById('fExpireTime').value
+  const mv = document.getElementById('fMatureDt').value
+  const ev = document.getElementById('fExpireDt').value
   const note = document.getElementById('fNote').value.trim()
 
-  if (!herbName) return showToast('请填写草药名称', true)
-  if (!qty || isNaN(+qty) || +qty < 1) return showToast('请填写正确的数量', true)
+  if (!pendingItems.length) return showToast('请至少添加一种草药', true)
   if (!playerId) return showToast('请填写游戏ID', true)
-  if (!md || !mt) return showToast('请填写成熟时间', true)
-  if (!ed || !et) return showToast('请填写收取截止时间', true)
+  if (!mv) return showToast('请填写成熟时间', true)
 
-  const matureTs = new Date(`${md}T${mt}`).getTime()
-  const expireTs = new Date(`${ed}T${et}`).getTime()
-
+  const matureTs = new Date(mv).getTime()
   if (isNaN(matureTs)) return showToast('成熟时间格式有误', true)
-  if (isNaN(expireTs)) return showToast('收取截止时间格式有误', true)
-  if (expireTs <= matureTs) return showToast('收取截止须晚于成熟时间', true)
+
+  // 收取截止可空，默认 = 成熟 + 1h
+  let expireTs
+  if (ev) {
+    expireTs = new Date(ev).getTime()
+    if (isNaN(expireTs)) return showToast('收取截止时间格式有误', true)
+    if (expireTs <= matureTs) return showToast('收取截止须晚于成熟时间', true)
+  } else {
+    expireTs = matureTs + 3600 * 1000
+  }
   if (expireTs <= Date.now()) return showToast('收取截止时间已过期', true)
 
   // 保存游戏ID为本地身份
@@ -997,11 +1255,18 @@ async function submitPost() {
   localStorage.setItem(OWNER_KEY, myOwnerId)
   document.getElementById('myIdDisplay').textContent = myOwnerId
 
+  // 多 item + color 打包成 JSON
+  const herbNameJson = JSON.stringify({
+    items: pendingItems.map(it => ({ n: it.n, q: +it.q })),
+    color: selectedColor || ''
+  })
+  const totalQty = pendingItems.reduce((s,it)=> s + (+it.q||0), 0)
+
   showLoading(true)
   try {
     const { error } = await sb.from('herb_posts').insert({
-      herb_name:   herbName,
-      quantity:    +qty,
+      herb_name:   herbNameJson,
+      quantity:    totalQty,
       player_id:   playerId,
       mature_time: matureTs,
       expire_time: expireTs,
@@ -1012,10 +1277,11 @@ async function submitPost() {
     })
     if (error) throw error
 
+    saveLastForm()
     closePublish()
     showToast('发布成功！🌿')
-    ;['fHerbName','fQty','fNote'].forEach(id => document.getElementById(id).value = '')
-    // 实时订阅会自动触发 loadPosts，无需手动调用
+    document.getElementById('fNote').value = ''
+    pendingItems = []
   } catch(e) {
     console.error('发布失败', e)
     showToast('发布失败：' + (e.message || '请重试'), true)
@@ -1043,12 +1309,30 @@ async function deletePost(e, id) {
 function openDetail(id) {
   const p = filteredPosts.find(x => x.id === id)
   if (!p) return
-  document.getElementById('detailTitle').textContent = `🌿 ${p.herbName}`
+  const titleName = p.items.length > 1 ? `${p.items[0].n} 等${p.items.length}种` : p.items[0].n
+  document.getElementById('detailTitle').textContent = `🌿 ${titleName}`
+
+  const itemsHtml = p.items.length === 1
+    ? `<div class="detail-herb-name">${esc(p.items[0].n)} ${p.items[0].q?`<span style="font-size:14px;color:var(--text-dim)">×${p.items[0].q}</span>`:''}</div>`
+    : `<div class="detail-herb-name">本帖共 ${p.items.length} 种草药</div>
+       <div class="items-list-card" style="margin-bottom:12px">
+         ${p.items.map(it => `<div class="item-line"><span class="iname">${esc(it.n)}</span><span class="iqty">×${it.q||'-'}</span></div>`).join('')}
+       </div>`
+
+  const colorRow = p.color
+    ? `<div class="detail-row"><span class="detail-key">颜色</span><span class="detail-val"><span class="color-tag" style="background:${COLOR_HEX[p.color]||'#888'}"><span class="color-dot" style="background:#fff;opacity:.7"></span>${COLOR_LABELS[p.color]||p.color}</span></span></div>`
+    : ''
+
+  const copyBtn = !p.isOwn
+    ? `<span class="copy-id-btn" onclick="copyToClipboard('${esc(p.playerId)}', this)">📋 复制</span>`
+    : ''
+
   document.getElementById('detailBody').innerHTML = `
     <div class="detail-body">
-      <div class="detail-herb-name">${esc(p.herbName)} <span style="font-size:14px;color:var(--text-dim)">×${p.quantity}</span></div>
+      ${itemsHtml}
       <div style="margin-bottom:16px"><span class="rarity-badge ${p.rarity}" style="position:static">${p.rarityLabel}</span></div>
-      <div class="detail-row"><span class="detail-key">玩家ID</span><span class="detail-val">${esc(p.playerId)}</span></div>
+      <div class="detail-row"><span class="detail-key">玩家ID</span><span class="detail-val">${esc(p.playerId)} ${copyBtn}</span></div>
+      ${colorRow}
       <div class="detail-row"><span class="detail-key">状态</span><span class="detail-val">${p.statusLabel}</span></div>
       <div class="detail-row"><span class="detail-key">成熟时间</span><span class="detail-val">${p.matureStr}</span></div>
       <div class="detail-row"><span class="detail-key">收取截止</span><span class="detail-val ${p.expireSoon?'soon':''}">${p.expireStr}</span></div>
@@ -1084,7 +1368,7 @@ function fmtDur(ms) {
 }
 
 function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')
 }
 
 function showLoading(on) {
