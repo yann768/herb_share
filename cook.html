@@ -171,6 +171,41 @@ h1 { font-family: 'Cinzel', serif; font-size: clamp(22px, 5vw, 34px); color: var
 .loading-overlay.show { display: flex; }
 .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
+/* ── 菜品选择器（多选） ── */
+.item-picker-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.item-picker-row select, .item-picker-row input { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); border-radius: 10px; padding: 0 12px; height: 42px; font-family: inherit; font-size: 14px; outline: none; }
+.item-picker-row select { flex: 1; min-width: 0; cursor: pointer; }
+.item-picker-row select option { background: var(--bg2); color: var(--text); }
+.item-picker-row input.qty-input { width: 80px; text-align: center; }
+.item-add-btn { background: linear-gradient(135deg, var(--orange-dim), var(--orange)); color: #fff; border: none; border-radius: 10px; padding: 0 16px; height: 42px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; }
+.item-add-btn:hover { opacity: .9; }
+.item-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; min-height: 24px; }
+.item-list:empty::before { content: '尚未添加，至少添加一种'; color: var(--text-dim); font-size: 12px; font-style: italic; }
+.item-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 18px; padding: 5px 10px 5px 14px; font-size: 13px; color: var(--text); }
+.item-chip .chip-name { color: var(--orange-glow); font-weight: 600; }
+.item-chip .chip-qty { color: var(--text-dim); }
+.item-chip .chip-del { cursor: pointer; color: var(--text-dim); margin-left: 4px; padding: 0 6px; border-radius: 50%; font-size: 14px; line-height: 1; }
+.item-chip .chip-del:hover { background: rgba(216,74,74,.2); color: #f08080; }
+
+/* ── 时间输入优化 ── */
+.dt-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); color: var(--text); border-radius: 10px; padding: 0 14px; height: 44px; font-family: inherit; font-size: 14px; outline: none; color-scheme: dark; }
+.dt-input:focus { border-color: var(--orange); }
+.quick-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.quick-btn { background: var(--bg3); border: 1px solid var(--border); color: var(--text-dim); border-radius: 14px; padding: 4px 12px; font-size: 12px; cursor: pointer; font-family: inherit; transition: all .15s; }
+.quick-btn:hover { border-color: var(--border2); color: var(--text); }
+.form-hint-inline { font-size: 11px; color: var(--text-dim); margin-top: 6px; font-style: italic; }
+
+/* ── 复制ID按钮 ── */
+.copy-id-btn { display: inline-flex; align-items: center; gap: 4px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px; padding: 2px 10px; font-size: 11px; color: var(--text-dim); cursor: pointer; margin-left: 6px; transition: all .15s; font-family: inherit; }
+.copy-id-btn:hover { border-color: var(--orange); color: var(--orange-glow); background: rgba(200,100,30,.15); }
+.copy-id-btn:active { transform: scale(.95); }
+
+/* 多 item 列表 */
+.items-list-card { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.items-list-card .item-line { display: flex; justify-content: space-between; font-size: 13px; }
+.items-list-card .item-line .iname { color: var(--text); }
+.items-list-card .item-line .iqty { color: var(--orange-glow); font-weight: 600; }
+
 </style>
 </head>
 <body>
@@ -213,31 +248,48 @@ h1 { font-family: 'Cinzel', serif; font-size: clamp(22px, 5vw, 34px); color: var
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label class="form-label">菜品名称 *</label>
-        <input class="form-input" id="fDishName" placeholder="如：香草战斧牛排、墨汁海鲜意面…">
+        <label class="form-label">🍲 菜品 *</label>
+        <div class="item-picker-row">
+          <select id="fDishSelect">
+            <option value="">— 选择菜品 —</option>
+          </select>
+          <input class="qty-input" id="fDishQty" type="number" min="1" value="1" placeholder="数量">
+          <button type="button" class="item-add-btn" onclick="addItem()">＋</button>
+        </div>
+        <div class="item-list" id="itemList"></div>
+        <p class="form-hint-inline">可以添加多种菜品</p>
       </div>
-      <div class="form-group">
-        <label class="form-label">数量 *</label>
-        <input class="form-input" id="fQty" type="number" min="1" placeholder="可取用数量">
-      </div>
+
       <div class="form-group">
         <label class="form-label">你的游戏ID *</label>
         <input class="form-input" id="fPlayerId" placeholder="方便其他玩家联系你">
       </div>
+
       <div class="form-group">
-        <label class="form-label">完成时间 *</label>
-        <div class="picker-row">
-          <input class="form-input" id="fMatureDate" type="date">
-          <input class="form-input" id="fMatureTime" type="time">
+        <label class="form-label">🍳 完成时间 *</label>
+        <input class="dt-input" id="fMatureDt" type="datetime-local">
+        <div class="quick-row">
+          <button type="button" class="quick-btn" onclick="setMatureQuick(0)">现在</button>
+          <button type="button" class="quick-btn" onclick="setMatureQuick(1)">+1小时</button>
+          <button type="button" class="quick-btn" onclick="setMatureQuick(2)">+2小时</button>
+          <button type="button" class="quick-btn" onclick="setMatureQuick(4)">+4小时</button>
+          <button type="button" class="quick-btn" onclick="setMatureQuick(8)">+8小时</button>
         </div>
       </div>
+
       <div class="form-group">
-        <label class="form-label">取走截止时间 *</label>
-        <div class="picker-row">
-          <input class="form-input" id="fExpireDate" type="date">
-          <input class="form-input" id="fExpireTime" type="time">
+        <label class="form-label">⏳ 取走截止</label>
+        <input class="dt-input" id="fExpireDt" type="datetime-local">
+        <div class="quick-row">
+          <button type="button" class="quick-btn" onclick="setExpireQuick(1)">完成+1h</button>
+          <button type="button" class="quick-btn" onclick="setExpireQuick(2)">+2h</button>
+          <button type="button" class="quick-btn" onclick="setExpireQuick(4)">+4h</button>
+          <button type="button" class="quick-btn" onclick="setExpireQuick(8)">+8h</button>
+          <button type="button" class="quick-btn" onclick="document.getElementById('fExpireDt').value=''">清空</button>
         </div>
+        <p class="form-hint-inline">留空 = 自动设为完成时间后 1 小时</p>
       </div>
+
       <div class="form-group">
         <label class="form-label">稀有度</label>
         <div class="rarity-picker" id="rarityPicker">
@@ -247,6 +299,7 @@ h1 { font-family: 'Cinzel', serif; font-size: clamp(22px, 5vw, 34px); color: var
           <span class="rarity-opt" data-r="legend" onclick="setRarity(this)">🟡 传说</span>
         </div>
       </div>
+
       <div class="form-group">
         <label class="form-label">备注（可选）</label>
         <textarea class="form-textarea" id="fNote" placeholder="如烹饪台位置等"></textarea>
@@ -280,6 +333,10 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const OWNER_KEY = 'cook_share_owner_id'
+const LAST_FORM_KEY = 'cook_share_last_form'
+
+// 菜品完整列表（与游戏数据一致）
+const DISH_LIST = ['海鱼黄金焗饭','奶油蘑菇炖饭','果香烤乳猪','幽兰秘制肉卷','海盐烤虾','红酒鹿肉炖汤','甜奶油蛋派','香草战斧牛排','香草风味烤扇贝','浓香烤全鸡','奶油蟹粉面','墨汁海鲜意面','火焰蜜汁烤翅','蜂蜜烤羊腿','香煎怪肉排','烈焰香煎鹅肝','勇气与胆识之宴(狮院)','野心与荣耀之宴(蛇院)','忠诚与无私之宴(獾院)','智慧与风雅之宴(鹰院)','霍格沃茨盛宴(升厨房大师)','招财进宝汤饺','年年有鱼','酒心果子露','浓醇提拉米苏','香浓可可混莓果冻','迷迭香风味沙拉','神秘圣诞姜饼人']
 const FILTERS = [
   { id:'all',      label:'全部' },
   { id:'ready',    label:'✅ 已完成' },
@@ -301,15 +358,16 @@ const DISH_ICONS = {
   '招财进宝汤饺':'🥟','年年有鱼':'🐟','神秘圣诞姜饼人':'🍪',
 }
 
-let allPosts=[], filteredPosts=[], activeFilter='all', searchKw='', selectedRarity='common', myOwnerId=''
+let allPosts=[], filteredPosts=[], activeFilter='all', searchKw='', selectedRarity='common', myOwnerId='', pendingItems=[]
 
 async function init() {
   myOwnerId = localStorage.getItem(OWNER_KEY) || ''
   if (!myOwnerId) { myOwnerId = 'user_'+Math.random().toString(36).slice(2,10); localStorage.setItem(OWNER_KEY, myOwnerId) }
   document.getElementById('myIdDisplay').textContent = myOwnerId
-  const today = new Date().toISOString().split('T')[0]
-  document.getElementById('fMatureDate').value = today
-  document.getElementById('fExpireDate').value = today
+  const sel = document.getElementById('fDishSelect')
+  DISH_LIST.slice().sort((a,b)=>a.localeCompare(b,'zh')).forEach(n => {
+    const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o)
+  })
   buildFilters()
   await loadPosts()
   sb.channel('cook_posts_changes').on('postgres_changes',{event:'*',schema:'public',table:'cook_posts'},()=>loadPosts()).subscribe()
@@ -344,9 +402,21 @@ async function loadPosts() {
   finally { showLoading(false) }
 }
 
+function parseItemsField(s) {
+  try {
+    const o = JSON.parse(s)
+    if (o && Array.isArray(o.items) && o.items.length) return { items:o.items }
+  } catch(e) {}
+  return { items: [{ n: String(s||''), q: null }] }
+}
+
 function processPost(p, now) {
   const matureTime=p.mature_time, expireTime=p.expire_time
-  const dishName=p.dish_name, playerId=p.player_id, ownerId=p.owner_id
+  const rawName=p.dish_name, playerId=p.player_id, ownerId=p.owner_id
+  const { items } = parseItemsField(rawName)
+  const firstName = items[0]?.n || ''
+  const displayName = items.length>1 ? `${firstName} 等${items.length}种` : firstName
+  const searchName = items.map(it=>it.n).join(' ')
   const isMature=now>=matureTime, timeLeft=expireTime-now
   const totalSpan=expireTime-matureTime, elapsed=now-matureTime
   const progressPct=(isMature&&totalSpan>0)?Math.min(100,Math.round(elapsed/totalSpan*100)):0
@@ -357,12 +427,13 @@ function processPost(p, now) {
   else{status='ready';statusLabel='✅ 已完成'}
   const countdownStr=!isMature?`还需 ${fmtDur(matureTime-now)} 完成`:`${fmtDur(timeLeft)} 后取走`
   return {
-    id:p.id, dishName, quantity:p.quantity, playerId, ownerId,
+    id:p.id, dishName:displayName, searchName, items,
+    quantity:p.quantity, playerId, ownerId,
     matureTime, expireTime, rarity:p.rarity||'common', note:p.note||'',
     status, statusLabel, countdownStr, progressPct, expireSoon,
     matureStr:fmtDt(matureTime), expireStr:fmtDt(expireTime),
     rarityLabel:RARITY_LABELS[p.rarity]||'普通',
-    icon:DISH_ICONS[dishName]||DISH_ICONS.default,
+    icon:DISH_ICONS[firstName]||DISH_ICONS.default,
     isOwn:ownerId===myOwnerId,
   }
 }
@@ -378,7 +449,7 @@ function clearSearch() { document.getElementById('searchInput').value=''; search
 
 function applyFilter() {
   let list=[...allPosts]
-  if (searchKw.trim()) { const kw=searchKw.trim().toLowerCase(); list=list.filter(p=>p.dishName.toLowerCase().includes(kw)||p.playerId.toLowerCase().includes(kw)||(p.note||'').toLowerCase().includes(kw)) }
+  if (searchKw.trim()) { const kw=searchKw.trim().toLowerCase(); list=list.filter(p=>(p.searchName||'').toLowerCase().includes(kw)||p.playerId.toLowerCase().includes(kw)||(p.note||'').toLowerCase().includes(kw)) }
   if (activeFilter!=='all') {
     if (['cooking','ready','expiring'].includes(activeFilter)) list=list.filter(p=>p.status===activeFilter)
     else list=list.filter(p=>p.rarity===activeFilter)
@@ -393,16 +464,21 @@ function applyFilter() {
 function renderList() {
   const el=document.getElementById('postList')
   if (!filteredPosts.length){el.innerHTML=`<div class="empty-state"><span class="ei">🥘</span><p>暂无相关菜品帖子</p></div>`;return}
-  el.innerHTML=filteredPosts.map((p,i)=>`
+  el.innerHTML=filteredPosts.map((p,i)=>{
+    const itemsLine = p.items.length===1
+      ? `<span class="dish-name">${esc(p.items[0].n)}${p.items[0].q?` <span style="font-size:13px;color:var(--text-dim)">×${p.items[0].q}</span>`:''}</span>`
+      : `<span class="dish-name">${esc(p.items[0].n)} <span style="font-size:12px;color:var(--text-dim)">等${p.items.length}种</span></span>`
+    const qtyTotal = p.items.reduce((s,it)=>s+(+it.q||0),0) || p.quantity || ''
+    return `
     <div class="post-card rarity-${p.rarity}" style="animation-delay:${i*40}ms" onclick="openDetail('${p.id}')">
       <span class="rarity-badge ${p.rarity}">${p.rarityLabel}</span>
       <div class="card-header">
         <div class="dish-avatar">${p.icon}</div>
         <div class="card-meta">
-          <span class="dish-name">${esc(p.dishName)}</span>
-          <span class="player-id">玩家：${esc(p.playerId)}</span>
+          ${itemsLine}
+          <span class="player-id">玩家：${esc(p.playerId)} ${!p.isOwn?`<span class="copy-id-btn" onclick="event.stopPropagation();copyToClipboard('${esc(p.playerId)}', this)">📋 复制</span>`:''}</span>
         </div>
-        <span class="qty-badge">×${p.quantity}</span>
+        ${qtyTotal?`<span class="qty-badge">×${qtyTotal}</span>`:''}
       </div>
       ${p.note?`<div class="card-note">💬 ${esc(p.note)}</div>`:''}
       <div class="card-times">
@@ -415,13 +491,18 @@ function renderList() {
         <span class="countdown">${p.countdownStr}</span>
       </div>
       ${p.isOwn?`<span class="delete-btn" onclick="deletePost(event,'${p.id}')">删除</span>`:''}
-    </div>
-  `).join('')
+    </div>`
+  }).join('')
 }
 
 function openPublish() {
-  if (myOwnerId&&!myOwnerId.startsWith('user_')) document.getElementById('fPlayerId').value=myOwnerId
-  else document.getElementById('fPlayerId').value=''
+  pendingItems = []
+  renderItemList()
+  document.getElementById('fPlayerId').value = (myOwnerId&&!myOwnerId.startsWith('user_')) ? myOwnerId : ''
+  loadLastForm()
+  if (!document.getElementById('fMatureDt').value) {
+    document.getElementById('fMatureDt').value = toLocalDtStr(Date.now())
+  }
   document.getElementById('publishModal').classList.add('open')
 }
 function closePublish() { document.getElementById('publishModal').classList.remove('open') }
@@ -431,34 +512,100 @@ function setRarity(el) {
   el.className=`rarity-opt sel-${el.dataset.r}`; selectedRarity=el.dataset.r
 }
 
+// ── 多 item 管理 ──
+function addItem() {
+  const name = document.getElementById('fDishSelect').value
+  const qty = +document.getElementById('fDishQty').value
+  if (!name) return showToast('请先选择菜品', true)
+  if (!qty || qty<1) return showToast('数量需 ≥ 1', true)
+  const exist = pendingItems.find(it=>it.n===name)
+  if (exist) exist.q = (+exist.q||0) + qty
+  else pendingItems.push({n:name, q:qty})
+  document.getElementById('fDishSelect').value = ''
+  document.getElementById('fDishQty').value = '1'
+  renderItemList()
+}
+function removeItem(idx) { pendingItems.splice(idx,1); renderItemList() }
+function renderItemList() {
+  const el = document.getElementById('itemList')
+  el.innerHTML = pendingItems.map((it,i)=>
+    `<span class="item-chip"><span class="chip-name">${esc(it.n)}</span><span class="chip-qty">×${it.q}</span><span class="chip-del" onclick="removeItem(${i})">✕</span></span>`
+  ).join('')
+}
+
+// ── 时间快捷 ──
+function toLocalDtStr(ts) {
+  const d=new Date(ts), pad=n=>String(n).padStart(2,'0')
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+function setMatureQuick(h) { document.getElementById('fMatureDt').value = toLocalDtStr(Date.now()+h*3600*1000) }
+function setExpireQuick(h) {
+  const mv = document.getElementById('fMatureDt').value
+  if (!mv) return showToast('请先填完成时间', true)
+  const t = new Date(mv).getTime()
+  if (isNaN(t)) return
+  document.getElementById('fExpireDt').value = toLocalDtStr(t + h*3600*1000)
+}
+
+// ── 上次表单缓存 ──
+function saveLastForm() {
+  try { localStorage.setItem(LAST_FORM_KEY, JSON.stringify({ rarity:selectedRarity, note:document.getElementById('fNote').value })) } catch(e) {}
+}
+function loadLastForm() {
+  try {
+    const raw=localStorage.getItem(LAST_FORM_KEY); if(!raw)return
+    const o=JSON.parse(raw)
+    if (o.rarity) { const t=document.querySelector(`#rarityPicker .rarity-opt[data-r="${o.rarity}"]`); if(t)setRarity(t) }
+    if (o.note!==undefined) document.getElementById('fNote').value = o.note||''
+  } catch(e) {}
+}
+
+// ── 复制ID ──
+async function copyToClipboard(text, btnEl) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(text)
+    else {
+      const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta)
+    }
+    showToast('已复制：'+text)
+    if (btnEl) { const old=btnEl.textContent; btnEl.textContent='✓ 已复制'; setTimeout(()=>btnEl.textContent=old, 1500) }
+  } catch(e) { showToast('复制失败', true) }
+}
+
 async function submitPost() {
-  const dishName=document.getElementById('fDishName').value.trim()
-  const qty=document.getElementById('fQty').value.trim()
   const playerId=document.getElementById('fPlayerId').value.trim()
-  const md=document.getElementById('fMatureDate').value, mt=document.getElementById('fMatureTime').value
-  const ed=document.getElementById('fExpireDate').value, et=document.getElementById('fExpireTime').value
+  const mv=document.getElementById('fMatureDt').value
+  const ev=document.getElementById('fExpireDt').value
   const note=document.getElementById('fNote').value.trim()
-  if (!dishName) return showToast('请填写菜品名称',true)
-  if (!qty||isNaN(+qty)||+qty<1) return showToast('请填写正确的数量',true)
-  if (!playerId) return showToast('请填写游戏ID',true)
-  if (!md||!mt) return showToast('请填写完成时间',true)
-  if (!ed||!et) return showToast('请填写取走截止时间',true)
-  const matureTs=new Date(`${md}T${mt}`).getTime(), expireTs=new Date(`${ed}T${et}`).getTime()
-  if (isNaN(matureTs)) return showToast('完成时间格式有误',true)
-  if (isNaN(expireTs)) return showToast('取走截止时间格式有误',true)
-  if (expireTs<=matureTs) return showToast('取走截止须晚于完成时间',true)
-  if (expireTs<=Date.now()) return showToast('取走截止时间已过期',true)
+  if (!pendingItems.length) return showToast('请至少添加一种菜品', true)
+  if (!playerId) return showToast('请填写游戏ID', true)
+  if (!mv) return showToast('请填写完成时间', true)
+  const matureTs = new Date(mv).getTime()
+  if (isNaN(matureTs)) return showToast('完成时间格式有误', true)
+  let expireTs
+  if (ev) {
+    expireTs = new Date(ev).getTime()
+    if (isNaN(expireTs)) return showToast('取走截止时间格式有误', true)
+    if (expireTs<=matureTs) return showToast('取走截止须晚于完成时间', true)
+  } else {
+    expireTs = matureTs + 3600*1000
+  }
+  if (expireTs<=Date.now()) return showToast('取走截止时间已过期', true)
   myOwnerId=playerId; localStorage.setItem(OWNER_KEY,myOwnerId); document.getElementById('myIdDisplay').textContent=myOwnerId
+  const dishNameJson = JSON.stringify({ items: pendingItems.map(it=>({n:it.n,q:+it.q})) })
+  const totalQty = pendingItems.reduce((s,it)=>s+(+it.q||0),0)
   showLoading(true)
   try {
     const {error}=await sb.from('cook_posts').insert({
-      dish_name:dishName, quantity:+qty, player_id:playerId,
+      dish_name:dishNameJson, quantity:totalQty, player_id:playerId,
       mature_time:matureTs, expire_time:expireTs,
       rarity:selectedRarity, note, owner_id:myOwnerId, created_at:Date.now()
     })
     if (error) throw error
+    saveLastForm()
     closePublish(); showToast('发布成功！🍲')
-    ;['fDishName','fQty','fNote'].forEach(id=>document.getElementById(id).value='')
+    document.getElementById('fNote').value=''; pendingItems=[]
   } catch(e) { showToast('发布失败：'+(e.message||'请重试'),true) }
   finally { showLoading(false) }
 }
@@ -474,12 +621,20 @@ async function deletePost(e,id) {
 
 function openDetail(id) {
   const p=filteredPosts.find(x=>x.id===id); if (!p) return
-  document.getElementById('detailTitle').textContent=`🍲 ${p.dishName}`
+  const titleName = p.items.length>1 ? `${p.items[0].n} 等${p.items.length}种` : p.items[0].n
+  document.getElementById('detailTitle').textContent=`🍲 ${titleName}`
+  const itemsHtml = p.items.length===1
+    ? `<div class="detail-dish-name">${esc(p.items[0].n)} ${p.items[0].q?`<span style="font-size:14px;color:var(--text-dim)">×${p.items[0].q}</span>`:''}</div>`
+    : `<div class="detail-dish-name">本帖共 ${p.items.length} 种菜品</div>
+       <div class="items-list-card" style="margin-bottom:12px">
+         ${p.items.map(it=>`<div class="item-line"><span class="iname">${esc(it.n)}</span><span class="iqty">×${it.q||'-'}</span></div>`).join('')}
+       </div>`
+  const copyBtn = !p.isOwn ? `<span class="copy-id-btn" onclick="copyToClipboard('${esc(p.playerId)}', this)">📋 复制</span>` : ''
   document.getElementById('detailBody').innerHTML=`
     <div class="detail-body">
-      <div class="detail-dish-name">${esc(p.dishName)} <span style="font-size:14px;color:var(--text-dim)">×${p.quantity}</span></div>
+      ${itemsHtml}
       <div style="margin-bottom:16px"><span class="rarity-badge ${p.rarity}" style="position:static">${p.rarityLabel}</span></div>
-      <div class="detail-row"><span class="detail-key">玩家ID</span><span class="detail-val">${esc(p.playerId)}</span></div>
+      <div class="detail-row"><span class="detail-key">玩家ID</span><span class="detail-val">${esc(p.playerId)} ${copyBtn}</span></div>
       <div class="detail-row"><span class="detail-key">状态</span><span class="detail-val">${p.statusLabel}</span></div>
       <div class="detail-row"><span class="detail-key">完成时间</span><span class="detail-val">${p.matureStr}</span></div>
       <div class="detail-row"><span class="detail-key">取走截止</span><span class="detail-val ${p.expireSoon?'soon':''}">${p.expireStr}</span></div>
@@ -493,7 +648,7 @@ function onMaskClick(e,id) { if(e.target===document.getElementById(id)) document
 
 function fmtDt(ts) { const d=new Date(ts),pad=n=>String(n).padStart(2,'0'); return `${d.getMonth()+1}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}` }
 function fmtDur(ms) { if(ms<=0)return'0分钟'; const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000); return h>0?`${h}小时${m>0?m+'分钟':''}`:`${m}分钟` }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') }
 function showLoading(on) { document.getElementById('loading').classList.toggle('show',on) }
 let toastTimer
 function showToast(msg,isErr=false) { const el=document.getElementById('toast'); el.textContent=msg; el.className='toast show'+(isErr?' error':''); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2500) }
