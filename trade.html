@@ -28,16 +28,39 @@ h1 { font-size: 26px; font-weight: 700; color: var(--gold-glow); letter-spacing:
 .header-sub { font-size: 13px; color: var(--text-dim); letter-spacing: 2px; margin-top: 6px; }
 
 /* 切换按钮组 */
-.switch-group { position: absolute; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 10; }
-.page-switch { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 24px; color: #fff; font-family: 'Noto Serif SC', serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; text-decoration: none; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease; }
-.page-switch.to-herb { background: linear-gradient(135deg, #4aaa4e 0%, #2d7a30 100%); box-shadow: 0 4px 16px rgba(74,170,78,.45), inset 0 0 0 1px rgba(255,255,255,.12); }
-.page-switch.to-cook { background: linear-gradient(135deg, #e88a30 0%, #c46820 100%); box-shadow: 0 4px 16px rgba(220,120,40,.45), inset 0 0 0 1px rgba(255,255,255,.12); }
+.switch-group {
+  position: absolute;
+  top: 16px; right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}
+.page-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 24px;
+  color: #fff;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.page-switch.to-herb  { background: linear-gradient(135deg, #4aaa4e 0%, #2d7a30 100%); box-shadow: 0 4px 16px rgba(74,170,78,.45),  inset 0 0 0 1px rgba(255,255,255,.12); }
+.page-switch.to-cook  { background: linear-gradient(135deg, #e88a30 0%, #c46820 100%); box-shadow: 0 4px 16px rgba(220,120,40,.45), inset 0 0 0 1px rgba(255,255,255,.12); }
 .page-switch:hover { transform: translateY(-2px) scale(1.03); }
-.page-switch.to-herb:hover { box-shadow: 0 6px 24px rgba(74,170,78,.7), inset 0 0 0 1px rgba(255,255,255,.2); }
+.page-switch.to-herb:hover { box-shadow: 0 6px 24px rgba(74,170,78,.7),  inset 0 0 0 1px rgba(255,255,255,.2); }
 .page-switch.to-cook:hover { box-shadow: 0 6px 24px rgba(220,120,40,.7), inset 0 0 0 1px rgba(255,255,255,.2); }
+.page-switch:active { transform: translateY(0) scale(.98); }
 .page-switch .ps-icon { font-size: 16px; filter: drop-shadow(0 1px 3px rgba(0,0,0,.4)); }
 .page-switch .ps-arrow { font-size: 12px; opacity: .85; transition: transform .2s; }
 .page-switch:hover .ps-arrow { transform: translateX(2px); }
+
 
 .main-content { max-width: 720px; margin: 0 auto; padding: 16px; }
 
