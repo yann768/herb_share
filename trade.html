@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>换卡互助广场 · 霍格沃茨</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #14100a;
+  --bg2: #1f1a10;
+  --bg3: #2a2418;
+  --border: #3a3020;
+  --border2: #5a4a30;
+  --gold: #d4a020;
+  --gold-dim: #8a6a14;
+  --gold-glow: #f0c060;
+  --text: #e8d8b0;
+  --text-dim: #a89070;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Noto Serif SC', serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 100px; }
+
+header { position: relative; text-align: center; padding: 56px 16px 32px; background: linear-gradient(180deg, rgba(180,140,30,.08) 0%, transparent 100%); border-bottom: 1px solid var(--border); }
+header::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 80px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+.header-icon { display: block; font-size: 36px; margin-bottom: 8px; filter: drop-shadow(0 0 12px var(--gold-glow)); }
+h1 { font-size: 26px; font-weight: 700; color: var(--gold-glow); letter-spacing: 6px; text-shadow: 0 0 16px rgba(212,160,32,.4); }
+.header-sub { font-size: 13px; color: var(--text-dim); letter-spacing: 2px; margin-top: 6px; }
+
+/* 切换按钮组 */
+.switch-group { position: absolute; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 10; }
+.page-switch { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 24px; color: #fff; font-family: 'Noto Serif SC', serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; text-decoration: none; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease; }
+.page-switch.to-herb { background: linear-gradient(135deg, #4aaa4e 0%, #2d7a30 100%); box-shadow: 0 4px 16px rgba(74,170,78,.45), inset 0 0 0 1px rgba(255,255,255,.12); }
+.page-switch.to-cook { background: linear-gradient(135deg, #e88a30 0%, #c46820 100%); box-shadow: 0 4px 16px rgba(220,120,40,.45), inset 0 0 0 1px rgba(255,255,255,.12); }
+.page-switch:hover { transform: translateY(-2px) scale(1.03); }
+.page-switch.to-herb:hover { box-shadow: 0 6px 24px rgba(74,170,78,.7), inset 0 0 0 1px rgba(255,255,255,.2); }
+.page-switch.to-cook:hover { box-shadow: 0 6px 24px rgba(220,120,40,.7), inset 0 0 0 1px rgba(255,255,255,.2); }
+.page-switch .ps-icon { font-size: 16px; filter: drop-shadow(0 1px 3px rgba(0,0,0,.4)); }
+.page-switch .ps-arrow { font-size: 12px; opacity: .85; transition: transform .2s; }
+.page-switch:hover .ps-arrow { transform: translateX(2px); }
+
+.main-content { max-width: 720px; margin: 0 auto; padding: 16px; }
+
+/* 搜索 + 发布 */
+.top-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+.search-wrap { flex: 1; position: relative; }
+.search-input { width: 100%; background: var(--bg2); border: 1px solid var(--border); color: var(--text); border-radius: 24px; padding: 11px 38px 11px 20px; font-size: 14px; font-family: inherit; outline: none; }
+.search-input:focus { border-color: var(--border2); }
+.search-input::placeholder { color: var(--text-dim); }
+.clear-search { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); cursor: pointer; padding: 4px 8px; font-size: 14px; display: none; }
+.post-btn { background: linear-gradient(135deg, var(--gold-dim), var(--gold)); color: #fff; border: none; border-radius: 24px; padding: 10px 22px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; box-shadow: 0 4px 16px rgba(180,140,30,.4); white-space: nowrap; }
+.post-btn:hover { opacity: .9; }
+
+/* 筛选 */
+.filter-scroll { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.filter-tag { background: var(--bg2); border: 1px solid var(--border); color: var(--text-dim); border-radius: 18px; padding: 6px 16px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all .15s; }
+.filter-tag:hover { border-color: var(--border2); }
+.filter-tag.active { background: rgba(212,160,32,.15); border-color: var(--gold); color: var(--gold-glow); }
+
+/* 身份栏 */
+.identity-bar { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 16px; font-size: 12px; color: var(--text-dim); display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.identity-bar .id-val { color: var(--gold-glow); font-weight: 600; }
+.identity-bar .change-id { margin-left: auto; cursor: pointer; padding: 2px 10px; border: 1px solid var(--border); border-radius: 12px; color: var(--text-dim); }
+.identity-bar .change-id:hover { color: var(--gold-glow); border-color: var(--gold); }
+
+.stats-bar { font-size: 12px; color: var(--text-dim); padding: 0 4px 10px; }
+
+/* 帖子卡片 */
+.post-list { display: flex; flex-direction: column; gap: 12px; }
+.post-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 18px; position: relative; animation: fadeIn .25s ease; }
+.post-card:hover { border-color: var(--border2); }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+.post-card.rarity-legend { border-left: 3px solid #d4a020; }
+.post-card.rarity-epic   { border-left: 3px solid #a058d0; }
+.post-card.rarity-rare   { border-left: 3px solid #4a7ad8; }
+.post-card.rarity-common { border-left: 3px solid #888; }
+
+.post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
+.post-id { font-size: 14px; color: var(--gold-glow); font-weight: 700; display: inline-flex; align-items: center; }
+.post-rarity { font-size: 11px; padding: 3px 12px; border-radius: 14px; font-weight: 600; }
+.post-rarity.legend { background: rgba(212,160,32,.18); color: #f0c060; }
+.post-rarity.epic   { background: rgba(160,90,200,.18); color: #c890e0; }
+.post-rarity.rare   { background: rgba(80,130,210,.18); color: #80b0e8; }
+.post-rarity.common { background: rgba(150,150,150,.18); color: #c0c0c0; }
+.post-header-right { display: flex; align-items: center; gap: 8px; }
+
+.copy-id-btn { display: inline-flex; align-items: center; background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px; padding: 2px 10px; font-size: 11px; color: var(--text-dim); cursor: pointer; margin-left: 8px; transition: all .15s; font-family: inherit; }
+.copy-id-btn:hover { border-color: var(--gold); color: var(--gold-glow); background: rgba(212,160,32,.1); }
+.copy-id-btn:active { transform: scale(.95); }
+
+.trade-main { display: flex; align-items: stretch; gap: 10px; }
+.want-side, .offer-side { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-width: 0; }
+.side-label { display: block; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; letter-spacing: 1px; }
+.want-card { font-size: 18px; color: var(--text); font-weight: 700; word-break: break-word; }
+.offer-tags { display: flex; flex-direction: column; gap: 6px; }
+.offer-tag { background: rgba(212,160,32,.12); border: 1px solid rgba(212,160,32,.25); border-radius: 8px; padding: 5px 10px; font-size: 13px; color: var(--text); word-break: break-word; }
+.trade-arrow { font-size: 24px; color: var(--gold-dim); align-self: center; flex-shrink: 0; }
+
+.post-remark { margin-top: 12px; padding: 10px 14px; background: var(--bg3); border-radius: 8px; font-size: 12px; color: var(--text-dim); line-height: 1.6; border-left: 2px solid var(--border2); }
+.delete-btn { background: rgba(192,57,43,.15); border: 1px solid rgba(192,57,43,.4); border-radius: 14px; padding: 3px 12px; font-size: 11px; color: #e88080; cursor: pointer; }
+.delete-btn:hover { background: rgba(192,57,43,.3); }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+.empty-state .ei { font-size: 48px; display: block; margin-bottom: 12px; }
+
+/* 弹窗 */
+.modal-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 100; justify-content: center; align-items: flex-end; }
+.modal-mask.open { display: flex; }
+.modal-box { background: var(--bg2); width: 100%; max-width: 540px; max-height: 88vh; border-radius: 20px 20px 0 0; overflow: hidden; display: flex; flex-direction: column; animation: slideUp .25s ease; }
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.modal-title { font-size: 18px; font-weight: 700; color: var(--gold-glow); }
+.modal-close { font-size: 22px; cursor: pointer; color: var(--text-dim); padding: 0 8px; }
+.modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+
+.tip-box { background: rgba(212,160,32,.08); border: 1px solid rgba(212,160,32,.25); border-radius: 10px; padding: 10px 14px; font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; }
+
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; color: var(--gold-glow); margin-bottom: 8px; font-weight: 600; letter-spacing: 1px; }
+.form-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); color: var(--text); border-radius: 10px; padding: 11px 14px; font-size: 14px; font-family: inherit; outline: none; }
+.form-input:focus { border-color: var(--gold); }
+.form-input::placeholder { color: var(--text-dim); }
+
+/* 品质 picker */
+.rarity-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+.rarity-opt { padding: 8px 16px; border-radius: 18px; font-size: 13px; cursor: pointer; border: 1px solid var(--border2); background: var(--bg3); color: var(--text-dim); transition: all .15s; }
+.rarity-opt.sel-legend { background: rgba(212,160,32,.2); border-color: #d4a020; color: #f0c060; }
+.rarity-opt.sel-epic   { background: rgba(160,90,200,.2); border-color: #a058d0; color: #c890e0; }
+.rarity-opt.sel-rare   { background: rgba(80,130,210,.2); border-color: #4a7ad8; color: #80b0e8; }
+.rarity-opt.sel-common { background: rgba(150,150,150,.2); border-color: #888; color: #d0d0d0; }
+
+/* 多张 offer */
+.offer-input-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.offer-input-row .form-input { flex: 1; }
+.offer-input-row .qty-input { width: 80px; flex-shrink: 0; text-align: center; }
+.offer-input-row .remove-row { color: var(--text-dim); cursor: pointer; padding: 0 8px; font-size: 18px; flex-shrink: 0; }
+.offer-input-row .remove-row:hover { color: #e88080; }
+.add-offer-btn { background: rgba(212,160,32,.1); border: 1px dashed var(--border2); color: var(--gold-glow); border-radius: 10px; padding: 10px; width: 100%; cursor: pointer; font-size: 13px; font-family: inherit; margin-top: 6px; }
+.add-offer-btn:hover { background: rgba(212,160,32,.18); border-color: var(--gold); }
+
+.btn-cancel { flex: 1; padding: 12px; text-align: center; border-radius: 10px; background: var(--bg3); border: 1px solid var(--border2); color: var(--text-dim); cursor: pointer; font-family: inherit; font-size: 14px; }
+.btn-submit { flex: 2; padding: 12px; text-align: center; border-radius: 10px; background: linear-gradient(135deg, var(--gold-dim), var(--gold)); color: #fff; font-weight: 700; cursor: pointer; font-family: inherit; font-size: 14px; border: none; box-shadow: 0 4px 16px rgba(180,140,30,.4); }
+
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: #2a1f10; color: var(--gold-glow); border: 1px solid var(--border2); border-radius: 24px; padding: 10px 24px; font-size: 14px; opacity: 0; transition: opacity .25s, transform .25s; z-index: 9999; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.error { background: #3a1010; color: #f08080; border-color: #6a2828; }
+.loading-overlay { display: none; position: fixed; inset: 0; background: rgba(20,16,10,.7); z-index: 500; align-items: center; justify-content: center; flex-direction: column; gap: 16px; color: var(--gold-glow); font-size: 15px; }
+.loading-overlay.show { display: flex; }
+.spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+@media (max-width: 480px) {
+  header { padding: 40px 16px 28px; }
+  h1 { font-size: 22px; letter-spacing: 4px; }
+  .switch-group { top: 12px; right: 12px; gap: 6px; }
+  .page-switch { padding: 6px 12px; font-size: 12px; }
+  .page-switch .ps-icon { font-size: 14px; }
+  .modal-box { border-radius: 20px 20px 0 0; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="switch-group">
+    <a class="page-switch to-herb" href="index.html"><span class="ps-icon">🌿</span>草药<span class="ps-arrow">→</span></a>
+    <a class="page-switch to-cook" href="cook.html"><span class="ps-icon">🍳</span>烹饪<span class="ps-arrow">→</span></a>
+  </div>
+  <span class="header-icon">🃏</span>
+  <h1>换卡互助广场</h1>
+  <p class="header-sub">发布或搜索换卡需求</p>
+</header>
+
+<div class="main-content">
+  <div class="top-bar">
+    <div class="search-wrap">
+      <input class="search-input" id="searchInput" placeholder="搜索卡牌名或玩家ID…" oninput="onSearch()">
+      <span class="clear-search" id="clearBtn" onclick="clearSearch()">✕</span>
+    </div>
+    <button class="post-btn" onclick="openPublish()">＋ 发布</button>
+  </div>
+
+  <div class="filter-scroll" id="filterScroll"></div>
+
+  <div class="identity-bar">
+    <span>🪄 当前身份：</span>
+    <span class="id-val" id="myIdDisplay">—</span>
+    <span class="change-id" onclick="changeId()">更改</span>
+  </div>
+
+  <div class="stats-bar">共 <span id="statTotal">0</span> 条信息 · 显示 <span id="statShown">0</span> 条</div>
+
+  <div class="post-list" id="postList">
+    <div class="empty-state"><span class="ei">🃏</span><p>正在加载…</p></div>
+  </div>
+</div>
+
+<!-- 发布弹窗 -->
+<div class="modal-mask" id="publishModal" onclick="onMaskClick(event,'publishModal')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">🃏 发布换卡信息</span>
+      <span class="modal-close" onclick="closePublish()">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="tip-box">
+        ℹ️ 同品质卡牌才能交换，光辉和禁忌不参与交换。罗恩、阿瓦达索命、钻心剜骨按传说处理。
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">🪄 你的游戏ID *</label>
+        <input class="form-input" id="fGameId" placeholder="方便其他玩家联系你">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">🎯 想要的卡 *</label>
+        <input class="form-input" id="fWantCard" placeholder="卡牌名称（只填一张）">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">⭐ 卡牌品质</label>
+        <div class="rarity-picker" id="rarityPicker">
+          <span class="rarity-opt sel-legend" data-r="legend" onclick="setRarity(this)">🟡 传说</span>
+          <span class="rarity-opt" data-r="epic"   onclick="setRarity(this)">🟣 史诗</span>
+          <span class="rarity-opt" data-r="rare"   onclick="setRarity(this)">🔵 稀有</span>
+          <span class="rarity-opt" data-r="common" onclick="setRarity(this)">⚪ 普通</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">🎴 可换出的卡 *</label>
+        <div id="offerList"></div>
+        <button type="button" class="add-offer-btn" onclick="addOffer()">＋ 添加备选</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">💬 备注（可选）</label>
+        <input class="form-input" id="fRemark" placeholder="选填">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="btn-cancel" onclick="closePublish()">取消</div>
+      <div class="btn-submit" onclick="submitPost()">发布</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="loading-overlay" id="loading"><div class="spinner"></div><span>处理中…</span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://ygslzwiznvcfujonvblq.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlnc2x6d2l6bnZjZnVqb252YmxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNDM4NjksImV4cCI6MjA5NTYxOTg2OX0.J9P1NyK5tiSzPZgDeLpwfS2eRaFrP5Gb4fgpmA258vA'
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+const OWNER_KEY = 'trade_share_owner_id'
+const LAST_FORM_KEY = 'trade_share_last_form'
+const SPECIAL_LEGEND_CARDS = ['罗恩', '阿瓦达索命', '钻心剜骨']
+
+const FILTERS = [
+  { id:'all',    label:'全部' },
+  { id:'legend', label:'🟡 传说' },
+  { id:'epic',   label:'🟣 史诗' },
+  { id:'rare',   label:'🔵 稀有' },
+  { id:'common', label:'⚪ 普通' },
+]
+const RARITY_LABELS = { legend:'传说', epic:'史诗', rare:'稀有', common:'普通' }
+
+let allPosts = [], filteredPosts = [], activeFilter = 'all', searchKw = ''
+let selectedRarity = 'legend'
+let myOwnerId = ''
+let pendingOffers = [{ card:'', count:'' }]
+
+async function init() {
+  myOwnerId = localStorage.getItem(OWNER_KEY) || ''
+  if (!myOwnerId) {
+    myOwnerId = 'user_' + Math.random().toString(36).slice(2,10)
+    localStorage.setItem(OWNER_KEY, myOwnerId)
+  }
+  document.getElementById('myIdDisplay').textContent = myOwnerId
+
+  buildFilters()
+  await loadPosts()
+  sb.channel('trade_posts_changes').on('postgres_changes', { event:'*', schema:'public', table:'trade_posts' }, () => loadPosts()).subscribe()
+}
+
+function changeId() {
+  const n = prompt('输入新的游戏ID:', myOwnerId)
+  if (n && n.trim()) {
+    myOwnerId = n.trim()
+    localStorage.setItem(OWNER_KEY, myOwnerId)
+    document.getElementById('myIdDisplay').textContent = myOwnerId
+    showToast('身份已更新')
+  }
+}
+
+function buildFilters() {
+  document.getElementById('filterScroll').innerHTML = FILTERS.map(f =>
+    `<span class="filter-tag ${f.id==='all'?'active':''}" data-id="${f.id}" onclick="setFilter(this)">${f.label}</span>`
+  ).join('')
+}
+
+function setFilter(el) {
+  document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'))
+  el.classList.add('active')
+  activeFilter = el.dataset.id
+  applyFilter()
+}
+
+async function loadPosts() {
+  showLoading(true)
+  try {
+    const { data, error } = await sb
+      .from('trade_posts')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(200)
+    if (error) throw error
+    allPosts = (data || []).map(processPost)
+    applyFilter()
+  } catch(e) {
+    console.error(e)
+    showToast('加载失败，请刷新重试', true)
+  } finally {
+    showLoading(false)
+  }
+}
+
+function parseOffers(s) {
+  try {
+    const o = JSON.parse(s)
+    if (Array.isArray(o)) return o
+  } catch(e) {}
+  return [{ card: String(s||''), count: '' }]
+}
+
+function processPost(p) {
+  const offers = parseOffers(p.offer_cards)
+  return {
+    id: p.id,
+    gameId: p.game_id,
+    wantCard: p.want_card,
+    wantRarity: p.want_rarity || 'common',
+    offers,
+    remark: p.remark || '',
+    ownerId: p.owner_id,
+    createdAt: p.created_at,
+    rarityLabel: RARITY_LABELS[p.want_rarity] || '普通',
+    isOwn: p.owner_id === myOwnerId,
+  }
+}
+
+function onSearch() {
+  searchKw = document.getElementById('searchInput').value
+  document.getElementById('clearBtn').style.display = searchKw ? 'block' : 'none'
+  applyFilter()
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = ''
+  searchKw = ''
+  document.getElementById('clearBtn').style.display = 'none'
+  applyFilter()
+}
+
+function applyFilter() {
+  let list = [...allPosts]
+  if (searchKw.trim()) {
+    const kw = searchKw.trim().toLowerCase()
+    list = list.filter(p =>
+      (p.wantCard||'').toLowerCase().includes(kw) ||
+      (p.gameId||'').toLowerCase().includes(kw) ||
+      p.offers.some(o => (o.card||'').toLowerCase().includes(kw))
+    )
+  }
+  if (activeFilter !== 'all') {
+    list = list.filter(p => p.wantRarity === activeFilter)
+  }
+  filteredPosts = list
+  document.getElementById('statTotal').textContent = allPosts.length
+  document.getElementById('statShown').textContent = list.length
+  renderList()
+}
+
+function renderList() {
+  const el = document.getElementById('postList')
+  if (!filteredPosts.length) {
+    el.innerHTML = `<div class="empty-state"><span class="ei">🃏</span><p>暂无相关换卡信息</p></div>`
+    return
+  }
+  el.innerHTML = filteredPosts.map((p, i) => `
+    <div class="post-card rarity-${p.wantRarity}" style="animation-delay:${i*30}ms">
+      <div class="post-header">
+        <span class="post-id">🪄 ${esc(p.gameId)}${!p.isOwn?`<span class="copy-id-btn" onclick="copyToClipboard('${esc(p.gameId)}', this)">📋 复制</span>`:''}</span>
+        <div class="post-header-right">
+          <span class="post-rarity ${p.wantRarity}">${p.rarityLabel}</span>
+          ${p.isOwn?`<span class="delete-btn" onclick="deletePost('${p.id}')">删除</span>`:''}
+        </div>
+      </div>
+      <div class="trade-main">
+        <div class="want-side">
+          <span class="side-label">想要</span>
+          <span class="want-card">${esc(p.wantCard)}</span>
+        </div>
+        <span class="trade-arrow">⇌</span>
+        <div class="offer-side">
+          <span class="side-label">可换</span>
+          <div class="offer-tags">
+            ${p.offers.map(o => `<span class="offer-tag">${esc(o.card)}${o.count?` ×${esc(o.count)}`:''}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+      ${p.remark?`<div class="post-remark">💬 ${esc(p.remark)}</div>`:''}
+    </div>
+  `).join('')
+}
+
+function openPublish() {
+  pendingOffers = [{ card:'', count:'' }]
+  renderOfferInputs()
+  document.getElementById('fGameId').value = (myOwnerId && !myOwnerId.startsWith('user_')) ? myOwnerId : ''
+  document.getElementById('fWantCard').value = ''
+  document.getElementById('fRemark').value = ''
+  loadLastForm()
+  document.getElementById('publishModal').classList.add('open')
+}
+
+function closePublish() { document.getElementById('publishModal').classList.remove('open') }
+function onMaskClick(e, id) { if (e.target === document.getElementById(id)) document.getElementById(id).classList.remove('open') }
+
+function setRarity(el) {
+  document.querySelectorAll('#rarityPicker .rarity-opt').forEach(o => o.className = 'rarity-opt')
+  el.className = `rarity-opt sel-${el.dataset.r}`
+  selectedRarity = el.dataset.r
+}
+
+function renderOfferInputs() {
+  const el = document.getElementById('offerList')
+  el.innerHTML = pendingOffers.map((o, i) => `
+    <div class="offer-input-row">
+      <input class="form-input" placeholder="卡牌名称" value="${esc(o.card)}" oninput="updateOffer(${i},'card',this.value)">
+      <input class="form-input qty-input" placeholder="数量" type="number" min="1" value="${esc(o.count)}" oninput="updateOffer(${i},'count',this.value)">
+      ${pendingOffers.length>1?`<span class="remove-row" onclick="removeOffer(${i})">✕</span>`:''}
+    </div>
+  `).join('')
+}
+
+function updateOffer(i, field, val) { pendingOffers[i][field] = val }
+function addOffer() {
+  if (pendingOffers.length >= 8) return showToast('最多 8 张备选', true)
+  pendingOffers.push({ card:'', count:'' })
+  renderOfferInputs()
+}
+function removeOffer(i) {
+  pendingOffers.splice(i, 1)
+  if (!pendingOffers.length) pendingOffers = [{ card:'', count:'' }]
+  renderOfferInputs()
+}
+
+function saveLastForm() {
+  try {
+    localStorage.setItem(LAST_FORM_KEY, JSON.stringify({ rarity: selectedRarity, remark: document.getElementById('fRemark').value }))
+  } catch(e) {}
+}
+function loadLastForm() {
+  try {
+    const raw = localStorage.getItem(LAST_FORM_KEY); if (!raw) return
+    const o = JSON.parse(raw)
+    if (o.rarity) {
+      const t = document.querySelector(`#rarityPicker .rarity-opt[data-r="${o.rarity}"]`)
+      if (t) setRarity(t)
+    }
+    if (o.remark !== undefined) document.getElementById('fRemark').value = o.remark || ''
+  } catch(e) {}
+}
+
+async function copyToClipboard(text, btnEl) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(text)
+    else {
+      const ta = document.createElement('textarea'); ta.value = text; ta.style.position='fixed'; ta.style.opacity='0'
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta)
+    }
+    showToast('已复制：' + text)
+    if (btnEl) { const old = btnEl.textContent; btnEl.textContent = '✓ 已复制'; setTimeout(()=> btnEl.textContent = old, 1500) }
+  } catch(e) { showToast('复制失败', true) }
+}
+
+async function submitPost() {
+  const gameId = document.getElementById('fGameId').value.trim()
+  const wantCard = document.getElementById('fWantCard').value.trim()
+  const remark = document.getElementById('fRemark').value.trim()
+  if (!gameId) return showToast('请填写游戏ID', true)
+  if (!wantCard) return showToast('请填写想要的卡', true)
+  const validOffers = pendingOffers.filter(o => o.card.trim()).map(o => ({ card: o.card.trim(), count: o.count.toString().trim() }))
+  if (!validOffers.length) return showToast('请至少填一张可换出的卡', true)
+
+  // 特殊卡按传说处理
+  const finalRarity = SPECIAL_LEGEND_CARDS.includes(wantCard) ? 'legend' : selectedRarity
+
+  myOwnerId = gameId
+  localStorage.setItem(OWNER_KEY, myOwnerId)
+  document.getElementById('myIdDisplay').textContent = myOwnerId
+
+  showLoading(true)
+  try {
+    const { error } = await sb.from('trade_posts').insert({
+      game_id: gameId,
+      want_card: wantCard,
+      want_rarity: finalRarity,
+      offer_cards: JSON.stringify(validOffers),
+      remark,
+      owner_id: myOwnerId,
+      created_at: Date.now(),
+    })
+    if (error) throw error
+    saveLastForm()
+    closePublish()
+    showToast('发布成功！🃏')
+    pendingOffers = [{ card:'', count:'' }]
+  } catch(e) {
+    console.error(e)
+    showToast('发布失败：' + (e.message || '请重试'), true)
+  } finally {
+    showLoading(false)
+  }
+}
+
+async function deletePost(id) {
+  if (!confirm('确认删除这条换卡信息？')) return
+  showLoading(true)
+  try {
+    const { error } = await sb.from('trade_posts').delete().eq('id', id)
+    if (error) throw error
+    showToast('已删除')
+  } catch(e) {
+    showToast('删除失败：' + (e.message || '请重试'), true)
+  } finally {
+    showLoading(false)
+  }
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')
+}
+function showLoading(on) { document.getElementById('loading').classList.toggle('show', on) }
+let toastTimer
+function showToast(msg, isErr=false) {
+  const el = document.getElementById('toast')
+  el.textContent = msg
+  el.className = 'toast show' + (isErr?' error':'')
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500)
+}
+
+init()
+</script>
+</body>
+</html>
