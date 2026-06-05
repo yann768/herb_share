@@ -62,7 +62,8 @@ h1 { font-size: 26px; font-weight: 700; color: var(--gold-glow); letter-spacing:
 .page-switch:hover .ps-arrow { transform: translateX(2px); }
 
 
-.main-content { max-width: 720px; margin: 0 auto; padding: 16px; }
+.wrap { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; }
+.main-content { max-width: 780px; margin: 0 auto; padding: 16px; }
 
 /* 搜索 + 发布 */
 .top-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
@@ -187,15 +188,17 @@ h1 { font-size: 26px; font-weight: 700; color: var(--gold-glow); letter-spacing:
 </head>
 <body>
 
+<div class="wrap">
 <header>
   <div class="switch-group">
     <a class="page-switch to-herb" href="index.html"><span class="ps-icon">🌿</span>草药<span class="ps-arrow">→</span></a>
     <a class="page-switch to-cook" href="cook.html"><span class="ps-icon">🍳</span>烹饪<span class="ps-arrow">→</span></a>
   </div>
-  <span class="header-icon">🃏</span>
+  <span class="header-icon">✨</span>
   <h1>换卡互助广场</h1>
   <p class="header-sub">发布或搜索换卡需求</p>
 </header>
+</div>
 
 <div class="main-content">
   <div class="top-bar">
