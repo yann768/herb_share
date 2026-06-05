@@ -132,7 +132,9 @@ h1 { font-size: 26px; font-weight: 700; color: var(--gold-glow); letter-spacing:
 
 /* 多张 offer */
 .offer-input-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-.offer-input-row .form-input { flex: 1; }
+.card-select { cursor: pointer; }
+.card-select option { background: var(--bg2); }
+.offer-input-row .card-select { flex: 1; }
 .offer-input-row .qty-input { width: 80px; flex-shrink: 0; text-align: center; }
 .offer-input-row .remove-row { color: var(--text-dim); cursor: pointer; padding: 0 8px; font-size: 18px; flex-shrink: 0; }
 .offer-input-row .remove-row:hover { color: #e88080; }
@@ -205,7 +207,7 @@ h1 { font-size: 26px; font-weight: 700; color: var(--gold-glow); letter-spacing:
     </div>
     <div class="modal-body">
       <div class="tip-box">
-        ℹ️ 同品质卡牌才能交换，光辉和禁忌不参与交换。罗恩、阿瓦达索命、钻心剜骨按传说处理。
+        ℹ️ 同品质卡牌才能交换，光辉和禁忌不参与交换。先选品质，再选卡牌名称。
       </div>
 
       <div class="form-group">
@@ -214,18 +216,20 @@ h1 { font-size: 26px; font-weight: 700; color: var(--gold-glow); letter-spacing:
       </div>
 
       <div class="form-group">
-        <label class="form-label">🎯 想要的卡 *</label>
-        <input class="form-input" id="fWantCard" placeholder="卡牌名称（只填一张）">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">⭐ 卡牌品质</label>
+        <label class="form-label">⭐ 卡牌品质（影响两侧下拉）</label>
         <div class="rarity-picker" id="rarityPicker">
           <span class="rarity-opt sel-legend" data-r="legend" onclick="setRarity(this)">🟡 传说</span>
           <span class="rarity-opt" data-r="epic"   onclick="setRarity(this)">🟣 史诗</span>
           <span class="rarity-opt" data-r="rare"   onclick="setRarity(this)">🔵 稀有</span>
           <span class="rarity-opt" data-r="common" onclick="setRarity(this)">⚪ 普通</span>
         </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">🎯 想要的卡 *</label>
+        <select class="form-input card-select" id="fWantCard">
+          <option value="">— 请先选择品质 —</option>
+        </select>
       </div>
 
       <div class="form-group">
@@ -257,7 +261,14 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const OWNER_KEY = 'trade_share_owner_id'
 const LAST_FORM_KEY = 'trade_share_last_form'
-const SPECIAL_LEGEND_CARDS = ['罗恩', '阿瓦达索命', '钻心剜骨']
+
+// 卡牌列表（来自游戏配置，光辉/禁忌不参与交换故不收录）
+const CARD_LIST = {
+  legend: ['中国火球幼龙','凤凰','卢娜·洛夫古德','厉火','哈利·波特','巨乌贼','幽灵骑士团','挪威脊背龙蛋','标准咒语书','水牢','澳洲蛋白眼幼龙','火盾护身','石礅出动','神奇生物手提箱','米勒娃·麦格','米布米宝','诗翁彼豆故事集','赫敏·格兰杰','金色飞贼','闪电风暴','隐形衣','风雨雷灾','马尔福三人组','马形水怪','驺吾','龙守仁'],
+  epic:   ['三头犬宝宝','三本妖怪书','卡珊德拉·沃雷','变形咒','嗅嗅','四分五裂','多重冰冻咒','弗雷兄弟','把戏坊烟花盒','摄神取念','摇摆蝎尾兽','时间转换器','格洛普','欣克庞克','洛蒂·特纳','游走球','漂浮炸弹','火灰蛇','火焰熊熊','特波疣猪','独角兽','狼牙飞碟','甜点大师','皮皮鬼','神锋无影','艾薇·沃林顿','芭蕾巨怪','蜷翼魔','闪回咒','阿比盖尔·格雷','除你武器','隐形兽','雪人飞来','雷鸟','霹雳爆炸','韦斯莱烟花','预言水晶球','飓风咒','飞来咒','飞鸟群群','食死徒','骑士公共汽车','高布石','鲁伯·海格','鸟蛇'],
+  rare:   ['丹尼尔·佩杰','云雾缥缈','充气咒','八眼蜘蛛巢穴','冰冻咒','凯文·法雷尔','咒语大全','妖怪们的妖怪书','巨怪','恶婆鸟','愈合如初','打人柳','月痴兽','棋子士兵','气象咒','消失柜','混淆咒','清水如泉','火螃蟹','灵猫','炸尾螺','热流咒','犀角兽','盔甲护身','统统石化','萝宾·西斯尔思韦特','记忆瓶','随从显形','雪怪','雪球咒','飞天扫帚','飞沙走石','飞路网'],
+  common: ['万弹齐发','全速击退','八眼巨蛛的毒液','吼叫信','多洛雷斯·乌姆里奇','小蜘蛛群','带翼弹弓','康沃尔郡小精灵','快快复苏','整蛊礼物盒','昏昏倒地','白鲜香精','统统加护','统统归来','肿胀药水','莫特拉鼠','速速禁锢','门钥匙','马人','魔法跳跳糖'],
+}
 
 const FILTERS = [
   { id:'all',    label:'全部' },
@@ -421,9 +432,10 @@ function openPublish() {
   pendingOffers = [{ card:'', count:'' }]
   renderOfferInputs()
   document.getElementById('fGameId').value = (myOwnerId && !myOwnerId.startsWith('user_')) ? myOwnerId : ''
-  document.getElementById('fWantCard').value = ''
   document.getElementById('fRemark').value = ''
   loadLastForm()
+  // 初始化想要的卡下拉
+  buildCardOptions(document.getElementById('fWantCard'), '')
   document.getElementById('publishModal').classList.add('open')
 }
 
@@ -434,20 +446,48 @@ function setRarity(el) {
   document.querySelectorAll('#rarityPicker .rarity-opt').forEach(o => o.className = 'rarity-opt')
   el.className = `rarity-opt sel-${el.dataset.r}`
   selectedRarity = el.dataset.r
+  // 联动更新所有卡牌下拉
+  updateCardSelects()
+}
+
+// 构建某个 select 元素的选项（品质内卡牌）
+function buildCardOptions(selectEl, currentVal) {
+  const cards = CARD_LIST[selectedRarity] || []
+  selectEl.innerHTML = `<option value="">— 选择卡牌 —</option>` +
+    cards.map(n => `<option value="${esc(n)}"${n===currentVal?' selected':''}>${esc(n)}</option>`).join('')
+}
+
+// 更新"想要的卡"及所有"可换出"的下拉
+function updateCardSelects() {
+  const wantSel = document.getElementById('fWantCard')
+  if (wantSel) buildCardOptions(wantSel, wantSel.value)
+  // 更新每行 offer 的 select
+  document.querySelectorAll('#offerList .card-select').forEach(sel => {
+    buildCardOptions(sel, sel.value)
+  })
 }
 
 function renderOfferInputs() {
   const el = document.getElementById('offerList')
   el.innerHTML = pendingOffers.map((o, i) => `
     <div class="offer-input-row">
-      <input class="form-input" placeholder="卡牌名称" value="${esc(o.card)}" oninput="updateOffer(${i},'card',this.value)">
+      <select class="form-input card-select" onchange="updateOffer(${i},'card',this.value)">
+        <option value="">— 选择卡牌 —</option>
+      </select>
       <input class="form-input qty-input" placeholder="数量" type="number" min="1" value="${esc(o.count)}" oninput="updateOffer(${i},'count',this.value)">
       ${pendingOffers.length>1?`<span class="remove-row" onclick="removeOffer(${i})">✕</span>`:''}
     </div>
   `).join('')
+  // 渲染后填充选项并恢复已选值
+  document.querySelectorAll('#offerList .card-select').forEach((sel, i) => {
+    buildCardOptions(sel, pendingOffers[i]?.card || '')
+  })
 }
 
-function updateOffer(i, field, val) { pendingOffers[i][field] = val }
+function updateOffer(i, field, val) {
+  if (!pendingOffers[i]) pendingOffers[i] = { card:'', count:'' }
+  pendingOffers[i][field] = val
+}
 function addOffer() {
   if (pendingOffers.length >= 8) return showToast('最多 8 张备选', true)
   pendingOffers.push({ card:'', count:'' })
@@ -490,15 +530,15 @@ async function copyToClipboard(text, btnEl) {
 
 async function submitPost() {
   const gameId = document.getElementById('fGameId').value.trim()
-  const wantCard = document.getElementById('fWantCard').value.trim()
+  const wantCard = document.getElementById('fWantCard').value
   const remark = document.getElementById('fRemark').value.trim()
   if (!gameId) return showToast('请填写游戏ID', true)
-  if (!wantCard) return showToast('请填写想要的卡', true)
+  if (!wantCard) return showToast('请选择想要的卡', true)
   const validOffers = pendingOffers.filter(o => o.card.trim()).map(o => ({ card: o.card.trim(), count: o.count.toString().trim() }))
-  if (!validOffers.length) return showToast('请至少填一张可换出的卡', true)
+  if (!validOffers.length) return showToast('请至少选择一张可换出的卡', true)
 
-  // 特殊卡按传说处理
-  const finalRarity = SPECIAL_LEGEND_CARDS.includes(wantCard) ? 'legend' : selectedRarity
+  // 品质由 selectedRarity 直接决定，无需特殊处理
+  const finalRarity = selectedRarity
 
   myOwnerId = gameId
   localStorage.setItem(OWNER_KEY, myOwnerId)
