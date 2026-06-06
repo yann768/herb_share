@@ -123,6 +123,8 @@ h1 { font-size: 26px; font-weight: 700; color: var(--gold-glow); letter-spacing:
 .post-remark { margin-top: 12px; padding: 10px 14px; background: var(--bg3); border-radius: 8px; font-size: 12px; color: var(--text-dim); line-height: 1.6; border-left: 2px solid var(--border2); }
 .delete-btn { background: rgba(192,57,43,.15); border: 1px solid rgba(192,57,43,.4); border-radius: 14px; padding: 3px 12px; font-size: 11px; color: #e88080; cursor: pointer; }
 .delete-btn:hover { background: rgba(192,57,43,.3); }
+.edit-btn { background: rgba(74,130,200,.15); border: 1px solid rgba(74,130,200,.4); border-radius: 14px; padding: 3px 12px; font-size: 11px; color: #80b0e8; cursor: pointer; margin-right: 6px; }
+.edit-btn:hover { background: rgba(74,130,200,.3); }
 
 .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
 .empty-state .ei { font-size: 48px; display: block; margin-bottom: 12px; }
@@ -285,7 +287,8 @@ const SUPABASE_URL = 'https://ygslzwiznvcfujonvblq.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlnc2x6d2l6bnZjZnVqb252YmxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNDM4NjksImV4cCI6MjA5NTYxOTg2OX0.J9P1NyK5tiSzPZgDeLpwfS2eRaFrP5Gb4fgpmA258vA'
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
-const OWNER_KEY = 'trade_share_owner_id'
+const OWNER_KEY   = 'hogwarts_owner_id'
+const GAME_ID_KEY = 'hogwarts_game_id'
 const LAST_FORM_KEY = 'trade_share_last_form'
 
 // 卡牌列表（来自游戏配置，光辉/禁忌不参与交换故不收录）
@@ -308,15 +311,18 @@ const RARITY_LABELS = { legend:'传说', epic:'史诗', rare:'稀有', common:'�
 let allPosts = [], filteredPosts = [], activeFilter = 'all', searchKw = ''
 let selectedRarity = 'legend'
 let myOwnerId = ''
+let myGameId = ''
 let pendingOffers = [{ card:'', count:'' }]
+let editingPostId = null
 
 async function init() {
-  myOwnerId = localStorage.getItem(OWNER_KEY) || ''
+  myOwnerId = localStorage.getItem(OWNER_KEY)
   if (!myOwnerId) {
-    myOwnerId = 'user_' + Math.random().toString(36).slice(2,10)
+    myOwnerId = 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,9)
     localStorage.setItem(OWNER_KEY, myOwnerId)
   }
-  document.getElementById('myIdDisplay').textContent = myOwnerId
+  myGameId = localStorage.getItem(GAME_ID_KEY) || ''
+  document.getElementById('myIdDisplay').textContent = myGameId || '（未设置）'
 
   buildFilters()
   await loadPosts()
@@ -324,12 +330,12 @@ async function init() {
 }
 
 function changeId() {
-  const n = prompt('输入新的游戏ID:', myOwnerId)
-  if (n && n.trim()) {
-    myOwnerId = n.trim()
-    localStorage.setItem(OWNER_KEY, myOwnerId)
-    document.getElementById('myIdDisplay').textContent = myOwnerId
-    showToast('身份已更新')
+  const n = prompt('输入游戏ID（仅显示用，不影响帖子所有权）:', myGameId)
+  if (n !== null && n.trim() !== '') {
+    myGameId = n.trim()
+    localStorage.setItem(GAME_ID_KEY, myGameId)
+    document.getElementById('myIdDisplay').textContent = myGameId
+    showToast('游戏ID已更新，所有页面同步生效')
   }
 }
 
@@ -433,7 +439,7 @@ function renderList() {
         <span class="post-id">🪄 ${esc(p.gameId)}${!p.isOwn?`<span class="copy-id-btn" onclick="copyToClipboard('${esc(p.gameId)}', this)">📋 复制</span>`:''}</span>
         <div class="post-header-right">
           <span class="post-rarity ${p.wantRarity}">${p.rarityLabel}</span>
-          ${p.isOwn?`<span class="delete-btn" onclick="deletePost('${p.id}')">删除</span>`:''}
+          ${p.isOwn?`<span class="edit-btn" onclick="openPublish(filteredPosts.find(x=>x.id==='${p.id}'))">编辑</span><span class="delete-btn" onclick="deletePost('${p.id}')">删除</span>`:''}
         </div>
       </div>
       <div class="trade-main">
@@ -454,14 +460,26 @@ function renderList() {
   `).join('')
 }
 
-function openPublish() {
-  pendingOffers = [{ card:'', count:'' }]
+function openPublish(editPost = null) {
+  editingPostId = editPost ? editPost.id : null
+  pendingOffers = editPost ? editPost.offers.map(o=>({card:o.card,count:o.count})) : [{ card:'', count:'' }]
   renderOfferInputs()
-  document.getElementById('fGameId').value = (myOwnerId && !myOwnerId.startsWith('user_')) ? myOwnerId : ''
-  document.getElementById('fRemark').value = ''
-  loadLastForm()
-  // 初始化想要的卡下拉
-  buildCardOptions(document.getElementById('fWantCard'), '')
+  document.getElementById('fGameId').value = myGameId || ''
+  document.getElementById('fRemark').value = editPost ? (editPost.remark||'') : ''
+  if (editPost) {
+    const rEl = document.querySelector(`#rarityPicker .rarity-opt[data-r="${editPost.wantRarity}"]`)
+    if (rEl) setRarity(rEl)
+    // 预选想要的卡
+    setTimeout(() => {
+      const wSel = document.getElementById('fWantCard')
+      if (wSel) wSel.value = editPost.wantCard
+    }, 50)
+  } else {
+    loadLastForm()
+    buildCardOptions(document.getElementById('fWantCard'), '')
+  }
+  document.querySelector('#publishModal .modal-title').textContent = editingPostId ? '✏️ 修改换卡信息' : '🃏 发布换卡信息'
+  document.querySelector('#publishModal .btn-submit').textContent = editingPostId ? '保存修改' : '发布'
   document.getElementById('publishModal').classList.add('open')
 }
 
@@ -563,28 +581,35 @@ async function submitPost() {
   const validOffers = pendingOffers.filter(o => o.card.trim()).map(o => ({ card: o.card.trim(), count: o.count.toString().trim() }))
   if (!validOffers.length) return showToast('请至少选择一张可换出的卡', true)
 
-  // 品质由 selectedRarity 直接决定，无需特殊处理
-  const finalRarity = selectedRarity
-
-  myOwnerId = gameId
-  localStorage.setItem(OWNER_KEY, myOwnerId)
-  document.getElementById('myIdDisplay').textContent = myOwnerId
+  myGameId = gameId
+  localStorage.setItem(GAME_ID_KEY, myGameId)
+  document.getElementById('myIdDisplay').textContent = myGameId
 
   showLoading(true)
   try {
-    const { error } = await sb.from('trade_posts').insert({
-      game_id: gameId,
-      want_card: wantCard,
-      want_rarity: finalRarity,
-      offer_cards: JSON.stringify(validOffers),
-      remark,
-      owner_id: myOwnerId,
-      created_at: Date.now(),
-    })
-    if (error) throw error
-    saveLastForm()
-    closePublish()
-    showToast('发布成功！🃏')
+    if (editingPostId) {
+      const { error } = await sb.from('trade_posts').update({
+        game_id: gameId,
+        want_card: wantCard,
+        want_rarity: selectedRarity,
+        offer_cards: JSON.stringify(validOffers),
+        remark,
+      }).eq('id', editingPostId).eq('owner_id', myOwnerId)
+      if (error) throw error
+      saveLastForm(); closePublish(); showToast('修改成功！🃏')
+    } else {
+      const { error } = await sb.from('trade_posts').insert({
+        game_id: gameId,
+        want_card: wantCard,
+        want_rarity: selectedRarity,
+        offer_cards: JSON.stringify(validOffers),
+        remark,
+        owner_id: myOwnerId,
+        created_at: Date.now(),
+      })
+      if (error) throw error
+      saveLastForm(); closePublish(); showToast('发布成功！🃏')
+    }
     pendingOffers = [{ card:'', count:'' }]
   } catch(e) {
     console.error(e)
