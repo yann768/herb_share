@@ -208,6 +208,8 @@ h1 { font-family: 'Cinzel', serif; font-size: clamp(22px, 5vw, 34px); color: var
 .copy-id-btn { display: inline-flex; align-items: center; gap: 4px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px; padding: 2px 10px; font-size: 11px; color: var(--text-dim); cursor: pointer; margin-left: 6px; transition: all .15s; font-family: inherit; }
 .copy-id-btn:hover { border-color: var(--orange); color: var(--orange-glow); background: rgba(200,100,30,.15); }
 .copy-id-btn:active { transform: scale(.95); }
+.edit-btn { background: rgba(74,130,200,.15); border: 1px solid rgba(74,130,200,.4); border-radius: 14px; padding: 3px 12px; font-size: 11px; color: #80b0e8; cursor: pointer; margin-right: 6px; }
+.edit-btn:hover { background: rgba(74,130,200,.3); }
 
 /* 多 item 列表 */
 .items-list-card { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
@@ -344,7 +346,8 @@ const SUPABASE_URL = 'https://ygslzwiznvcfujonvblq.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlnc2x6d2l6bnZjZnVqb252YmxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNDM4NjksImV4cCI6MjA5NTYxOTg2OX0.J9P1NyK5tiSzPZgDeLpwfS2eRaFrP5Gb4fgpmA258vA'
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
-const OWNER_KEY = 'cook_share_owner_id'
+const OWNER_KEY   = 'hogwarts_owner_id'
+const GAME_ID_KEY = 'hogwarts_game_id'
 const LAST_FORM_KEY = 'cook_share_last_form'
 
 // 菜品完整列表（与游戏数据一致）
@@ -370,12 +373,13 @@ const DISH_ICONS = {
   '招财进宝汤饺':'🥟','年年有鱼':'🐟','神秘圣诞姜饼人':'🍪',
 }
 
-let allPosts=[], filteredPosts=[], activeFilter='all', searchKw='', selectedRarity='common', myOwnerId='', pendingItems=[]
+let allPosts=[], filteredPosts=[], activeFilter='all', searchKw='', selectedRarity='common', myOwnerId='', myGameId='', pendingItems=[], editingPostId=null
 
 async function init() {
-  myOwnerId = localStorage.getItem(OWNER_KEY) || ''
-  if (!myOwnerId) { myOwnerId = 'user_'+Math.random().toString(36).slice(2,10); localStorage.setItem(OWNER_KEY, myOwnerId) }
-  document.getElementById('myIdDisplay').textContent = myOwnerId
+  myOwnerId = localStorage.getItem(OWNER_KEY)
+  if (!myOwnerId) { myOwnerId = 'u_'+Date.now().toString(36)+Math.random().toString(36).slice(2,9); localStorage.setItem(OWNER_KEY, myOwnerId) }
+  myGameId = localStorage.getItem(GAME_ID_KEY) || ''
+  document.getElementById('myIdDisplay').textContent = myGameId || '（未设置）'
   const sel = document.getElementById('fDishSelect')
   DISH_LIST.slice().sort((a,b)=>a.localeCompare(b,'zh')).forEach(n => {
     const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o)
@@ -387,8 +391,13 @@ async function init() {
 }
 
 function changeId() {
-  const n = prompt('输入新的游戏ID:', myOwnerId)
-  if (n&&n.trim()) { myOwnerId=n.trim(); localStorage.setItem(OWNER_KEY,myOwnerId); document.getElementById('myIdDisplay').textContent=myOwnerId; showToast('身份已更新') }
+  const n = prompt('输入游戏ID（仅显示用，不影响帖子所有权）:', myGameId)
+  if (n !== null && n.trim() !== '') {
+    myGameId = n.trim()
+    localStorage.setItem(GAME_ID_KEY, myGameId)
+    document.getElementById('myIdDisplay').textContent = myGameId
+    showToast('游戏ID已更新，所有页面同步生效')
+  }
 }
 
 function buildFilters() {
@@ -502,19 +511,29 @@ function renderList() {
         <span class="status-badge ${p.status}">${p.statusLabel}</span>
         <span class="countdown">${p.countdownStr}</span>
       </div>
-      ${p.isOwn?`<span class="delete-btn" onclick="deletePost(event,'${p.id}')">删除</span>`:''}
+      ${p.isOwn?`<span class="edit-btn" onclick="event.stopPropagation();openPublish(filteredPosts.find(x=>x.id==='${p.id}'))">编辑</span><span class="delete-btn" onclick="deletePost(event,'${p.id}')">删除</span>`:''}
     </div>`
   }).join('')
 }
 
-function openPublish() {
-  pendingItems = []
+function openPublish(editPost = null) {
+  editingPostId = editPost ? editPost.id : null
+  pendingItems = editPost ? [...editPost.items] : []
   renderItemList()
-  document.getElementById('fPlayerId').value = (myOwnerId&&!myOwnerId.startsWith('user_')) ? myOwnerId : ''
-  loadLastForm()
-  if (!document.getElementById('fMatureDt').value) {
+  document.getElementById('fPlayerId').value = myGameId || ''
+  if (editPost) {
+    document.getElementById('fMatureDt').value = toLocalDtStr(editPost.matureTime)
+    document.getElementById('fExpireDt').value = toLocalDtStr(editPost.expireTime)
+    document.getElementById('fNote').value = editPost.note || ''
+    const rEl = document.querySelector(`#rarityPicker .rarity-opt[data-r="${editPost.rarity}"]`)
+    if (rEl) setRarity(rEl)
+  } else {
     document.getElementById('fMatureDt').value = toLocalDtStr(Date.now())
+    document.getElementById('fExpireDt').value = ''
+    loadLastForm()
   }
+  document.querySelector('#publishModal .modal-title').textContent = editingPostId ? '✏️ 修改菜品信息' : '🍳 发布菜品信息'
+  document.querySelector('#publishModal .btn-submit').textContent = editingPostId ? '保存修改' : '发布'
   document.getElementById('publishModal').classList.add('open')
 }
 function closePublish() { document.getElementById('publishModal').classList.remove('open') }
@@ -604,21 +623,28 @@ async function submitPost() {
     expireTs = matureTs + 3600*1000
   }
   if (expireTs<=Date.now()) return showToast('取走截止时间已过期', true)
-  myOwnerId=playerId; localStorage.setItem(OWNER_KEY,myOwnerId); document.getElementById('myIdDisplay').textContent=myOwnerId
+  myGameId=playerId; localStorage.setItem(GAME_ID_KEY,myGameId); document.getElementById('myIdDisplay').textContent=myGameId
   const dishNameJson = JSON.stringify({ items: pendingItems.map(it=>({n:it.n,q:+it.q})) })
   const totalQty = pendingItems.reduce((s,it)=>s+(+it.q||0),0)
   showLoading(true)
   try {
-    const {error}=await sb.from('cook_posts').insert({
-      dish_name:dishNameJson, quantity:totalQty, player_id:playerId,
-      mature_time:matureTs, expire_time:expireTs,
-      rarity:selectedRarity, note, owner_id:myOwnerId, created_at:Date.now()
-    })
-    if (error) throw error
-    saveLastForm()
-    closePublish(); showToast('发布成功！🍲')
-    document.getElementById('fNote').value=''; pendingItems=[]
-  } catch(e) { showToast('发布失败：'+(e.message||'请重试'),true) }
+    if (editingPostId) {
+      const {error}=await sb.from('cook_posts').update({
+        dish_name:dishNameJson, quantity:totalQty, player_id:playerId,
+        mature_time:matureTs, expire_time:expireTs, rarity:selectedRarity, note
+      }).eq('id',editingPostId).eq('owner_id',myOwnerId)
+      if (error) throw error
+      saveLastForm(); closePublish(); showToast('修改成功！🍲'); pendingItems=[]
+    } else {
+      const {error}=await sb.from('cook_posts').insert({
+        dish_name:dishNameJson, quantity:totalQty, player_id:playerId,
+        mature_time:matureTs, expire_time:expireTs,
+        rarity:selectedRarity, note, owner_id:myOwnerId, created_at:Date.now()
+      })
+      if (error) throw error
+      saveLastForm(); closePublish(); showToast('发布成功！🍲'); pendingItems=[]
+    }
+  } catch(e) { showToast('操作失败：'+(e.message||'请重试'),true) }
   finally { showLoading(false) }
 }
 
