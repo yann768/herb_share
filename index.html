@@ -581,8 +581,28 @@ h1 {
 .color-opt.clear-color.active { background: var(--bg3); }
 .color-opt.clear-color.active::after { content: none; }
 
-/* 颜色标签（卡片/详情用） */
-.color-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 12px; font-size: 11px; color: #fff; font-weight: 600; }
+/* ── mini 颜色选择器（添加草药时） ── */
+.item-color-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 8px 0 10px; padding: 8px 10px; background: var(--bg3); border-radius: 10px; border: 1px solid var(--border); }
+.item-color-row .color-label { font-size: 11px; color: var(--text-dim); letter-spacing: 1px; }
+.mini-color-opt { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform .12s, border-color .12s; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+.mini-color-opt:hover { transform: scale(1.2); }
+.mini-color-opt.active { border-color: var(--text); box-shadow: 0 0 0 1px var(--bg); }
+.mini-color-opt.none-opt { background: var(--bg2); border: 1px dashed var(--border2); color: var(--text-dim); font-size: 10px; }
+.mini-color-opt[data-c="red"]    { background: #d84a4a; }
+.mini-color-opt[data-c="yellow"] { background: #f0d040; }
+.mini-color-opt[data-c="pink"]   { background: #f098c0; }
+.mini-color-opt[data-c="blue"]   { background: #4a7ad8; }
+.mini-color-opt[data-c="white"]  { background: #d8d8d8; border-color: #aaa; }
+.mini-color-opt[data-c="black"]  { background: #2a2a2a; border-color: #555; }
+.mini-color-opt[data-c="orange"] { background: #e88a30; }
+.mini-color-opt[data-c="cyan"]   { background: #50c0d8; }
+.mini-color-opt[data-c="teal"]   { background: #30a890; }
+.mini-color-opt[data-c="purple"] { background: #a058d0; }
+.mini-color-opt[data-c="lime"]   { background: #a0d040; }
+/* chip 里的颜色点 */
+.chip-color { width: 12px; height: 12px; border-radius: 50%; display: inline-block; cursor: pointer; flex-shrink: 0; border: 1px solid rgba(255,255,255,.2); transition: transform .1s; title: '点击切换颜色'; }
+.chip-color:hover { transform: scale(1.3); }
+.chip-color.no-color { background: var(--border); border: 1px dashed var(--border2); } display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 12px; font-size: 11px; color: #fff; font-weight: 600; }
 .color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; vertical-align: middle; }
 
 /* ── 时间输入优化 ── */
@@ -714,30 +734,29 @@ h1 {
         <div class="item-picker-row">
           <select id="fHerbSelect">
             <option value="">— 选择草药 —</option>
+            <optgroup label="🌿 陆生"></optgroup>
+            <optgroup label="💧 水生"></optgroup>
           </select>
           <input class="qty-input" id="fHerbQty" type="number" min="1" value="1" placeholder="数量">
           <button type="button" class="item-add-btn" onclick="addItem()">＋</button>
         </div>
-        <div class="item-list" id="itemList"></div>
-        <p class="form-hint-inline">可以添加多种草药</p>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">🎨 颜色（可选）</label>
-        <div class="color-picker" id="colorPicker">
-          <span class="color-opt clear-color active" data-c="" onclick="setColor(this)" title="不指定">∅</span>
-          <span class="color-opt" data-c="red"    onclick="setColor(this)" title="红"></span>
-          <span class="color-opt" data-c="yellow" onclick="setColor(this)" title="黄"></span>
-          <span class="color-opt" data-c="pink"   onclick="setColor(this)" title="粉"></span>
-          <span class="color-opt" data-c="blue"   onclick="setColor(this)" title="蓝"></span>
-          <span class="color-opt" data-c="white"  onclick="setColor(this)" title="白"></span>
-          <span class="color-opt" data-c="black"  onclick="setColor(this)" title="黑"></span>
-          <span class="color-opt" data-c="orange" onclick="setColor(this)" title="橙"></span>
-          <span class="color-opt" data-c="cyan"   onclick="setColor(this)" title="青"></span>
-          <span class="color-opt" data-c="teal"   onclick="setColor(this)" title="蓝绿"></span>
-          <span class="color-opt" data-c="purple" onclick="setColor(this)" title="紫"></span>
-          <span class="color-opt" data-c="lime"   onclick="setColor(this)" title="黄绿"></span>
+        <div class="item-color-row" id="addingColorRow">
+          <span class="color-label">颜色</span>
+          <span class="mini-color-opt none-opt active" data-c="" onclick="setAddingColor(this)" title="不指定">∅</span>
+          <span class="mini-color-opt" data-c="red"    onclick="setAddingColor(this)" title="红"></span>
+          <span class="mini-color-opt" data-c="yellow" onclick="setAddingColor(this)" title="黄"></span>
+          <span class="mini-color-opt" data-c="pink"   onclick="setAddingColor(this)" title="粉"></span>
+          <span class="mini-color-opt" data-c="blue"   onclick="setAddingColor(this)" title="蓝"></span>
+          <span class="mini-color-opt" data-c="white"  onclick="setAddingColor(this)" title="白"></span>
+          <span class="mini-color-opt" data-c="black"  onclick="setAddingColor(this)" title="黑"></span>
+          <span class="mini-color-opt" data-c="orange" onclick="setAddingColor(this)" title="橙"></span>
+          <span class="mini-color-opt" data-c="cyan"   onclick="setAddingColor(this)" title="青"></span>
+          <span class="mini-color-opt" data-c="teal"   onclick="setAddingColor(this)" title="蓝绿"></span>
+          <span class="mini-color-opt" data-c="purple" onclick="setAddingColor(this)" title="紫"></span>
+          <span class="mini-color-opt" data-c="lime"   onclick="setAddingColor(this)" title="黄绿"></span>
         </div>
+        <div class="item-list" id="itemList"></div>
+        <p class="form-hint-inline">可添加多种草药，每种单独选颜色；点击色点可切换</p>
       </div>
 
       <div class="form-group">
@@ -820,8 +839,10 @@ const OWNER_KEY   = 'hogwarts_owner_id'   // 随机密钥，跨页共享，不�
 const GAME_ID_KEY = 'hogwarts_game_id'    // 游戏ID，跨页共享，只用于显示
 const LAST_FORM_KEY = 'herb_share_last_form'
 
-// 草药完整列表（与游戏数据一致）
-const PLANT_LIST = ['天竺葵','玫瑰','泡泡豆荚','嗅幻草','羽衣草','曼德拉草','咬人甘蓝','牡丹','秋海棠','五月花','绣球花','水仙','囊鳃草','三色堇','绿菊','巨藻','红火焰藻','红波水草','凤眼莲','铃兰','菱叶丁香蓼','向日葵','米布米宝','睡莲','龙舌兰香草','幽兰月桂','火焰肉桂','迷迭香','鼠尾草']
+// 草药列表（按陆生/水生分类）
+const PLANT_LAND    = ['三色堇','五月花','天竺葵','向日葵','咬人甘蓝','嗅幻草','囊鳃草','曼德拉草','水仙','泡泡豆荚','火焰肉桂','牡丹','玫瑰','秋海棠','米布米宝','绣球花','绿菊','羽衣草','迷迭香','铃兰','鼠尾草','龙舌兰香草','幽兰月桂']
+const PLANT_AQUATIC = ['凤眼莲','巨藻','睡莲','红波水草','红火焰藻','菱叶丁香蓼']
+const PLANT_LIST = [...PLANT_LAND, ...PLANT_AQUATIC]
 
 // 颜色定义
 const COLOR_LABELS = { red:'红', yellow:'黄', pink:'粉', blue:'蓝', white:'白', black:'黑', orange:'橙', cyan:'青', teal:'蓝绿', purple:'紫', lime:'黄绿' }
@@ -855,7 +876,8 @@ let filteredPosts = []
 let activeFilter = 'all'
 let searchKw = ''
 let selectedRarity = 'common'
-let selectedColor = ''
+let selectedColor = ''      // 编辑旧帖兼容用
+let selectedItemColor = ''  // 当前添加草药时选中的颜色
 let pendingItems = []
 let myOwnerId = ''
 let myGameId = ''
@@ -875,12 +897,23 @@ async function init() {
   myGameId = localStorage.getItem(GAME_ID_KEY) || ''
   document.getElementById('myIdDisplay').textContent = myGameId || '（未设置）'
 
-  // 填充草药下拉
+  // 填充草药下拉（陆生/水生分组）
   const sel = document.getElementById('fHerbSelect')
-  PLANT_LIST.slice().sort((a,b)=>a.localeCompare(b,'zh')).forEach(n => {
-    const opt = document.createElement('option')
-    opt.value = n; opt.textContent = n
-    sel.appendChild(opt)
+  const groups = [
+    { label: '🌿 陆生', list: PLANT_LAND },
+    { label: '💧 水生', list: PLANT_AQUATIC },
+  ]
+  // 清空再重建（保留空白 option）
+  sel.innerHTML = '<option value="">— 选择草药 —</option>'
+  groups.forEach(g => {
+    const og = document.createElement('optgroup')
+    og.label = g.label
+    g.list.slice().sort((a,b)=>a.localeCompare(b,'zh')).forEach(n => {
+      const opt = document.createElement('option')
+      opt.value = n; opt.textContent = n
+      og.appendChild(opt)
+    })
+    sel.appendChild(og)
   })
 
   buildFilters()
@@ -941,7 +974,7 @@ async function loadPosts() {
       .from('herb_posts')
       .select('*')
       .gt('expire_time', now)
-      .order('expire_time', { ascending: true })
+      .order('mature_time', { ascending: true })
       .limit(200)
 
     if (error) throw error
@@ -961,11 +994,17 @@ function parseItemsField(s) {
   try {
     const o = JSON.parse(s)
     if (o && Array.isArray(o.items) && o.items.length) {
-      return { items: o.items, color: o.color || '' }
+      // 旧格式：全局 color；新格式：每个 item 有 c 字段
+      const globalColor = o.color || ''
+      return {
+        items: o.items.map(it => ({
+          n: it.n, q: it.q,
+          c: it.c !== undefined ? it.c : globalColor  // 新格式优先，否则用全局
+        }))
+      }
     }
   } catch(e) {}
-  // 旧数据：纯字符串当成单个 item
-  return { items: [{ n: String(s||''), q: null }], color: '' }
+  return { items: [{ n: String(s||''), q: null, c: '' }] }
 }
 
 function processPost(p, now) {
@@ -976,13 +1015,11 @@ function processPost(p, now) {
   const playerId   = p.player_id  || p.playerId
   const ownerId    = p.owner_id   || p.ownerId
 
-  const { items, color } = parseItemsField(rawName)
+  const { items } = parseItemsField(rawName)
   const firstName = items[0]?.n || ''
-  // 显示主名（多 item 时附加 +N）
   const displayName = items.length > 1
     ? `${firstName} 等 ${items.length} 种`
     : firstName
-  // 搜索用的全名串
   const searchName = items.map(it => it.n).join(' ')
 
   const isMature   = now >= matureTime
@@ -1006,7 +1043,7 @@ function processPost(p, now) {
     id: p.id,
     herbName: displayName,
     searchName,
-    items, color,
+    items,
     quantity: p.quantity,
     playerId, ownerId,
     matureTime, expireTime,
@@ -1079,11 +1116,12 @@ function renderList() {
   }
   el.innerHTML = filteredPosts.map((p, i) => {
     const itemsLine = p.items.length === 1
-      ? `<span class="herb-name">${esc(p.items[0].n)}${p.items[0].q?` <span style="font-size:13px;color:var(--text-dim)">×${p.items[0].q}</span>`:''}</span>`
+      ? (() => {
+          const it = p.items[0]
+          const dot = it.c && COLOR_HEX[it.c] ? `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${COLOR_HEX[it.c]};margin-left:5px;vertical-align:middle"></span>` : ''
+          return `<span class="herb-name">${esc(it.n)}${it.q?` <span style="font-size:13px;color:var(--text-dim)">×${it.q}</span>`:''}${dot}</span>`
+        })()
       : `<span class="herb-name">${esc(p.items[0].n)} <span style="font-size:12px;color:var(--text-dim)">等${p.items.length}种</span></span>`
-    const colorBadge = p.color
-      ? `<span class="color-tag" style="background:${COLOR_HEX[p.color]||'#888'}"><span class="color-dot" style="background:#fff;opacity:.7"></span>${COLOR_LABELS[p.color]||p.color}</span>`
-      : ''
     const qtyTotal = p.items.reduce((s,it)=>s+(+it.q||0),0) || p.quantity || ''
     return `
     <div class="post-card rarity-${p.rarity}" style="animation-delay:${i*40}ms" onclick="openDetail('${p.id}')">
@@ -1093,7 +1131,6 @@ function renderList() {
         <div class="card-meta">
           ${itemsLine}
           <span class="player-id">玩家：${esc(p.playerId)} ${!p.isOwn?`<span class="copy-id-btn" onclick="event.stopPropagation();copyToClipboard('${esc(p.playerId)}', this)">📋 复制</span>`:''}</span>
-          ${colorBadge?`<div style="margin-top:6px">${colorBadge}</div>`:''}
         </div>
         ${qtyTotal?`<span class="qty-badge">×${qtyTotal}</span>`:''}
       </div>
@@ -1125,6 +1162,9 @@ function openPublish(editPost = null) {
   // 重置 items
   pendingItems = editPost ? [...editPost.items] : []
   renderItemList()
+  // 重置 mini 颜色选择到"无"
+  const noneEl = document.querySelector('#addingColorRow .mini-color-opt[data-c=""]')
+  if (noneEl) { document.querySelectorAll('#addingColorRow .mini-color-opt').forEach(o=>o.classList.remove('active')); noneEl.classList.add('active'); selectedItemColor = '' }
 
   // 填游戏ID
   document.getElementById('fPlayerId').value = myGameId || ''
@@ -1171,18 +1211,32 @@ function setColor(el) {
   selectedColor = el.dataset.c || ''
 }
 
+// ── mini 颜色选择（添加时） ──
+function setAddingColor(el) {
+  document.querySelectorAll('#addingColorRow .mini-color-opt').forEach(o => o.classList.remove('active'))
+  el.classList.add('active')
+  selectedItemColor = el.dataset.c || ''
+}
+
 // ── 多 item 管理 ──
 function addItem() {
   const name = document.getElementById('fHerbSelect').value
   const qty = +document.getElementById('fHerbQty').value
   if (!name) return showToast('请先选择草药', true)
   if (!qty || qty < 1) return showToast('数量需 ≥ 1', true)
-  // 同名合并
   const exist = pendingItems.find(it => it.n === name)
-  if (exist) exist.q = (+exist.q || 0) + qty
-  else pendingItems.push({ n: name, q: qty })
+  if (exist) {
+    exist.q = (+exist.q || 0) + qty
+    // 颜色：如果已有颜色则不覆盖（除非新选了颜色）
+    if (selectedItemColor) exist.c = selectedItemColor
+  } else {
+    pendingItems.push({ n: name, q: qty, c: selectedItemColor })
+  }
   document.getElementById('fHerbSelect').value = ''
   document.getElementById('fHerbQty').value = '1'
+  // 重置颜色选择到"无"
+  const noneEl = document.querySelector('#addingColorRow .mini-color-opt[data-c=""]')
+  if (noneEl) setAddingColor(noneEl)
   renderItemList()
 }
 
@@ -1191,11 +1245,24 @@ function removeItem(idx) {
   renderItemList()
 }
 
+// 点击 chip 上的色点，循环切换颜色
+const COLOR_CYCLE = ['', 'red', 'yellow', 'pink', 'blue', 'white', 'black', 'orange', 'cyan', 'teal', 'purple', 'lime']
+function cycleChipColor(idx) {
+  const cur = pendingItems[idx]?.c || ''
+  const nextIdx = (COLOR_CYCLE.indexOf(cur) + 1) % COLOR_CYCLE.length
+  pendingItems[idx].c = COLOR_CYCLE[nextIdx]
+  renderItemList()
+}
+
 function renderItemList() {
   const el = document.getElementById('itemList')
-  el.innerHTML = pendingItems.map((it, i) =>
-    `<span class="item-chip"><span class="chip-name">${esc(it.n)}</span><span class="chip-qty">×${it.q}</span><span class="chip-del" onclick="removeItem(${i})">✕</span></span>`
-  ).join('')
+  el.innerHTML = pendingItems.map((it, i) => {
+    const hex = COLOR_HEX[it.c] || ''
+    const colorDot = hex
+      ? `<span class="chip-color" style="background:${hex}" onclick="cycleChipColor(${i})" title="${COLOR_LABELS[it.c]||''} 点击切换"></span>`
+      : `<span class="chip-color no-color" onclick="cycleChipColor(${i})" title="无颜色，点击添加"></span>`
+    return `<span class="item-chip">${colorDot}<span class="chip-name">${esc(it.n)}</span><span class="chip-qty">×${it.q}</span><span class="chip-del" onclick="removeItem(${i})">✕</span></span>`
+  }).join('')
 }
 
 // ── 时间快捷 ──
@@ -1292,8 +1359,7 @@ async function submitPost() {
   document.getElementById('myIdDisplay').textContent = myGameId
 
   const herbNameJson = JSON.stringify({
-    items: pendingItems.map(it => ({ n: it.n, q: +it.q })),
-    color: selectedColor || ''
+    items: pendingItems.map(it => ({ n: it.n, q: +it.q, c: it.c || '' })),
   })
   const totalQty = pendingItems.reduce((s,it)=> s + (+it.q||0), 0)
 
@@ -1364,15 +1430,22 @@ function openDetail(id) {
   document.getElementById('detailTitle').textContent = `🌿 ${titleName}`
 
   const itemsHtml = p.items.length === 1
-    ? `<div class="detail-herb-name">${esc(p.items[0].n)} ${p.items[0].q?`<span style="font-size:14px;color:var(--text-dim)">×${p.items[0].q}</span>`:''}</div>`
+    ? (() => {
+        const it = p.items[0]
+        const colorTag = it.c && COLOR_HEX[it.c]
+          ? `<span class="color-tag" style="background:${COLOR_HEX[it.c]};margin-left:8px"><span class="color-dot" style="background:#fff;opacity:.7"></span>${COLOR_LABELS[it.c]||it.c}</span>`
+          : ''
+        return `<div class="detail-herb-name">${esc(it.n)} ${it.q?`<span style="font-size:14px;color:var(--text-dim)">×${it.q}</span>`:''}${colorTag}</div>`
+      })()
     : `<div class="detail-herb-name">本帖共 ${p.items.length} 种草药</div>
        <div class="items-list-card" style="margin-bottom:12px">
-         ${p.items.map(it => `<div class="item-line"><span class="iname">${esc(it.n)}</span><span class="iqty">×${it.q||'-'}</span></div>`).join('')}
+         ${p.items.map(it => {
+           const colorTag = it.c && COLOR_HEX[it.c]
+             ? `<span class="color-tag" style="background:${COLOR_HEX[it.c]};font-size:10px;padding:1px 8px"><span class="color-dot" style="background:#fff;opacity:.7;width:8px;height:8px"></span>${COLOR_LABELS[it.c]||it.c}</span>`
+             : ''
+           return `<div class="item-line"><span class="iname">${esc(it.n)}${colorTag}</span><span class="iqty">×${it.q||'-'}</span></div>`
+         }).join('')}
        </div>`
-
-  const colorRow = p.color
-    ? `<div class="detail-row"><span class="detail-key">颜色</span><span class="detail-val"><span class="color-tag" style="background:${COLOR_HEX[p.color]||'#888'}"><span class="color-dot" style="background:#fff;opacity:.7"></span>${COLOR_LABELS[p.color]||p.color}</span></span></div>`
-    : ''
 
   const copyBtn = !p.isOwn
     ? `<span class="copy-id-btn" onclick="copyToClipboard('${esc(p.playerId)}', this)">📋 复制</span>`
@@ -1383,7 +1456,6 @@ function openDetail(id) {
       ${itemsHtml}
       <div style="margin-bottom:16px"><span class="rarity-badge ${p.rarity}" style="position:static">${p.rarityLabel}</span></div>
       <div class="detail-row"><span class="detail-key">玩家ID</span><span class="detail-val">${esc(p.playerId)} ${copyBtn}</span></div>
-      ${colorRow}
       <div class="detail-row"><span class="detail-key">状态</span><span class="detail-val">${p.statusLabel}</span></div>
       <div class="detail-row"><span class="detail-key">成熟时间</span><span class="detail-val">${p.matureStr}</span></div>
       <div class="detail-row"><span class="detail-key">收取截止</span><span class="detail-val ${p.expireSoon?'soon':''}">${p.expireStr}</span></div>
