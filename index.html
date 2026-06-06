@@ -54,6 +54,7 @@ body::before {
 
 /* ── Header ── */
 header {
+  position: relative;
   text-align: center;
   padding: 56px 20px 36px;
   border-bottom: 1px solid var(--border);
@@ -593,7 +594,8 @@ h1 {
 .form-hint-inline { font-size: 11px; color: var(--text-dim); margin-top: 6px; font-style: italic; }
 
 /* ── 复制ID按钮 ── */
-.copy-id-btn {
+.edit-btn { background: rgba(74,130,200,.15); border: 1px solid rgba(74,130,200,.4); border-radius: 14px; padding: 3px 12px; font-size: 11px; color: #80b0e8; cursor: pointer; margin-right: 6px; }
+.edit-btn:hover { background: rgba(74,130,200,.3); }
   display: inline-flex; align-items: center; gap: 4px;
   background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px;
   padding: 2px 10px; font-size: 11px; color: var(--text-dim);
@@ -814,7 +816,8 @@ const SUPABASE_URL = 'https://ygslzwiznvcfujonvblq.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlnc2x6d2l6bnZjZnVqb252YmxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNDM4NjksImV4cCI6MjA5NTYxOTg2OX0.J9P1NyK5tiSzPZgDeLpwfS2eRaFrP5Gb4fgpmA258vA'
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
-const OWNER_KEY = 'herb_share_owner_id'
+const OWNER_KEY   = 'hogwarts_owner_id'   // 随机密钥，跨页共享，不对外显示
+const GAME_ID_KEY = 'hogwarts_game_id'    // 游戏ID，跨页共享，只用于显示
 const LAST_FORM_KEY = 'herb_share_last_form'
 
 // 草药完整列表（与游戏数据一致）
@@ -853,19 +856,24 @@ let activeFilter = 'all'
 let searchKw = ''
 let selectedRarity = 'common'
 let selectedColor = ''
-let pendingItems = []  // 发布表单里临时累积的 [{n,q}]
+let pendingItems = []
 let myOwnerId = ''
+let myGameId = ''
+let editingPostId = null
 let realtimeSub = null
 let refreshTimer = null
 
 // ── 初始化 ──
 async function init() {
-  myOwnerId = localStorage.getItem(OWNER_KEY) || ''
+  // 随机密钥（真正的所有权凭证，跨页共享，不对外显示）
+  myOwnerId = localStorage.getItem(OWNER_KEY)
   if (!myOwnerId) {
-    myOwnerId = 'user_' + Math.random().toString(36).slice(2,10)
+    myOwnerId = 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,9)
     localStorage.setItem(OWNER_KEY, myOwnerId)
   }
-  document.getElementById('myIdDisplay').textContent = myOwnerId
+  // 游戏ID（仅显示用，跨页共享）
+  myGameId = localStorage.getItem(GAME_ID_KEY) || ''
+  document.getElementById('myIdDisplay').textContent = myGameId || '（未设置）'
 
   // 填充草药下拉
   const sel = document.getElementById('fHerbSelect')
@@ -892,12 +900,12 @@ async function init() {
 
 // ── 身份管理 ──
 function changeId() {
-  const newId = prompt('输入新的游戏ID（将用于发布帖子）:', myOwnerId)
-  if (newId && newId.trim()) {
-    myOwnerId = newId.trim()
-    localStorage.setItem(OWNER_KEY, myOwnerId)
-    document.getElementById('myIdDisplay').textContent = myOwnerId
-    showToast('身份已更新')
+  const newId = prompt('输入游戏ID（仅用于显示和联系，不影响帖子所有权）:', myGameId)
+  if (newId !== null && newId.trim() !== '') {
+    myGameId = newId.trim()
+    localStorage.setItem(GAME_ID_KEY, myGameId)
+    document.getElementById('myIdDisplay').textContent = myGameId
+    showToast('游戏ID已更新，所有页面同步生效')
   }
 }
 
@@ -1105,28 +1113,44 @@ function renderList() {
         <span class="countdown">${p.countdownStr}</span>
       </div>
       ${p.note ? `<div class="card-note">💬 ${esc(p.note)}</div>` : ''}
-      ${p.isOwn ? `<span class="delete-btn" onclick="deletePost(event,'${p.id}')">删除</span>` : ''}
+      ${p.isOwn ? `<span class="edit-btn" onclick="event.stopPropagation();openPublish(filteredPosts.find(x=>x.id==='${p.id}'))">编辑</span><span class="delete-btn" onclick="deletePost(event,'${p.id}')">删除</span>` : ''}
     </div>
   `}).join('')
 }
 
 // ── 发布 ──
-function openPublish() {
+function openPublish(editPost = null) {
+  editingPostId = editPost ? editPost.id : null
+
   // 重置 items
-  pendingItems = []
+  pendingItems = editPost ? [...editPost.items] : []
   renderItemList()
 
-  // 填回 playerId
-  document.getElementById('fPlayerId').value = (myOwnerId && !myOwnerId.startsWith('user_')) ? myOwnerId : ''
+  // 填游戏ID
+  document.getElementById('fPlayerId').value = myGameId || ''
 
-  // 加载上次填写
-  loadLastForm()
-
-  // 默认成熟时间 = 当前时间
-  if (!document.getElementById('fMatureDt').value) {
+  // 清空或预填时间
+  if (editPost) {
+    document.getElementById('fMatureDt').value = toLocalDtStr(editPost.matureTime)
+    document.getElementById('fExpireDt').value = toLocalDtStr(editPost.expireTime)
+    document.getElementById('fNote').value = editPost.note || ''
+    // 稀有度
+    const rEl = document.querySelector(`#rarityPicker .rarity-opt[data-r="${editPost.rarity}"]`)
+    if (rEl) setRarity(rEl)
+    // 颜色
+    const cEl = document.querySelector(`#colorPicker .color-opt[data-c="${editPost.color||''}"]`)
+    if (cEl) setColor(cEl)
+  } else {
     document.getElementById('fMatureDt').value = toLocalDtStr(Date.now())
+    document.getElementById('fExpireDt').value = ''
+    loadLastForm()
   }
-  // 收取截止默认留空
+
+  // 弹窗标题
+  document.querySelector('#publishModal .modal-title').textContent =
+    editingPostId ? '✏️ 修改草药信息' : '🌿 发布草药信息'
+  document.querySelector('#publishModal .btn-submit').textContent =
+    editingPostId ? '保存修改' : '发布'
 
   document.getElementById('publishModal').classList.add('open')
 }
@@ -1252,7 +1276,6 @@ async function submitPost() {
   const matureTs = new Date(mv).getTime()
   if (isNaN(matureTs)) return showToast('成熟时间格式有误', true)
 
-  // 收取截止可空，默认 = 成熟 + 1h
   let expireTs
   if (ev) {
     expireTs = new Date(ev).getTime()
@@ -1263,12 +1286,11 @@ async function submitPost() {
   }
   if (expireTs <= Date.now()) return showToast('收取截止时间已过期', true)
 
-  // 保存游戏ID为本地身份
-  myOwnerId = playerId
-  localStorage.setItem(OWNER_KEY, myOwnerId)
-  document.getElementById('myIdDisplay').textContent = myOwnerId
+  // 保存游戏ID（显示用）
+  myGameId = playerId
+  localStorage.setItem(GAME_ID_KEY, myGameId)
+  document.getElementById('myIdDisplay').textContent = myGameId
 
-  // 多 item + color 打包成 JSON
   const herbNameJson = JSON.stringify({
     items: pendingItems.map(it => ({ n: it.n, q: +it.q })),
     color: selectedColor || ''
@@ -1277,27 +1299,43 @@ async function submitPost() {
 
   showLoading(true)
   try {
-    const { error } = await sb.from('herb_posts').insert({
-      herb_name:   herbNameJson,
-      quantity:    totalQty,
-      player_id:   playerId,
-      mature_time: matureTs,
-      expire_time: expireTs,
-      rarity:      selectedRarity,
-      note,
-      owner_id:    myOwnerId,
-      created_at:  Date.now(),
-    })
-    if (error) throw error
-
-    saveLastForm()
-    closePublish()
-    showToast('发布成功！🌿')
-    document.getElementById('fNote').value = ''
+    if (editingPostId) {
+      // 编辑模式：UPDATE（且只能更新自己的帖子）
+      const { error } = await sb.from('herb_posts').update({
+        herb_name: herbNameJson,
+        quantity: totalQty,
+        player_id: playerId,
+        mature_time: matureTs,
+        expire_time: expireTs,
+        rarity: selectedRarity,
+        note,
+      }).eq('id', editingPostId).eq('owner_id', myOwnerId)
+      if (error) throw error
+      saveLastForm()
+      closePublish()
+      showToast('修改成功！🌿')
+    } else {
+      // 发布模式：INSERT
+      const { error } = await sb.from('herb_posts').insert({
+        herb_name:   herbNameJson,
+        quantity:    totalQty,
+        player_id:   playerId,
+        mature_time: matureTs,
+        expire_time: expireTs,
+        rarity:      selectedRarity,
+        note,
+        owner_id:    myOwnerId,
+        created_at:  Date.now(),
+      })
+      if (error) throw error
+      saveLastForm()
+      closePublish()
+      showToast('发布成功！🌿')
+    }
     pendingItems = []
   } catch(e) {
-    console.error('发布失败', e)
-    showToast('发布失败：' + (e.message || '请重试'), true)
+    console.error('操作失败', e)
+    showToast('操作失败：' + (e.message || '请重试'), true)
   } finally {
     showLoading(false)
   }
