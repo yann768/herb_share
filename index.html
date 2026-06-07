@@ -841,7 +841,7 @@ const LAST_FORM_KEY = 'herb_share_last_form'
 
 // 草药列表（按陆生/水生分类）
 const PLANT_LAND    = ['三色堇','五月花','天竺葵','向日葵','咬人甘蓝','嗅幻草','曼德拉草','水仙','泡泡豆荚','火焰肉桂','牡丹','玫瑰','秋海棠','米布米宝','绣球花','羽衣草','迷迭香','铃兰','鼠尾草','龙舌兰香草','幽兰月桂']
-const PLANT_AQUATIC = ['凤眼莲','巨藻','睡莲','红波水草','红火焰藻','菱叶丁香蓼','鳃囊草','绿菊']
+const PLANT_AQUATIC = ['凤眼莲','巨藻','睡莲','红波水草','红火焰藻','菱叶丁香蓼','囊鳃草','绿菊']
 const PLANT_LIST = [...PLANT_LAND, ...PLANT_AQUATIC]
 
 // 颜色定义
@@ -849,14 +849,13 @@ const COLOR_LABELS = { red:'红', yellow:'黄', pink:'粉', blue:'蓝', white:'�
 const COLOR_HEX = { red:'#d84a4a', yellow:'#f0d040', pink:'#f098c0', blue:'#4a7ad8', white:'#f0f0f0', black:'#2a2a2a', orange:'#e88a30', cyan:'#50c0d8', teal:'#30a890', purple:'#a058d0', lime:'#a0d040' }
 
 const FILTERS = [
-  { id:'all',      label:'全部' },
-  { id:'ready',    label:'✅ 已成熟' },
-  { id:'growing',  label:'🌱 生长中' },
-  { id:'expiring', label:'⏰ 快收取' },
-  { id:'common',   label:'普通' },
-  { id:'rare',     label:'稀有' },
-  { id:'epic',     label:'史诗' },
-  { id:'legend',   label:'传说' },
+  { id:'all',     label:'全部' },
+  { id:'ready',   label:'✅ 已成熟' },
+  { id:'growing', label:'🌱 生长中' },
+  { id:'common',  label:'普通' },
+  { id:'rare',    label:'稀有' },
+  { id:'epic',    label:'史诗' },
+  { id:'legend',  label:'传说' },
 ]
 const RARITY_LABELS = { common:'普通', rare:'稀有', epic:'史诗', legend:'传说' }
 const HERB_ICONS = {
@@ -865,7 +864,7 @@ const HERB_ICONS = {
   '羽衣草':'🌿', '睡莲':'🪷', '向日葵':'🌻', '绣球花':'💐',
   '牡丹':'🌸', '铃兰':'🌷', '五月花':'🌺',
   '天竺葵':'🌸', '泡泡豆荚':'🫛', '嗅幻草':'🌿', '曼德拉草':'🌱',
-  '咬人甘蓝':'🥬', '秋海棠':'🌺', '水仙':'🌼', '鳃囊草':'🌿',
+  '咬人甘蓝':'🥬', '秋海棠':'🌺', '水仙':'🌼', '囊鳃草':'🌿',
   '三色堇':'🌷', '绿菊':'🌻', '巨藻':'🌊', '红火焰藻':'🔴',
   '红波水草':'🌊', '凤眼莲':'💜', '菱叶丁香蓼':'🌿', '米布米宝':'🌱',
   '龙舌兰香草':'🌵', '幽兰月桂':'🌿', '火焰肉桂':'🔥', '迷迭香':'🌿', '鼠尾草':'🌿',
@@ -1031,9 +1030,8 @@ function processPost(p, now) {
   const expireSoon = timeLeft < 2 * 3600 * 1000
 
   let status, statusLabel
-  if (!isMature)       { status='growing';  statusLabel='🌱 生长中' }
-  else if (expireSoon) { status='expiring'; statusLabel='⚠️ 快收取' }
-  else                 { status='ready';    statusLabel='✅ 已成熟' }
+  if (!isMature) { status='growing'; statusLabel='🌱 生长中' }
+  else           { status='ready';   statusLabel='✅ 已成熟' }
 
   const countdownStr = !isMature
     ? `还需 ${fmtDur(matureTime - now)} 成熟`
@@ -1090,7 +1088,7 @@ function applyFilter() {
     )
   }
   if (activeFilter !== 'all') {
-    if (['growing','ready','expiring'].includes(activeFilter)) {
+    if (['growing','ready'].includes(activeFilter)) {
       list = list.filter(p => p.status === activeFilter)
     } else {
       list = list.filter(p => p.rarity === activeFilter)
@@ -1432,18 +1430,18 @@ function openDetail(id) {
   const itemsHtml = p.items.length === 1
     ? (() => {
         const it = p.items[0]
-        const colorTag = it.c && COLOR_HEX[it.c]
-          ? `<span class="color-tag" style="background:${COLOR_HEX[it.c]};margin-left:8px"><span class="color-dot" style="background:#fff;opacity:.7"></span>${COLOR_LABELS[it.c]||it.c}</span>`
+        const dot = it.c && COLOR_HEX[it.c]
+          ? `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${COLOR_HEX[it.c]};margin-right:6px;flex-shrink:0;border:1px solid rgba(255,255,255,.15);vertical-align:middle"></span>`
           : ''
-        return `<div class="detail-herb-name">${esc(it.n)} ${it.q?`<span style="font-size:14px;color:var(--text-dim)">×${it.q}</span>`:''}${colorTag}</div>`
+        return `<div class="detail-herb-name">${dot}${esc(it.n)} ${it.q?`<span style="font-size:14px;color:var(--text-dim)">×${it.q}</span>`:''}</div>`
       })()
     : `<div class="detail-herb-name">本帖共 ${p.items.length} 种草药</div>
        <div class="items-list-card" style="margin-bottom:12px">
          ${p.items.map(it => {
-           const colorTag = it.c && COLOR_HEX[it.c]
-             ? `<span class="color-tag" style="background:${COLOR_HEX[it.c]};font-size:10px;padding:1px 8px"><span class="color-dot" style="background:#fff;opacity:.7;width:8px;height:8px"></span>${COLOR_LABELS[it.c]||it.c}</span>`
-             : ''
-           return `<div class="item-line"><span class="iname">${esc(it.n)}${colorTag}</span><span class="iqty">×${it.q||'-'}</span></div>`
+           const dot = it.c && COLOR_HEX[it.c]
+             ? `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${COLOR_HEX[it.c]};margin-right:6px;flex-shrink:0;border:1px solid rgba(255,255,255,.15)"></span>`
+             : `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;border:1px dashed var(--border2);margin-right:6px;flex-shrink:0"></span>`
+           return `<div class="item-line"><span class="iname" style="display:flex;align-items:center">${dot}${esc(it.n)}</span><span class="iqty">×${it.q||'-'}</span></div>`
          }).join('')}
        </div>`
 
