@@ -839,6 +839,7 @@ h1 {
 <div class="loading-overlay" id="loading"><div class="spinner"></div><span>施法中…</span></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="site-common.js"></script>
 <script>
 // ═══════════════════════════════════════════
 //  Supabase 配置
@@ -898,12 +899,7 @@ let refreshTimer = null
 
 // ── 初始化 ──
 async function init() {
-  // 随机密钥（真正的所有权凭证，跨页共享，不对外显示）
-  myOwnerId = localStorage.getItem(OWNER_KEY)
-  if (!myOwnerId) {
-    myOwnerId = 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,9)
-    localStorage.setItem(OWNER_KEY, myOwnerId)
-  }
+  myOwnerId = (await HW.ensureAuth(sb)).id
   // 游戏ID（仅显示用，跨页共享）
   myGameId = localStorage.getItem(GAME_ID_KEY) || ''
   document.getElementById('myIdDisplay').textContent = myGameId || '（未设置）'
@@ -1024,7 +1020,7 @@ function processPost(p, now) {
   const expireTime = p.expire_time || p.expireTime
   const rawName    = p.herb_name  || p.herbName || ''
   const playerId   = p.player_id  || p.playerId
-  const ownerId    = p.owner_id   || p.ownerId
+  const ownerId    = p.user_id || p.owner_id || p.ownerId
 
   const { items } = parseItemsField(rawName)
   const firstName = items[0]?.n || ''
@@ -1065,7 +1061,7 @@ function processPost(p, now) {
     expireStr:  fmtDt(expireTime),
     rarityLabel: RARITY_LABELS[p.rarity] || '普通',
     icon: HERB_ICONS[firstName] || HERB_ICONS.default,
-    isOwn: ownerId === myOwnerId,
+    isOwn: ownerId === myOwnerId, completedAt: p.completed_at || null,
   }
 }
 
@@ -1090,7 +1086,7 @@ function clearSearch() {
 }
 
 function applyFilter() {
-  let list = [...allPosts]
+  let list = allPosts.filter(p => !HW.isBlocked('herb', p.id) && !p.completedAt)
   if (searchKw.trim()) {
     const kw = searchKw.trim().toLowerCase()
     list = list.filter(p =>
@@ -1165,7 +1161,7 @@ function renderList() {
         <span class="countdown">${p.countdownStr}</span>
       </div>
       ${p.note ? `<div class="card-note">💬 ${esc(p.note)}</div>` : ''}
-      ${p.isOwn ? `<span class="edit-btn" onclick="event.stopPropagation();openPublish(filteredPosts.find(x=>x.id==='${p.id}'))">编辑</span><span class="delete-btn" onclick="deletePost(event,'${p.id}')">删除</span>` : ''}
+      ${p.isOwn ? `<span class="edit-btn" onclick="event.stopPropagation();openPublish(filteredPosts.find(x=>x.id==='${p.id}'))">编辑</span><span class="edit-btn" onclick="completePost(event,'${p.id}')">完成</span><span class="delete-btn" onclick="deletePost(event,'${p.id}')">删除</span>` : `<span class="delete-btn" onclick="moderatePost(event,'${p.id}')">举报/屏蔽</span>`}
     </div>`
   }).join('')
 }
@@ -1406,6 +1402,7 @@ async function submitPost() {
         rarity:      selectedRarity,
         note,
         owner_id:    myOwnerId,
+        user_id:     myOwnerId,
         created_at:  Date.now(),
       })
       if (error) throw error
@@ -1427,7 +1424,7 @@ async function deletePost(e, id) {
   if (!confirm('确认删除这条草药信息？')) return
   showLoading(true)
   try {
-    const { error } = await sb.from('herb_posts').delete().eq('id', id)
+    const { error } = await sb.from('herb_posts').delete().eq('id', id).eq('user_id', myOwnerId)
     if (error) throw error
     showToast('已删除')
   } catch(e) {
@@ -1522,7 +1519,9 @@ function showToast(msg, isErr=false) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2500)
 }
 
-init().then(() => { if (location.hash === '#publish') openPublish() })
+async function completePost(e,id){e.stopPropagation();if(!confirm('标记为已完成并从列表隐藏？'))return;const{error}=await sb.from('herb_posts').update({completed_at:Date.now()}).eq('id',id).eq('user_id',myOwnerId);if(error)return showToast('操作失败：'+error.message,true);showToast('已完成')}
+async function moderatePost(e,id){e.stopPropagation();try{if(await HW.report(sb,'herb',id)){allPosts=allPosts.filter(p=>String(p.id)!==String(id));applyFilter();showToast('已举报并屏蔽')}}catch(err){showToast('举报失败：'+err.message,true)}}
+init().then(() => { if (HW.shouldPublish()) { openPublish(); const names=HW.importedItems('items'); names.forEach(n=>{const s=document.getElementById('fHerbSelect'); if([...s.options].some(o=>o.value===n)){s.value=n; document.getElementById('fHerbQty').value=1; addItem()}}); HW.sourceNotice(showToast) } })
 </script>
 </body>
 </html>

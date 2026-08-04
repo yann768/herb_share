@@ -283,6 +283,7 @@ h1 { font-size: 26px; font-weight: 700; color: var(--gold-glow); letter-spacing:
 <div class="loading-overlay" id="loading"><div class="spinner"></div><span>处理中…</span></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="site-common.js"></script>
 <script>
 const SUPABASE_URL = 'https://ygslzwiznvcfujonvblq.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlnc2x6d2l6bnZjZnVqb252YmxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNDM4NjksImV4cCI6MjA5NTYxOTg2OX0.J9P1NyK5tiSzPZgDeLpwfS2eRaFrP5Gb4fgpmA258vA'
@@ -317,11 +318,7 @@ let pendingOffers = [{ card:'', count:'' }]
 let editingPostId = null
 
 async function init() {
-  myOwnerId = localStorage.getItem(OWNER_KEY)
-  if (!myOwnerId) {
-    myOwnerId = 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,9)
-    localStorage.setItem(OWNER_KEY, myOwnerId)
-  }
+  myOwnerId = (await HW.ensureAuth(sb)).id
   myGameId = localStorage.getItem(GAME_ID_KEY) || ''
   document.getElementById('myIdDisplay').textContent = myGameId || '（未设置）'
 
@@ -389,10 +386,11 @@ function processPost(p) {
     wantRarity: p.want_rarity || 'common',
     offers,
     remark: p.remark || '',
-    ownerId: p.owner_id,
+    ownerId: p.user_id || p.owner_id,
     createdAt: p.created_at,
     rarityLabel: RARITY_LABELS[p.want_rarity] || '普通',
-    isOwn: p.owner_id === myOwnerId,
+    isOwn: (p.user_id || p.owner_id) === myOwnerId,
+    completedAt: p.completed_at || null,
   }
 }
 
@@ -410,7 +408,7 @@ function clearSearch() {
 }
 
 function applyFilter() {
-  let list = [...allPosts]
+  let list = allPosts.filter(p => !HW.isBlocked('trade',p.id) && !p.completedAt)
   if (searchKw.trim()) {
     const kw = searchKw.trim().toLowerCase()
     list = list.filter(p =>
@@ -440,7 +438,7 @@ function renderList() {
         <span class="post-id">🪄 ${esc(p.gameId)}${!p.isOwn?`<span class="copy-id-btn" onclick="copyToClipboard('${esc(p.gameId)}', this)">📋 复制</span>`:''}</span>
         <div class="post-header-right">
           <span class="post-rarity ${p.wantRarity}">${p.rarityLabel}</span>
-          ${p.isOwn?`<span class="edit-btn" onclick="openPublish(filteredPosts.find(x=>x.id==='${p.id}'))">编辑</span><span class="delete-btn" onclick="deletePost('${p.id}')">删除</span>`:''}
+          ${p.isOwn?`<span class="edit-btn" onclick="openPublish(filteredPosts.find(x=>x.id==='${p.id}'))">编辑</span><span class="edit-btn" onclick="completePost('${p.id}')">完成</span><span class="delete-btn" onclick="deletePost('${p.id}')">删除</span>`:`<span class="delete-btn" onclick="moderatePost('${p.id}')">举报/屏蔽</span>`}
         </div>
       </div>
       <div class="trade-main">
@@ -606,6 +604,7 @@ async function submitPost() {
         offer_cards: JSON.stringify(validOffers),
         remark,
         owner_id: myOwnerId,
+        user_id: myOwnerId,
         created_at: Date.now(),
       })
       if (error) throw error
@@ -624,7 +623,7 @@ async function deletePost(id) {
   if (!confirm('确认删除这条换卡信息？')) return
   showLoading(true)
   try {
-    const { error } = await sb.from('trade_posts').delete().eq('id', id)
+    const { error } = await sb.from('trade_posts').delete().eq('id', id).eq('user_id', myOwnerId)
     if (error) throw error
     showToast('已删除')
   } catch(e) {
@@ -647,7 +646,9 @@ function showToast(msg, isErr=false) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2500)
 }
 
-init().then(() => { if (location.hash === '#publish') openPublish() })
+async function completePost(id){if(!confirm('标记为已完成并从列表隐藏？'))return;const{error}=await sb.from('trade_posts').update({completed_at:Date.now()}).eq('id',id).eq('user_id',myOwnerId);if(error)return showToast('操作失败：'+error.message,true);showToast('已完成')}
+async function moderatePost(id){try{if(await HW.report(sb,'trade',id)){allPosts=allPosts.filter(p=>String(p.id)!==String(id));applyFilter();showToast('已举报并屏蔽')}}catch(err){showToast('举报失败：'+err.message,true)}}
+init().then(() => { if(HW.shouldPublish()){openPublish();const p=HW.params(),rarity=p.get('rarity');if(rarity){const el=document.querySelector(`#rarityPicker [data-r="${rarity}"]`);if(el)setRarity(el)}const want=p.get('want');if(want)setTimeout(()=>document.getElementById('fWantCard').value=want,0);const offers=HW.importedItems('offers');if(offers.length){pendingOffers=offers.map(card=>({card,count:'1'}));renderOfferInputs()}HW.sourceNotice(showToast)} })
 </script>
 </body>
 </html>
