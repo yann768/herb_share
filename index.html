@@ -72,7 +72,16 @@ async function loadAll(){
 }
 function sortTime(p){return p.mature>Date.now()?p.mature:(p.expire||p.created||Date.now())}
 function searchable(p){return [p.player,p.note,...p.items.map(x=>x.name),...(p.offers||[]).map(x=>x.name)].join(' ').toLowerCase()}
-function matches(p){if(!needs.length)return false;const hay=searchable(p);return needs.some(n=>hay.includes(n.toLowerCase()))}
+function matchableItems(p){return p.type==='trade'?(p.offers||[]):p.items}
+function normalizeMatchText(value){return String(value||'').trim().toLowerCase()}
+function matches(p){
+  if(!needs.length||p.owner===ownerId)return false;
+  const provided=matchableItems(p).map(x=>normalizeMatchText(x.name)).filter(Boolean);
+  return needs.some(need=>{
+    const wanted=normalizeMatchText(need);
+    return wanted&&provided.some(item=>item===wanted)
+  })
+}
 function getFiltered(){return allPosts.filter(p=>(currentType==='all'||(currentType==='match'?matches(p):p.type===currentType))&&(!query||searchable(p).includes(query)))}
 function render(){
   const posts=getFiltered(),el=document.getElementById('postList');document.getElementById('resultCount').textContent=`共 ${posts.length} 条`;
