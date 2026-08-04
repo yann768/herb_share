@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>草药互助 · 霍格沃茨互助站</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #080f09;
+  --bg2:       #0d1a0e;
+  --bg3:       #111f12;
+  --border:    #1e3d20;
+  --border2:   #2d5a2f;
+  --green:     #4aaa4e;
+  --green-dim: #2d7a30;
+  --green-glow:#7fd87e;
+  --text:      #d8f0d8;
+  --text-dim:  #6a9a6c;
+  --gold:      #c8a44a;
+  --gold-dim:  #7a5a20;
+  --blue:      #5a9ad8;
+  --purple:    #9a5ad8;
+  --orange:    #d88a3a;
+  --red:       #d84a4a;
+  --radius:    16px;
+  --card-bg: linear-gradient(160deg, #0e1a0f 0%, #121e13 100%);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Serif SC', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── 背景粒子层 ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(45,120,48,.12) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 80% 80%, rgba(45,80,120,.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 30% at 60% 40%, rgba(74,170,78,.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; padding: 0 16px 80px; }
+
+/* ── Header ── */
+header {
+  position: relative;
+  text-align: center;
+  padding: 56px 20px 36px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+  position: relative;
+}
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 50%;
+  transform: translateX(-50%);
+  width: 120px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+}
+.header-icon {
+  font-size: 56px;
+  display: block;
+  margin-bottom: 14px;
+  filter: drop-shadow(0 0 18px rgba(74,200,80,.55));
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(22px, 5vw, 34px);
+  color: var(--green-glow);
+  letter-spacing: 6px;
+  text-shadow: 0 0 30px rgba(74,200,80,.4);
+  margin-bottom: 8px;
+}
+.header-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+}
+
+/* ── 操作栏 ── */
+.action-bar {
+  position: sticky;
+  top: 0;
+  background: rgba(8,15,9,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0 0;
+  margin: 0 -16px 24px;
+  padding-left: 16px; padding-right: 16px;
+  z-index: 100;
+}
+.search-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.search-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 40px;
+  padding: 0 16px;
+  height: 42px;
+  gap: 8px;
+}
+.search-box input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+}
+.search-box input::placeholder { color: var(--text-dim); }
+.clear-btn { color: var(--text-dim); cursor: pointer; font-size: 13px; padding: 2px 4px; }
+.clear-btn:hover { color: var(--text); }
+
+.publish-btn {
+  background: linear-gradient(135deg, var(--green-dim), var(--green));
+  color: #fff;
+  border: none;
+  border-radius: 40px;
+  padding: 0 22px;
+  height: 42px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'Noto Serif SC', serif;
+  box-shadow: 0 4px 16px rgba(74,170,78,.3);
+  transition: transform .15s, box-shadow .15s;
+}
+.publish-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(74,170,78,.4); }
+.publish-btn:active { transform: translateY(0); }
+
+.filter-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 14px;
+  scrollbar-width: none;
+}
+.filter-scroll::-webkit-scrollbar { display: none; }
+.filter-tag {
+  white-space: nowrap;
+  padding: 6px 18px;
+  border-radius: 24px;
+  font-size: 13px;
+  color: var(--text-dim);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all .15s;
+  font-family: 'Noto Serif SC', serif;
+}
+.filter-tag:hover { border-color: var(--border2); color: var(--text); }
+.filter-tag.active {
+  background: var(--green-dim);
+  color: #d8f8d8;
+  border-color: var(--green);
+  font-weight: 600;
+}
+
+/* ── 统计栏 ── */
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.stats-bar span { color: var(--green-glow); font-weight: 600; }
+
+/* ── 帖子列表 ── */
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.empty-state {
+  text-align: center;
+  padding: 80px 0;
+  color: var(--text-dim);
+}
+.empty-state .ei { font-size: 60px; opacity: .35; display: block; margin-bottom: 16px; }
+.empty-state p { font-size: 15px; }
+
+/* ── 卡片 ── */
+.post-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .2s, transform .15s, box-shadow .2s;
+  animation: fadeUp .3s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.post-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74,170,78,.4), transparent);
+}
+.post-card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+}
+
+/* 稀有度色带 */
+.post-card.rarity-common { border-left: 3px solid #4a8a4a; }
+.post-card.rarity-rare   { border-left: 3px solid var(--blue); }
+.post-card.rarity-epic   { border-left: 3px solid var(--purple); }
+.post-card.rarity-legend { border-left: 3px solid var(--gold); }
+
+.rarity-badge {
+  position: absolute;
+  top: 16px; right: 16px;
+  font-size: 11px;
+  padding: 3px 12px;
+  border-radius: 16px;
+  font-weight: 600;
+}
+.rarity-badge.common { background: #1a3a1a; color: #7ab87a; border: 1px solid #3a6a3a; }
+.rarity-badge.rare   { background: #1a2d4a; color: #7ab8f0; border: 1px solid #3a6aaa; }
+.rarity-badge.epic   { background: #2d1a4a; color: #c07af0; border: 1px solid #6a3aaa; }
+.rarity-badge.legend { background: #4a2d0a; color: #f0c070; border: 1px solid #aa7a3a; }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-right: 80px;
+}
+.herb-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: #1a3a1a;
+  border: 1px solid #3a6a3a;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+.card-meta { flex: 1; }
+.herb-name { font-size: 18px; font-weight: 600; color: #a8e8a8; display: block; margin-bottom: 3px; }
+.player-id { font-size: 12px; color: var(--text-dim); }
+.qty-badge {
+  font-size: 16px; font-weight: 700;
+  color: var(--green-glow);
+  background: #1a3a1a;
+  border: 1px solid #3a6a3a;
+  border-radius: 8px;
+  padding: 3px 12px;
+}
+
+.card-times {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 12px;
+}
+.time-row { display: flex; justify-content: space-between; align-items: center; }
+.time-label { color: var(--text-dim); }
+.time-val { color: #a8d8a8; font-weight: 500; }
+.time-val.soon { color: var(--orange); }
+
+.progress-bar {
+  height: 4px;
+  background: #1a3a1a;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green-dim), var(--green-glow));
+  border-radius: 4px;
+  transition: width .3s;
+}
+
+.card-footer { display: flex; justify-content: space-between; align-items: center; }
+.status-badge { font-size: 12px; padding: 3px 12px; border-radius: 16px; }
+.status-badge.growing  { background: #1a2d4a; color: #70a8f0; }
+.status-badge.ready    { background: #1a3a1a; color: #70d870; }
+.status-badge.expiring { background: #4a2a0a; color: var(--orange); }
+.countdown { font-size: 12px; color: var(--text-dim); font-family: monospace; }
+
+.card-note {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,.03);
+  border-radius: 8px;
+  border-left: 2px solid var(--border2);
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* 删除按钮（仅自己的帖子） */
+.delete-btn {
+  position: absolute;
+  bottom: 16px; right: 16px;
+  background: rgba(200,50,50,.15);
+  border: 1px solid rgba(200,50,50,.3);
+  color: #d87070;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: 'Noto Serif SC', serif;
+  transition: background .15s;
+}
+.delete-btn:hover { background: rgba(200,50,50,.3); }
+
+/* ── 弹窗 ── */
+.modal-mask {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.8);
+  z-index: 1000;
+  align-items: flex-end;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-mask.open { display: flex; }
+.modal-box {
+  width: 100%;
+  max-width: 780px;
+  max-height: 92vh;
+  background: #0d1a0e;
+  border-radius: 24px 24px 0 0;
+  border-top: 2px solid var(--border2);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp .25s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-title { font-size: 20px; font-weight: 600; color: var(--green-glow); font-family: 'Cinzel', serif; }
+.modal-close { color: var(--text-dim); cursor: pointer; font-size: 20px; padding: 4px 8px; transition: color .15s; }
+.modal-close:hover { color: var(--text); }
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.form-group { margin-bottom: 24px; }
+.form-label {
+  display: block;
+  font-size: 13px;
+  color: var(--green-glow);
+  margin-bottom: 8px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-size: 14px;
+  color: var(--text);
+  font-family: 'Noto Serif SC', serif;
+  outline: none;
+  transition: border-color .15s;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--green); }
+.form-input::placeholder, .form-textarea::placeholder { color: var(--text-dim); }
+.form-textarea { min-height: 80px; resize: vertical; }
+.form-select { cursor: pointer; }
+.form-select option { background: var(--bg3); }
+
+.picker-row { display: flex; gap: 10px; }
+.picker-row .form-input { flex: 1; }
+.picker-row input[type="date"],
+.picker-row input[type="time"] {
+  color-scheme: dark;
+}
+
+.rarity-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+.rarity-opt {
+  padding: 8px 18px;
+  border-radius: 24px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  background: var(--bg3);
+  cursor: pointer;
+  transition: all .15s;
+  font-family: 'Noto Serif SC', serif;
+}
+.rarity-opt.sel-common { background: #1a3a1a; border-color: #7ab87a; color: #a8e8a8; }
+.rarity-opt.sel-rare   { background: #1a2d4a; border-color: #7ab8f0; color: #a8d8f0; }
+.rarity-opt.sel-epic   { background: #2d1a4a; border-color: #c07af0; color: #d8a8f0; }
+.rarity-opt.sel-legend { background: #4a2d0a; border-color: #f0c070; color: #f8e090; }
+
+.form-hint { font-size: 11px; color: var(--text-dim); margin-top: 5px; }
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+}
+.btn-cancel {
+  flex: 1;
+  padding: 13px;
+  text-align: center;
+  border-radius: 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 14px;
+  transition: background .15s;
+}
+.btn-cancel:hover { background: #1a2e1b; }
+.btn-submit {
+  flex: 2;
+  padding: 13px;
+  text-align: center;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--green-dim), var(--green));
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 14px;
+  border: none;
+  box-shadow: 0 4px 16px rgba(74,170,78,.35);
+  transition: opacity .15s;
+}
+.btn-submit:hover { opacity: .9; }
+
+/* ── 详情弹窗 ── */
+.detail-modal .modal-box { border-radius: 24px; margin: 20px; max-height: 80vh; align-self: center; }
+.detail-body { padding: 24px; }
+.detail-herb-name { font-size: 24px; font-weight: 700; color: #a8e8a8; margin-bottom: 6px; }
+.detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.detail-row:last-child { border-bottom: none; }
+.detail-key { color: var(--text-dim); }
+.detail-val { color: var(--text); font-weight: 500; }
+.detail-note-box { margin-top: 14px; padding: 14px; background: rgba(255,255,255,.03); border-radius: 10px; font-size: 13px; line-height: 1.7; color: var(--text-dim); border-left: 2px solid var(--border2); }
+
+/* ── 本地身份 ── */
+.identity-bar {
+  background: rgba(13,26,14,.8);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.identity-bar .id-val { color: var(--green-glow); font-weight: 600; }
+.identity-bar .change-id { margin-left: auto; cursor: pointer; color: var(--text-dim); text-decoration: underline; font-size: 12px; }
+.identity-bar .change-id:hover { color: var(--text); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: #1a3a1a;
+  color: var(--green-glow);
+  border: 1px solid var(--border2);
+  border-radius: 24px;
+  padding: 10px 24px;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity .25s, transform .25s;
+  z-index: 9999;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.error { background: #3a1a1a; color: #f08080; border-color: #6a3a3a; }
+
+/* ── 加载 ── */
+.loading-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(8,15,9,.7);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--green-glow);
+  font-size: 15px;
+}
+.loading-overlay.show { display: flex; }
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── 草药选择器（多选） ── */
+.item-picker-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.item-picker-row select, .item-picker-row input { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); border-radius: 10px; padding: 0 12px; height: 42px; font-family: inherit; font-size: 14px; outline: none; }
+.item-picker-row select { flex: 1; min-width: 0; cursor: pointer; }
+.item-picker-row select option { background: var(--bg2); color: var(--text); }
+.item-picker-row input.qty-input { width: 80px; text-align: center; }
+.item-add-btn { background: linear-gradient(135deg, var(--green-dim), var(--green)); color: #fff; border: none; border-radius: 10px; padding: 0 16px; height: 42px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; transition: opacity .15s; }
+.item-add-btn:hover { opacity: .9; }
+.item-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; min-height: 24px; }
+.item-list:empty::before { content: '尚未添加，至少添加一种'; color: var(--text-dim); font-size: 12px; font-style: italic; }
+.item-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 18px; padding: 5px 10px 5px 14px; font-size: 13px; color: var(--text); }
+.item-chip .chip-name { color: var(--green-glow); font-weight: 600; }
+.item-chip .chip-qty { color: var(--text-dim); }
+.item-chip .chip-del { cursor: pointer; color: var(--text-dim); margin-left: 4px; padding: 0 6px; border-radius: 50%; font-size: 14px; line-height: 1; }
+.item-chip .chip-del:hover { background: rgba(216,74,74,.2); color: #f08080; }
+
+/* ── 颜色选择器 ── */
+.color-picker { display: flex; flex-wrap: wrap; gap: 10px; }
+.color-opt { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform .15s, border-color .15s; position: relative; }
+.color-opt:hover { transform: scale(1.12); }
+.color-opt.active { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg), 0 0 12px currentColor; }
+.color-opt.active::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.color-opt[data-c="red"]    { background: #d84a4a; color: #d84a4a; }
+.color-opt[data-c="yellow"] { background: #f0d040; color: #f0d040; }
+.color-opt[data-c="pink"]   { background: #f098c0; color: #f098c0; }
+.color-opt[data-c="blue"]   { background: #4a7ad8; color: #4a7ad8; }
+.color-opt[data-c="white"]  { background: #f0f0f0; color: #f0f0f0; }
+.color-opt[data-c="black"]  { background: #2a2a2a; color: #2a2a2a; border-color: #444; }
+.color-opt[data-c="orange"] { background: #e88a30; color: #e88a30; }
+.color-opt[data-c="cyan"]   { background: #50c0d8; color: #50c0d8; }
+.color-opt[data-c="teal"]   { background: #30a890; color: #30a890; }
+.color-opt[data-c="purple"] { background: #a058d0; color: #a058d0; }
+.color-opt[data-c="lime"]   { background: #a0d040; color: #a0d040; }
+.color-opt.clear-color { background: var(--bg3); border: 1px dashed var(--border2); color: var(--text-dim); font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.color-opt.clear-color.active { background: var(--bg3); }
+.color-opt.clear-color.active::after { content: none; }
+
+/* ── mini 颜色选择器（添加草药时） ── */
+.item-color-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 8px 0 10px; padding: 8px 10px; background: var(--bg3); border-radius: 10px; border: 1px solid var(--border); }
+.item-color-row .color-label { font-size: 11px; color: var(--text-dim); letter-spacing: 1px; }
+.mini-color-opt { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform .12s, border-color .12s; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+.mini-color-opt:hover { transform: scale(1.2); }
+.mini-color-opt.active { border-color: var(--text); box-shadow: 0 0 0 1px var(--bg); }
+.mini-color-opt.none-opt { background: var(--bg2); border: 1px dashed var(--border2); color: var(--text-dim); font-size: 10px; }
+.mini-color-opt[data-c="red"]    { background: #d84a4a; }
+.mini-color-opt[data-c="yellow"] { background: #f0d040; }
+.mini-color-opt[data-c="pink"]   { background: #f098c0; }
+.mini-color-opt[data-c="blue"]   { background: #4a7ad8; }
+.mini-color-opt[data-c="white"]  { background: #d8d8d8; border-color: #aaa; }
+.mini-color-opt[data-c="black"]  { background: #2a2a2a; border-color: #555; }
+.mini-color-opt[data-c="orange"] { background: #e88a30; }
+.mini-color-opt[data-c="cyan"]   { background: #50c0d8; }
+.mini-color-opt[data-c="teal"]   { background: #30a890; }
+.mini-color-opt[data-c="purple"] { background: #a058d0; }
+.mini-color-opt[data-c="lime"]   { background: #a0d040; }
+/* chip 里的颜色点 */
+.chip-color { width: 12px; height: 12px; border-radius: 50%; display: inline-block; cursor: pointer; flex-shrink: 0; border: 1px solid rgba(255,255,255,.2); transition: transform .1s; title: '点击切换颜色'; }
+.chip-color:hover { transform: scale(1.3); }
+.chip-color.no-color { background: var(--border); border: 1px dashed var(--border2); } display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 12px; font-size: 11px; color: #fff; font-weight: 600; }
+.color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; vertical-align: middle; }
+
+/* ── 时间输入优化 ── */
+.dt-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); color: var(--text); border-radius: 10px; padding: 0 14px; height: 44px; font-family: inherit; font-size: 14px; outline: none; color-scheme: dark; }
+.dt-input:focus { border-color: var(--green); }
+.quick-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.quick-btn { background: var(--bg3); border: 1px solid var(--border); color: var(--text-dim); border-radius: 14px; padding: 4px 12px; font-size: 12px; cursor: pointer; font-family: inherit; transition: all .15s; }
+.quick-btn:hover { border-color: var(--border2); color: var(--text); }
+.form-hint-inline { font-size: 11px; color: var(--text-dim); margin-top: 6px; font-style: italic; }
+
+/* ── 复制ID按钮 ── */
+.edit-btn { background: rgba(74,130,200,.15); border: 1px solid rgba(74,130,200,.4); border-radius: 14px; padding: 3px 12px; font-size: 11px; color: #80b0e8; cursor: pointer; margin-right: 6px; }
+.edit-btn:hover { background: rgba(74,130,200,.3); }
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px;
+  padding: 2px 10px; font-size: 11px; color: var(--text-dim);
+  cursor: pointer; margin-left: 6px; transition: all .15s;
+  font-family: inherit;
+}
+.copy-id-btn:hover { border-color: var(--green); color: var(--green-glow); background: rgba(74,170,78,.1); }
+.copy-id-btn:active { transform: scale(.95); }
+
+/* ── 新卡片设计 ── */
+.herbs-main { margin-bottom: 10px; }
+.herb-row-card { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+.card-color-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(255,255,255,.18); }
+.card-color-dot.no-color { background: transparent; border: 1px dashed var(--border2); }
+.herb-name-card { font-size: 18px; font-weight: 700; color: var(--text); flex: 1; line-height: 1.3; }
+.herb-qty-card { font-size: 14px; color: var(--green-glow); font-weight: 700; }
+.player-row { display: flex; align-items: center; gap: 6px; padding: 8px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 10px; flex-wrap: wrap; }
+.player-label { font-size: 11px; color: var(--text-dim); }
+.player-name-card { font-size: 13px; color: var(--text); font-weight: 600; }
+
+
+.items-list-card { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.items-list-card .item-line { display: flex; justify-content: space-between; font-size: 13px; }
+.items-list-card .item-line .iname { color: var(--text); }
+.items-list-card .item-line .iqty { color: var(--green-glow); font-weight: 600; }
+/* ── 页面切换按钮组 ── */
+.switch-group {
+  position: absolute;
+  top: 16px; right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}
+.page-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 24px;
+  color: #fff;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.page-switch.to-cook  { background: linear-gradient(135deg, #e88a30 0%, #c46820 100%); box-shadow: 0 4px 16px rgba(220,120,40,.45), inset 0 0 0 1px rgba(255,255,255,.12); }
+.page-switch.to-trade { background: linear-gradient(135deg, #d4a020 0%, #8a6a14 100%); box-shadow: 0 4px 16px rgba(212,160,32,.45), inset 0 0 0 1px rgba(255,255,255,.12); }
+.page-switch:hover { transform: translateY(-2px) scale(1.03); }
+.page-switch.to-cook:hover  { box-shadow: 0 6px 24px rgba(220,120,40,.7), inset 0 0 0 1px rgba(255,255,255,.2); }
+.page-switch.to-trade:hover { box-shadow: 0 6px 24px rgba(212,160,32,.7), inset 0 0 0 1px rgba(255,255,255,.2); }
+.page-switch:active { transform: translateY(0) scale(.98); }
+.page-switch .ps-icon { font-size: 16px; filter: drop-shadow(0 1px 3px rgba(0,0,0,.4)); }
+.page-switch .ps-arrow { font-size: 12px; opacity: .85; transition: transform .2s; }
+.page-switch:hover .ps-arrow { transform: translateX(2px); }
+
+/* ── 响应式 ── */
+@media (max-width: 480px) {
+  .switch-group { top: 12px; right: 12px; gap: 6px; }
+  .page-switch { padding: 6px 12px; font-size: 12px; }
+  .page-switch .ps-icon { font-size: 14px; }
+  header { padding: 40px 16px 28px; }
+  h1 { letter-spacing: 3px; }
+  .post-card { padding: 18px; }
+  .card-header { gap: 12px; }
+  .herb-avatar { width: 44px; height: 44px; font-size: 22px; }
+  .modal-box { border-radius: 20px 20px 0 0; }
+}
+</style>
+</head>
+<body>
+<a href="index.html" style="position:fixed;z-index:30;left:14px;top:14px;padding:8px 11px;border-radius:12px;background:rgba(255,253,247,.94);color:#285e45;text-decoration:none;font-size:13px;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.12)">‹ 互助首页</a>
+
+<div class="wrap">
+  <header>
+    <div class="switch-group">
+      <a class="page-switch to-cook" href="cook.html"><span class="ps-icon">🍳</span>烹饪<span class="ps-arrow">→</span></a>
+      <a class="page-switch to-trade" href="trade.html"><span class="ps-icon">🃏</span>换卡<span class="ps-arrow">→</span></a>
+    </div>
+    <span class="header-icon">🌿</span>
+    <h1>草药互助广场</h1>
+    <p class="header-sub">收取时间过后帖子会自动消失哦</p>
+  </header>
+
+  <div class="action-bar">
+    <div class="search-row">
+      <div class="search-box">
+        <span>🔍</span>
+        <input id="searchInput" type="text" placeholder="搜索草药名称、玩家ID…" oninput="onSearch()">
+        <span class="clear-btn" id="clearBtn" onclick="clearSearch()" style="display:none">✕</span>
+      </div>
+      <button class="publish-btn" onclick="openPublish()">＋ 发布</button>
+    </div>
+    <div class="filter-scroll" id="filterScroll"></div>
+  </div>
+
+  <div class="identity-bar">
+    <span>🪄 当前身份：</span>
+    <span class="id-val" id="myIdDisplay">—</span>
+    <span class="change-id" onclick="changeId()">更改</span>
+  </div>
+
+  <div class="stats-bar" id="statsBar">
+    共 <span id="statTotal">0</span> 条发布 · 显示 <span id="statShown">0</span> 条
+  </div>
+
+  <div class="post-list" id="postList">
+    <div class="empty-state">
+      <span class="ei">🌱</span>
+      <p>正在加载草药信息…</p>
+    </div>
+  </div>
+</div>
+
+<!-- 发布弹窗 -->
+<div class="modal-mask" id="publishModal" onclick="onMaskClick(event,'publishModal')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">🌿 发布草药信息</span>
+      <span class="modal-close" onclick="closePublish()">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">🌿 草药 *</label>
+        <div class="item-picker-row">
+          <select id="fHerbSelect">
+            <option value="">— 选择草药 —</option>
+            <optgroup label="🌿 陆生"></optgroup>
+            <optgroup label="💧 水生"></optgroup>
+          </select>
+          <input class="qty-input" id="fHerbQty" type="number" min="1" value="1" placeholder="数量">
+          <button type="button" class="item-add-btn" onclick="addItem()">＋</button>
+        </div>
+        <div class="item-color-row" id="addingColorRow">
+          <span class="color-label">颜色</span>
+          <span class="mini-color-opt none-opt active" data-c="" onclick="setAddingColor(this)" title="不指定">∅</span>
+          <span class="mini-color-opt" data-c="red"    onclick="setAddingColor(this)" title="红"></span>
+          <span class="mini-color-opt" data-c="yellow" onclick="setAddingColor(this)" title="黄"></span>
+          <span class="mini-color-opt" data-c="pink"   onclick="setAddingColor(this)" title="粉"></span>
+          <span class="mini-color-opt" data-c="blue"   onclick="setAddingColor(this)" title="蓝"></span>
+          <span class="mini-color-opt" data-c="white"  onclick="setAddingColor(this)" title="白"></span>
+          <span class="mini-color-opt" data-c="black"  onclick="setAddingColor(this)" title="黑"></span>
+          <span class="mini-color-opt" data-c="orange" onclick="setAddingColor(this)" title="橙"></span>
+          <span class="mini-color-opt" data-c="cyan"   onclick="setAddingColor(this)" title="青"></span>
+          <span class="mini-color-opt" data-c="teal"   onclick="setAddingColor(this)" title="蓝绿"></span>
+          <span class="mini-color-opt" data-c="purple" onclick="setAddingColor(this)" title="紫"></span>
+          <span class="mini-color-opt" data-c="lime"   onclick="setAddingColor(this)" title="黄绿"></span>
+        </div>
+        <div class="item-list" id="itemList"></div>
+        <p class="form-hint-inline">可添加多种草药，每种单独选颜色；点击色点可切换</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">你的游戏ID *</label>
+        <input class="form-input" id="fPlayerId" placeholder="方便其他玩家联系你">
+        <p class="form-hint">会自动记住，下次不用再填</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">🌸 成熟时间 *</label>
+        <input class="dt-input" id="fMatureDt" type="datetime-local">
+        <div class="quick-row">
+          <button type="button" class="quick-btn" onclick="setMatureQuick(0)">现在</button>
+          <button type="button" class="quick-btn" onclick="setMatureQuick(6)">+6小时</button>
+          <button type="button" class="quick-btn" onclick="setMatureQuick(12)">+12小时</button>
+          <button type="button" class="quick-btn" onclick="setMatureQuick(24)">+24小时</button>
+          <button type="button" class="quick-btn" onclick="setMatureQuick(48)">+48小时</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">⏳ 收取截止</label>
+        <input class="dt-input" id="fExpireDt" type="datetime-local">
+        <div class="quick-row">
+          <button type="button" class="quick-btn" onclick="setExpireQuick(1)">成熟+1h</button>
+          <button type="button" class="quick-btn" onclick="setExpireQuick(2)">+2h</button>
+          <button type="button" class="quick-btn" onclick="setExpireQuick(4)">+4h</button>
+          <button type="button" class="quick-btn" onclick="setExpireQuick(8)">+8h</button>
+          <button type="button" class="quick-btn" onclick="document.getElementById('fExpireDt').value=''">清空</button>
+        </div>
+        <p class="form-hint-inline">留空 = 自动设为成熟时间后 1 小时</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">稀有度</label>
+        <div class="rarity-picker" id="rarityPicker">
+          <span class="rarity-opt sel-common" data-r="common" onclick="setRarity(this)">⚪ 普通</span>
+          <span class="rarity-opt" data-r="rare"   onclick="setRarity(this)">🔵 稀有</span>
+          <span class="rarity-opt" data-r="epic"   onclick="setRarity(this)">🟣 史诗</span>
+          <span class="rarity-opt" data-r="legend" onclick="setRarity(this)">🟡 传说</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">备注（可选）</label>
+        <textarea class="form-textarea" id="fNote" placeholder="其他说明，如草药台位置等"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="btn-cancel" onclick="closePublish()">取消</div>
+      <div class="btn-submit" onclick="submitPost()">发布</div>
+    </div>
+  </div>
+</div>
+
+<!-- 详情弹窗 -->
+<div class="modal-mask detail-modal" id="detailModal" onclick="onMaskClick(event,'detailModal')">
+  <div class="modal-box" style="border-radius:24px;margin:20px;align-self:center;max-height:80vh;">
+    <div class="modal-header">
+      <span class="modal-title" id="detailTitle">草药详情</span>
+      <span class="modal-close" onclick="closeDetail()">✕</span>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="loading-overlay" id="loading"><div class="spinner"></div><span>施法中…</span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+// ═══════════════════════════════════════════
+//  Supabase 配置
+// ═══════════════════════════════════════════
+const SUPABASE_URL = 'https://ygslzwiznvcfujonvblq.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlnc2x6d2l6bnZjZnVqb252YmxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNDM4NjksImV4cCI6MjA5NTYxOTg2OX0.J9P1NyK5tiSzPZgDeLpwfS2eRaFrP5Gb4fgpmA258vA'
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+const OWNER_KEY   = 'hogwarts_owner_id'   // 随机密钥，跨页共享，不对外显示
+const GAME_ID_KEY = 'hogwarts_game_id'    // 游戏ID，跨页共享，只用于显示
+const LAST_FORM_KEY = 'herb_share_last_form'
+
+// 草药列表（按陆生/水生分类）
+const PLANT_LAND    = ['三色堇','五月花','天竺葵','向日葵','咬人甘蓝','嗅幻草','曼德拉草','水仙','泡泡豆荚','火焰肉桂','牡丹','玫瑰','秋海棠','米布米宝','绣球花','羽衣草','迷迭香','铃兰','鼠尾草','龙舌兰香草','幽兰月桂']
+const PLANT_AQUATIC = ['凤眼莲','巨藻','睡莲','红波水草','红火焰藻','菱叶丁香蓼','囊鳃草','绿菊']
+const PLANT_LIST = [...PLANT_LAND, ...PLANT_AQUATIC]
+
+// 颜色定义
+const COLOR_LABELS = { red:'红', yellow:'黄', pink:'粉', blue:'蓝', white:'白', black:'黑', orange:'橙', cyan:'青', teal:'蓝绿', purple:'紫', lime:'黄绿' }
+const COLOR_HEX = { red:'#d84a4a', yellow:'#f0d040', pink:'#f098c0', blue:'#4a7ad8', white:'#f0f0f0', black:'#2a2a2a', orange:'#e88a30', cyan:'#50c0d8', teal:'#30a890', purple:'#a058d0', lime:'#a0d040' }
+
+const FILTERS = [
+  { id:'all',     label:'全部' },
+  { id:'ready',   label:'✅ 已成熟' },
+  { id:'growing', label:'🌱 生长中' },
+  { id:'common',  label:'普通' },
+  { id:'rare',    label:'稀有' },
+  { id:'epic',    label:'史诗' },
+  { id:'legend',  label:'传说' },
+]
+const RARITY_LABELS = { common:'普通', rare:'稀有', epic:'史诗', legend:'传说' }
+const HERB_ICONS = {
+  default:'🌿', '玫瑰':'🌹', '灵芝':'🍄', '人参':'🌱', '薄荷':'🌿',
+  '龙血草':'🌺', '月见草':'🌙', '金银花':'🌼', '当归':'🍀',
+  '羽衣草':'🌿', '睡莲':'🪷', '向日葵':'🌻', '绣球花':'💐',
+  '牡丹':'🌸', '铃兰':'🌷', '五月花':'🌺',
+  '天竺葵':'🌸', '泡泡豆荚':'🫛', '嗅幻草':'🌿', '曼德拉草':'🌱',
+  '咬人甘蓝':'🥬', '秋海棠':'🌺', '水仙':'🌼', '囊鳃草':'🌿',
+  '三色堇':'🌷', '绿菊':'🌻', '巨藻':'🌊', '红火焰藻':'🔴',
+  '红波水草':'🌊', '凤眼莲':'💜', '菱叶丁香蓼':'🌿', '米布米宝':'🌱',
+  '龙舌兰香草':'🌵', '幽兰月桂':'🌿', '火焰肉桂':'🔥', '迷迭香':'🌿', '鼠尾草':'🌿',
+}
+
+let allPosts = []
+let filteredPosts = []
+let activeFilter = 'all'
+let searchKw = ''
+let selectedRarity = 'common'
+let selectedColor = ''      // 编辑旧帖兼容用
+let selectedItemColor = ''  // 当前添加草药时选中的颜色
+let pendingItems = []
+let myOwnerId = ''
+let myGameId = ''
+let editingPostId = null
+let realtimeSub = null
+let refreshTimer = null
+
+// ── 初始化 ──
+async function init() {
+  // 随机密钥（真正的所有权凭证，跨页共享，不对外显示）
+  myOwnerId = localStorage.getItem(OWNER_KEY)
+  if (!myOwnerId) {
+    myOwnerId = 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2,9)
+    localStorage.setItem(OWNER_KEY, myOwnerId)
+  }
+  // 游戏ID（仅显示用，跨页共享）
+  myGameId = localStorage.getItem(GAME_ID_KEY) || ''
+  document.getElementById('myIdDisplay').textContent = myGameId || '（未设置）'
+
+  // 填充草药下拉（陆生/水生分组）
+  const sel = document.getElementById('fHerbSelect')
+  const groups = [
+    { label: '🌿 陆生', list: PLANT_LAND },
+    { label: '💧 水生', list: PLANT_AQUATIC },
+  ]
+  // 清空再重建（保留空白 option）
+  sel.innerHTML = '<option value="">— 选择草药 —</option>'
+  groups.forEach(g => {
+    const og = document.createElement('optgroup')
+    og.label = g.label
+    g.list.slice().sort((a,b)=>a.localeCompare(b,'zh')).forEach(n => {
+      const opt = document.createElement('option')
+      opt.value = n; opt.textContent = n
+      og.appendChild(opt)
+    })
+    sel.appendChild(og)
+  })
+
+  buildFilters()
+  await loadPosts()
+
+  // 实时订阅：有人发布/删除立即刷新
+  realtimeSub = sb
+    .channel('herb_posts_changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'herb_posts' }, () => {
+      loadPosts()
+    })
+    .subscribe()
+
+  // 每分钟本地刷新倒计时
+  refreshTimer = setInterval(() => recomputeStatus(), 60000)
+}
+
+// ── 身份管理 ──
+function changeId() {
+  const newId = prompt('输入游戏ID（仅用于显示和联系，不影响帖子所有权）:', myGameId)
+  if (newId !== null && newId.trim() !== '') {
+    myGameId = newId.trim()
+    localStorage.setItem(GAME_ID_KEY, myGameId)
+    document.getElementById('myIdDisplay').textContent = myGameId
+    showToast('游戏ID已更新，所有页面同步生效')
+  }
+}
+
+// ── 筛选标签 ──
+function buildFilters() {
+  const el = document.getElementById('filterScroll')
+  el.innerHTML = FILTERS.map(f =>
+    `<span class="filter-tag ${f.id==='all'?'active':''}" data-id="${f.id}" onclick="setFilter(this)">${f.label}</span>`
+  ).join('')
+}
+
+function setFilter(el) {
+  document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'))
+  el.classList.add('active')
+  activeFilter = el.dataset.id
+  applyFilter()
+}
+
+// ── 数据加载（Supabase）──
+async function loadPosts() {
+  showLoading(true)
+  try {
+    const now = Date.now()
+
+    // 清理自己发的过期帖
+    await sb.from('herb_posts')
+      .delete()
+      .eq('owner_id', myOwnerId)
+      .lt('expire_time', now)
+
+    // 读取所有未过期帖子
+    const { data, error } = await sb
+      .from('herb_posts')
+      .select('*')
+      .gt('expire_time', now)
+      .order('mature_time', { ascending: true })
+      .limit(200)
+
+    if (error) throw error
+
+    allPosts = (data || []).map(p => processPost(p, now))
+    applyFilter()
+  } catch (e) {
+    console.error('加载失败', e)
+    showToast('加载失败，请刷新重试', true)
+  } finally {
+    showLoading(false)
+  }
+}
+
+function parseItemsField(s) {
+  // 兼容新旧数据格式
+  try {
+    const o = JSON.parse(s)
+    if (o && Array.isArray(o.items) && o.items.length) {
+      // 旧格式：全局 color；新格式：每个 item 有 c 字段
+      const globalColor = o.color || ''
+      return {
+        items: o.items.map(it => ({
+          n: it.n, q: it.q,
+          c: it.c !== undefined ? it.c : globalColor  // 新格式优先，否则用全局
+        }))
+      }
+    }
+  } catch(e) {}
+  return { items: [{ n: String(s||''), q: null, c: '' }] }
+}
+
+function processPost(p, now) {
+  // Supabase 返回 snake_case，统一转换
+  const matureTime = p.mature_time || p.matureTime
+  const expireTime = p.expire_time || p.expireTime
+  const rawName    = p.herb_name  || p.herbName || ''
+  const playerId   = p.player_id  || p.playerId
+  const ownerId    = p.owner_id   || p.ownerId
+
+  const { items } = parseItemsField(rawName)
+  const firstName = items[0]?.n || ''
+  const displayName = items.length > 1
+    ? `${firstName} 等 ${items.length} 种`
+    : firstName
+  const searchName = items.map(it => it.n).join(' ')
+
+  const isMature   = now >= matureTime
+  const timeLeft   = expireTime - now
+  const totalSpan  = expireTime - matureTime
+  const elapsed    = now - matureTime
+  const progressPct = (isMature && totalSpan > 0)
+    ? Math.min(100, Math.round(elapsed / totalSpan * 100)) : 0
+  const expireSoon = timeLeft < 2 * 3600 * 1000
+
+  let status, statusLabel
+  if (!isMature) { status='growing'; statusLabel='🌱 生长中' }
+  else           { status='ready';   statusLabel='✅ 已成熟' }
+
+  const countdownStr = !isMature
+    ? `还需 ${fmtDur(matureTime - now)} 成熟`
+    : `${fmtDur(timeLeft)} 后收取`
+
+  return {
+    id: p.id,
+    herbName: displayName,
+    searchName,
+    items,
+    quantity: p.quantity,
+    playerId, ownerId,
+    matureTime, expireTime,
+    rarity: p.rarity || 'common',
+    note: p.note || '',
+    status, statusLabel, countdownStr,
+    progressPct, expireSoon,
+    matureStr: fmtDt(matureTime),
+    expireStr:  fmtDt(expireTime),
+    rarityLabel: RARITY_LABELS[p.rarity] || '普通',
+    icon: HERB_ICONS[firstName] || HERB_ICONS.default,
+    isOwn: ownerId === myOwnerId,
+  }
+}
+
+function recomputeStatus() {
+  const now = Date.now()
+  allPosts = allPosts.filter(p => p.expireTime > now).map(p => processPost(p, now))
+  applyFilter()
+}
+
+// ── 搜索 & 筛选 ──
+function onSearch() {
+  searchKw = document.getElementById('searchInput').value
+  document.getElementById('clearBtn').style.display = searchKw ? 'block' : 'none'
+  applyFilter()
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = ''
+  searchKw = ''
+  document.getElementById('clearBtn').style.display = 'none'
+  applyFilter()
+}
+
+function applyFilter() {
+  let list = [...allPosts]
+  if (searchKw.trim()) {
+    const kw = searchKw.trim().toLowerCase()
+    list = list.filter(p =>
+      (p.searchName||'').toLowerCase().includes(kw) ||
+      p.playerId.toLowerCase().includes(kw) ||
+      (p.note||'').toLowerCase().includes(kw)
+    )
+  }
+  if (activeFilter !== 'all') {
+    if (['growing','ready'].includes(activeFilter)) {
+      list = list.filter(p => p.status === activeFilter)
+    } else {
+      list = list.filter(p => p.rarity === activeFilter)
+    }
+  }
+  list.sort((a,b) => {
+    if (a.status==='ready' && b.status!=='ready') return -1
+    if (b.status==='ready' && a.status!=='ready') return 1
+    return a.expireTime - b.expireTime
+  })
+  filteredPosts = list
+  document.getElementById('statTotal').textContent = allPosts.length
+  document.getElementById('statShown').textContent = list.length
+  renderList()
+}
+
+// ── 渲染 ──
+function renderList() {
+  const el = document.getElementById('postList')
+  if (!filteredPosts.length) {
+    el.innerHTML = `<div class="empty-state"><span class="ei">🌱</span><p>暂无相关草药帖子</p></div>`
+    return
+  }
+  el.innerHTML = filteredPosts.map((p, i) => {
+    const herbRows = p.items.map(it => {
+      const hex = COLOR_HEX[it.c] || ''
+      const dot = hex
+        ? `<span class="card-color-dot" style="background:${hex}"></span>`
+        : `<span class="card-color-dot no-color"></span>`
+      return `<div class="herb-row-card">${dot}<span class="herb-name-card">${esc(it.n)}</span>${it.q ? `<span class="herb-qty-card">×${it.q}</span>` : ''}</div>`
+    }).join('')
+
+    const copyBtn = !p.isOwn
+      ? `<span class="copy-id-btn" onclick="event.stopPropagation();copyToClipboard('${esc(p.playerId)}', this)">📋</span>`
+      : ''
+
+    return `
+    <div class="post-card rarity-${p.rarity}" style="animation-delay:${i*30}ms" onclick="openDetail('${p.id}')">
+      <span class="rarity-badge ${p.rarity}">${p.rarityLabel}</span>
+
+      <div class="herbs-main">${herbRows}</div>
+
+      <div class="player-row">
+        <span class="player-label">玩家</span>
+        <span class="player-name-card">${esc(p.playerId)}</span>
+        ${copyBtn}
+      </div>
+
+      <div class="card-times">
+        <div class="time-row">
+          <span class="time-label">🌸 成熟</span>
+          <span class="time-val">${p.matureStr}</span>
+        </div>
+        <div class="time-row">
+          <span class="time-label">⏳ 截止</span>
+          <span class="time-val ${p.expireSoon?'soon':''}">${p.expireStr}</span>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${p.progressPct}%"></div></div>
+      <div class="card-footer">
+        <span class="status-badge ${p.status}">${p.statusLabel}</span>
+        <span class="countdown">${p.countdownStr}</span>
+      </div>
+      ${p.note ? `<div class="card-note">💬 ${esc(p.note)}</div>` : ''}
+      ${p.isOwn ? `<span class="edit-btn" onclick="event.stopPropagation();openPublish(filteredPosts.find(x=>x.id==='${p.id}'))">编辑</span><span class="delete-btn" onclick="deletePost(event,'${p.id}')">删除</span>` : ''}
+    </div>`
+  }).join('')
+}
+
+// ── 发布 ──
+function openPublish(editPost = null) {
+  editingPostId = editPost ? editPost.id : null
+
+  // 重置 items
+  pendingItems = editPost ? [...editPost.items] : []
+  renderItemList()
+  // 重置 mini 颜色选择到"无"
+  const noneEl = document.querySelector('#addingColorRow .mini-color-opt[data-c=""]')
+  if (noneEl) { document.querySelectorAll('#addingColorRow .mini-color-opt').forEach(o=>o.classList.remove('active')); noneEl.classList.add('active'); selectedItemColor = '' }
+
+  // 填游戏ID
+  document.getElementById('fPlayerId').value = myGameId || ''
+
+  // 清空或预填时间
+  if (editPost) {
+    document.getElementById('fMatureDt').value = toLocalDtStr(editPost.matureTime)
+    document.getElementById('fExpireDt').value = toLocalDtStr(editPost.expireTime)
+    document.getElementById('fNote').value = editPost.note || ''
+    // 稀有度
+    const rEl = document.querySelector(`#rarityPicker .rarity-opt[data-r="${editPost.rarity}"]`)
+    if (rEl) setRarity(rEl)
+    // 颜色
+    const cEl = document.querySelector(`#colorPicker .color-opt[data-c="${editPost.color||''}"]`)
+    if (cEl) setColor(cEl)
+  } else {
+    document.getElementById('fMatureDt').value = toLocalDtStr(Date.now())
+    document.getElementById('fExpireDt').value = ''
+    loadLastForm()
+  }
+
+  // 弹窗标题
+  document.querySelector('#publishModal .modal-title').textContent =
+    editingPostId ? '✏️ 修改草药信息' : '🌿 发布草药信息'
+  document.querySelector('#publishModal .btn-submit').textContent =
+    editingPostId ? '保存修改' : '发布'
+
+  document.getElementById('publishModal').classList.add('open')
+}
+
+function closePublish() {
+  document.getElementById('publishModal').classList.remove('open')
+}
+
+function setRarity(el) {
+  document.querySelectorAll('#rarityPicker .rarity-opt').forEach(o => o.className = 'rarity-opt')
+  el.className = `rarity-opt sel-${el.dataset.r}`
+  selectedRarity = el.dataset.r
+}
+
+function setColor(el) {
+  document.querySelectorAll('#colorPicker .color-opt').forEach(o => o.classList.remove('active'))
+  el.classList.add('active')
+  selectedColor = el.dataset.c || ''
+}
+
+// ── mini 颜色选择（添加时） ──
+function setAddingColor(el) {
+  document.querySelectorAll('#addingColorRow .mini-color-opt').forEach(o => o.classList.remove('active'))
+  el.classList.add('active')
+  selectedItemColor = el.dataset.c || ''
+}
+
+// ── 多 item 管理 ──
+function addItem() {
+  const name = document.getElementById('fHerbSelect').value
+  const qty = +document.getElementById('fHerbQty').value
+  if (!name) return showToast('请先选择草药', true)
+  if (!qty || qty < 1) return showToast('数量需 ≥ 1', true)
+  const exist = pendingItems.find(it => it.n === name)
+  if (exist) {
+    exist.q = (+exist.q || 0) + qty
+    // 颜色：如果已有颜色则不覆盖（除非新选了颜色）
+    if (selectedItemColor) exist.c = selectedItemColor
+  } else {
+    pendingItems.push({ n: name, q: qty, c: selectedItemColor })
+  }
+  document.getElementById('fHerbSelect').value = ''
+  document.getElementById('fHerbQty').value = '1'
+  // 重置颜色选择到"无"
+  const noneEl = document.querySelector('#addingColorRow .mini-color-opt[data-c=""]')
+  if (noneEl) setAddingColor(noneEl)
+  renderItemList()
+}
+
+function removeItem(idx) {
+  pendingItems.splice(idx, 1)
+  renderItemList()
+}
+
+// 点击 chip 上的色点，循环切换颜色
+const COLOR_CYCLE = ['', 'red', 'yellow', 'pink', 'blue', 'white', 'black', 'orange', 'cyan', 'teal', 'purple', 'lime']
+function cycleChipColor(idx) {
+  const cur = pendingItems[idx]?.c || ''
+  const nextIdx = (COLOR_CYCLE.indexOf(cur) + 1) % COLOR_CYCLE.length
+  pendingItems[idx].c = COLOR_CYCLE[nextIdx]
+  renderItemList()
+}
+
+function renderItemList() {
+  const el = document.getElementById('itemList')
+  el.innerHTML = pendingItems.map((it, i) => {
+    const hex = COLOR_HEX[it.c] || ''
+    const colorDot = hex
+      ? `<span class="chip-color" style="background:${hex}" onclick="cycleChipColor(${i})" title="${COLOR_LABELS[it.c]||''} 点击切换"></span>`
+      : `<span class="chip-color no-color" onclick="cycleChipColor(${i})" title="无颜色，点击添加"></span>`
+    return `<span class="item-chip">${colorDot}<span class="chip-name">${esc(it.n)}</span><span class="chip-qty">×${it.q}</span><span class="chip-del" onclick="removeItem(${i})">✕</span></span>`
+  }).join('')
+}
+
+// ── 时间快捷 ──
+function toLocalDtStr(ts) {
+  const d = new Date(ts), pad = n => String(n).padStart(2,'0')
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+function setMatureQuick(hoursFromNow) {
+  document.getElementById('fMatureDt').value = toLocalDtStr(Date.now() + hoursFromNow*3600*1000)
+}
+function setExpireQuick(hoursAfterMature) {
+  const mv = document.getElementById('fMatureDt').value
+  if (!mv) return showToast('请先填成熟时间', true)
+  const matTs = new Date(mv).getTime()
+  if (isNaN(matTs)) return
+  document.getElementById('fExpireDt').value = toLocalDtStr(matTs + hoursAfterMature*3600*1000)
+}
+
+// ── 上次表单缓存 ──
+function saveLastForm() {
+  try {
+    localStorage.setItem(LAST_FORM_KEY, JSON.stringify({
+      rarity: selectedRarity,
+      color: selectedColor,
+      note: document.getElementById('fNote').value,
+    }))
+  } catch(e) {}
+}
+function loadLastForm() {
+  try {
+    const raw = localStorage.getItem(LAST_FORM_KEY)
+    if (!raw) return
+    const o = JSON.parse(raw)
+    if (o.rarity) {
+      const target = document.querySelector(`#rarityPicker .rarity-opt[data-r="${o.rarity}"]`)
+      if (target) setRarity(target)
+    }
+    if (o.color !== undefined) {
+      const target = document.querySelector(`#colorPicker .color-opt[data-c="${o.color||''}"]`)
+      if (target) setColor(target)
+    }
+    if (o.note !== undefined) document.getElementById('fNote').value = o.note || ''
+  } catch(e) {}
+}
+
+// ── 复制ID ──
+async function copyToClipboard(text, btnEl) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text)
+    } else {
+      const ta = document.createElement('textarea')
+      ta.value = text; ta.style.position='fixed'; ta.style.opacity='0'
+      document.body.appendChild(ta); ta.select()
+      document.execCommand('copy'); document.body.removeChild(ta)
+    }
+    showToast('已复制：' + text)
+    if (btnEl) {
+      const old = btnEl.textContent
+      btnEl.textContent = '✓ 已复制'
+      setTimeout(()=> btnEl.textContent = old, 1500)
+    }
+  } catch(e) {
+    showToast('复制失败', true)
+  }
+}
+
+async function submitPost() {
+  const playerId = document.getElementById('fPlayerId').value.trim()
+  const mv = document.getElementById('fMatureDt').value
+  const ev = document.getElementById('fExpireDt').value
+  const note = document.getElementById('fNote').value.trim()
+
+  if (!pendingItems.length) return showToast('请至少添加一种草药', true)
+  if (!playerId) return showToast('请填写游戏ID', true)
+  if (!mv) return showToast('请填写成熟时间', true)
+
+  const matureTs = new Date(mv).getTime()
+  if (isNaN(matureTs)) return showToast('成熟时间格式有误', true)
+
+  let expireTs
+  if (ev) {
+    expireTs = new Date(ev).getTime()
+    if (isNaN(expireTs)) return showToast('收取截止时间格式有误', true)
+    if (expireTs <= matureTs) return showToast('收取截止须晚于成熟时间', true)
+  } else {
+    expireTs = matureTs + 3600 * 1000
+  }
+  if (expireTs <= Date.now()) return showToast('收取截止时间已过期', true)
+
+  // 保存游戏ID（显示用）
+  myGameId = playerId
+  localStorage.setItem(GAME_ID_KEY, myGameId)
+  document.getElementById('myIdDisplay').textContent = myGameId
+
+  const herbNameJson = JSON.stringify({
+    items: pendingItems.map(it => ({ n: it.n, q: +it.q, c: it.c || '' })),
+  })
+  const totalQty = pendingItems.reduce((s,it)=> s + (+it.q||0), 0)
+
+  showLoading(true)
+  try {
+    if (editingPostId) {
+      // 编辑模式：UPDATE（且只能更新自己的帖子）
+      const { error } = await sb.from('herb_posts').update({
+        herb_name: herbNameJson,
+        quantity: totalQty,
+        player_id: playerId,
+        mature_time: matureTs,
+        expire_time: expireTs,
+        rarity: selectedRarity,
+        note,
+      }).eq('id', editingPostId).eq('owner_id', myOwnerId)
+      if (error) throw error
+      saveLastForm()
+      closePublish()
+      showToast('修改成功！🌿')
+    } else {
+      // 发布模式：INSERT
+      const { error } = await sb.from('herb_posts').insert({
+        herb_name:   herbNameJson,
+        quantity:    totalQty,
+        player_id:   playerId,
+        mature_time: matureTs,
+        expire_time: expireTs,
+        rarity:      selectedRarity,
+        note,
+        owner_id:    myOwnerId,
+        created_at:  Date.now(),
+      })
+      if (error) throw error
+      saveLastForm()
+      closePublish()
+      showToast('发布成功！🌿')
+    }
+    pendingItems = []
+  } catch(e) {
+    console.error('操作失败', e)
+    showToast('操作失败：' + (e.message || '请重试'), true)
+  } finally {
+    showLoading(false)
+  }
+}
+
+async function deletePost(e, id) {
+  e.stopPropagation()
+  if (!confirm('确认删除这条草药信息？')) return
+  showLoading(true)
+  try {
+    const { error } = await sb.from('herb_posts').delete().eq('id', id)
+    if (error) throw error
+    showToast('已删除')
+  } catch(e) {
+    showToast('删除失败：' + (e.message || '请重试'), true)
+  } finally {
+    showLoading(false)
+  }
+}
+
+// ── 详情 ──
+function openDetail(id) {
+  const p = filteredPosts.find(x => x.id === id)
+  if (!p) return
+  const titleName = p.items.length > 1 ? `${p.items[0].n} 等${p.items.length}种` : p.items[0].n
+  document.getElementById('detailTitle').textContent = `🌿 ${titleName}`
+
+  const itemsHtml = p.items.length === 1
+    ? (() => {
+        const it = p.items[0]
+        const dot = it.c && COLOR_HEX[it.c]
+          ? `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${COLOR_HEX[it.c]};margin-right:6px;flex-shrink:0;border:1px solid rgba(255,255,255,.15);vertical-align:middle"></span>`
+          : ''
+        return `<div class="detail-herb-name">${dot}${esc(it.n)} ${it.q?`<span style="font-size:14px;color:var(--text-dim)">×${it.q}</span>`:''}</div>`
+      })()
+    : `<div class="detail-herb-name">本帖共 ${p.items.length} 种草药</div>
+       <div class="items-list-card" style="margin-bottom:12px">
+         ${p.items.map(it => {
+           const dot = it.c && COLOR_HEX[it.c]
+             ? `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${COLOR_HEX[it.c]};margin-right:6px;flex-shrink:0;border:1px solid rgba(255,255,255,.15)"></span>`
+             : `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;border:1px dashed var(--border2);margin-right:6px;flex-shrink:0"></span>`
+           return `<div class="item-line"><span class="iname" style="display:flex;align-items:center">${dot}${esc(it.n)}</span><span class="iqty">×${it.q||'-'}</span></div>`
+         }).join('')}
+       </div>`
+
+  const copyBtn = !p.isOwn
+    ? `<span class="copy-id-btn" onclick="copyToClipboard('${esc(p.playerId)}', this)">📋 复制</span>`
+    : ''
+
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-body">
+      ${itemsHtml}
+      <div style="margin-bottom:16px"><span class="rarity-badge ${p.rarity}" style="position:static">${p.rarityLabel}</span></div>
+      <div class="detail-row"><span class="detail-key">玩家ID</span><span class="detail-val">${esc(p.playerId)} ${copyBtn}</span></div>
+      <div class="detail-row"><span class="detail-key">状态</span><span class="detail-val">${p.statusLabel}</span></div>
+      <div class="detail-row"><span class="detail-key">成熟时间</span><span class="detail-val">${p.matureStr}</span></div>
+      <div class="detail-row"><span class="detail-key">收取截止</span><span class="detail-val ${p.expireSoon?'soon':''}">${p.expireStr}</span></div>
+      <div class="detail-row"><span class="detail-key">倒计时</span><span class="detail-val">${p.countdownStr}</span></div>
+      ${p.note ? `<div class="detail-note-box">💬 ${esc(p.note)}</div>` : ''}
+    </div>
+  `
+  document.getElementById('detailModal').classList.add('open')
+}
+
+function closeDetail() {
+  document.getElementById('detailModal').classList.remove('open')
+}
+
+function onMaskClick(e, id) {
+  if (e.target === document.getElementById(id)) {
+    document.getElementById(id).classList.remove('open')
+  }
+}
+
+// ── 工具函数 ──
+function fmtDt(ts) {
+  const d = new Date(ts)
+  const pad = n => String(n).padStart(2,'0')
+  return `${d.getMonth()+1}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+function fmtDur(ms) {
+  if (ms <= 0) return '0分钟'
+  const h = Math.floor(ms / 3600000)
+  const m = Math.floor((ms % 3600000) / 60000)
+  return h > 0 ? `${h}小时${m > 0 ? m+'分钟' : ''}` : `${m}分钟`
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')
+}
+
+function showLoading(on) {
+  document.getElementById('loading').classList.toggle('show', on)
+}
+
+let toastTimer
+function showToast(msg, isErr=false) {
+  const el = document.getElementById('toast')
+  el.textContent = msg
+  el.className = 'toast show' + (isErr ? ' error' : '')
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500)
+}
+
+init().then(() => { if (location.hash === '#publish') openPublish() })
+</script>
+</body>
+</html>

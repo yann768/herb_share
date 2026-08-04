@@ -220,10 +220,11 @@ h1 { font-family: 'Cinzel', serif; font-size: clamp(22px, 5vw, 34px); color: var
 </style>
 </head>
 <body>
+<a href="index.html" style="position:fixed;z-index:30;left:14px;top:14px;padding:8px 11px;border-radius:12px;background:rgba(255,253,247,.94);color:#285e45;text-decoration:none;font-size:13px;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.12)">‹ 互助首页</a>
 <div class="wrap">
   <header>
     <div class="switch-group">
-      <a class="page-switch to-herb" href="index.html"><span class="ps-icon">🌿</span>草药<span class="ps-arrow">→</span></a>
+      <a class="page-switch to-herb" href="herb.html"><span class="ps-icon">🌿</span>草药<span class="ps-arrow">→</span></a>
       <a class="page-switch to-trade" href="trade.html"><span class="ps-icon">🃏</span>换卡<span class="ps-arrow">→</span></a>
     </div>
     <span class="header-icon">🍲</span>
@@ -691,7 +692,7 @@ function showLoading(on) { document.getElementById('loading').classList.toggle('
 let toastTimer
 function showToast(msg,isErr=false) { const el=document.getElementById('toast'); el.textContent=msg; el.className='toast show'+(isErr?' error':''); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2500) }
 
-init()
+init().then(() => { if (location.hash === '#publish') openPublish() })
 </script>
 </body>
 </html>
