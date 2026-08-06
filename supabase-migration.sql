@@ -42,3 +42,51 @@ create policy "report insert" on public.post_reports for insert to authenticated
 create index if not exists herb_posts_user_id_idx on public.herb_posts(user_id);
 create index if not exists cook_posts_user_id_idx on public.cook_posts(user_id);
 create index if not exists trade_posts_user_id_idx on public.trade_posts(user_id);
+
+-- 小程序到网站的一次性表单导入码。只有 service_role 可以创建，公网只能通过 RPC 消费。
+create extension if not exists pgcrypto;
+create table if not exists public.web_import_scenes (
+  code_hash text primary key,
+  payload jsonb not null,
+  creator_hash text not null,
+  expires_at timestamptz not null,
+  consumed_at timestamptz,
+  created_at timestamptz not null default now()
+);
+alter table public.web_import_scenes enable row level security;
+
+create or replace function public.consume_web_import(p_code text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+declare result jsonb;
+begin
+  if p_code is null or length(p_code) < 12 or length(p_code) > 64 then return null; end if;
+  update public.web_import_scenes
+     set consumed_at = now()
+   where code_hash = encode(digest(p_code, 'sha256'), 'hex')
+     and consumed_at is null
+     and expires_at > now()
+  returning payload into result;
+  return result;
+end;
+$$;
+revoke all on function public.consume_web_import(text) from public;
+grant execute on function public.consume_web_import(text) to anon, authenticated;
+create index if not exists web_import_scenes_expiry_idx on public.web_import_scenes(expires_at);
+
+create table if not exists public.mini_program_entries (
+  entry_type text primary key check (entry_type in ('home','herb','cook','trade')),
+  page_path text not null,
+  url_link text,
+  qr_url text,
+  updated_at timestamptz not null default now()
+);
+alter table public.mini_program_entries enable row level security;
+drop policy if exists "public read mini program entries" on public.mini_program_entries;
+create policy "public read mini program entries" on public.mini_program_entries for select using (true);
+grant select on public.mini_program_entries to anon, authenticated;
+insert into storage.buckets (id,name,public) values ('mini-program-assets','mini-program-assets',true)
+on conflict (id) do update set public=true;

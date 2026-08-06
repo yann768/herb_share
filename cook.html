@@ -694,7 +694,8 @@ function showToast(msg,isErr=false) { const el=document.getElementById('toast');
 
 async function completePost(e,id){e.stopPropagation();if(!confirm('标记为已完成并从列表隐藏？'))return;const{error}=await sb.from('cook_posts').update({completed_at:Date.now()}).eq('id',id).eq('user_id',myOwnerId);if(error)return showToast('操作失败：'+error.message,true);showToast('已完成')}
 async function moderatePost(e,id){e.stopPropagation();try{if(await HW.report(sb,'cook',id)){allPosts=allPosts.filter(p=>String(p.id)!==String(id));applyFilter();showToast('已举报并屏蔽')}}catch(err){showToast('举报失败：'+err.message,true)}}
-init().then(() => { if(HW.shouldPublish()){openPublish();const names=HW.importedItems('dish');names.forEach(n=>{const s=document.getElementById('fDishSelect');if([...s.options].some(o=>o.value===n)){s.value=n;document.getElementById('fDishQty').value=1;addItem()}});HW.sourceNotice(showToast)} })
+HW.mountMiniProgramEntry(sb,'cook')
+init().then(async()=>{try{const imported=await HW.consumeScene(sb);if(imported){openPublish();pendingItems=(imported.items||[]).map(x=>({n:x.name,q:x.quantity||1}));renderItemList();document.getElementById('fPlayerId').value=imported.gameId||'';document.getElementById('fMatureDt').value=toLocalDtStr(imported.matureAt||Date.now());document.getElementById('fExpireDt').value=toLocalDtStr(imported.expireAt||Date.now()+21600000);document.getElementById('fNote').value=imported.note||'';showToast('已安全导入小程序表单');return}if(HW.shouldPublish()){openPublish();const names=HW.importedItems('dish');names.forEach(n=>{const s=document.getElementById('fDishSelect');if([...s.options].some(o=>o.value===n)){s.value=n;document.getElementById('fDishQty').value=1;addItem()}});HW.sourceNotice(showToast)}}catch(e){showToast(e.message,true)}})
 </script>
 </body>
 </html>

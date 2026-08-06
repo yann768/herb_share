@@ -44,6 +44,7 @@
 <div id="toast" class="toast"></div>
 <canvas id="shareCanvas" width="1080" height="1440" hidden></canvas>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="site-common.js"></script>
 <script>
 const SUPABASE_URL='https://ygslzwiznvcfujonvblq.supabase.co';
 const PUBLIC_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlnc2x6d2l6bnZjZnVqb252YmxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNDM4NjksImV4cCI6MjA5NTYxOTg2OX0.J9P1NyK5tiSzPZgDeLpwfS2eRaFrP5Gb4fgpmA258vA';
@@ -125,7 +126,7 @@ function wrapText(c,text,x,y,max,line){let s='';for(const ch of text){if(c.measu
 function maskId(v){v=String(v);return v.length>6?v.slice(0,3)+'***'+v.slice(-2):v}
 function esc(s){return String(s??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]))}function js(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r?\n/g,' ')}
 let toastTimer;function toast(s){const el=document.getElementById('toast');el.textContent=s;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),1800)}
-loadAll();
+loadAll();HW.mountMiniProgramEntry(sb,'home');
 </script>
 </body>
 </html>
