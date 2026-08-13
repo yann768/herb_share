@@ -9,7 +9,15 @@
     const { data } = await client.auth.getSession()
     if (data.session?.user) return data.session.user
     const result = await client.auth.signInAnonymously()
-    if (result.error) throw new Error('匿名登录失败：' + result.error.message)
+    if (result.error) {
+      const key = 'hogwarts_owner_id'
+      let id = localStorage.getItem(key)
+      if (!id) {
+        id = crypto.randomUUID?.() || ('u_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 9))
+        localStorage.setItem(key, id)
+      }
+      return { id, isLocalIdentity: true }
+    }
     return result.data.user
   }
 
