@@ -5,19 +5,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#173b2b">
   <meta name="description" content="统一检索收藏资料、上新返场、赛季和平衡调整档案。">
-  <title>综合资料检索 · 霍格沃茨互助站</title>
+  <title>资料档案库 · 霍格沃茨互助站</title>
   <link rel="stylesheet" href="catalog.css?v=20260816-1">
 </head>
 <body>
 <main class="app">
   <header class="top">
-    <div><a class="back" href="index.html">‹ 返回互助首页</a><div class="eyebrow">HOGWARTS ARCHIVE</div><h1>综合资料检索</h1><p class="subtitle">统一搜索收藏资料、上新返场、赛季和平衡调整</p></div>
-    <div class="top-actions"><a class="collection-link" href="collection.html">我的收藏一览</a><button class="mini-link" id="miniLink">更多功能在小程序</button></div>
+    <div><a class="back" href="index.html">‹ 返回互助首页</a><div class="eyebrow">HOGWARTS ARCHIVE</div><h1>资料档案库</h1><p class="subtitle">查询全部物品、上新返场、赛季和平衡记录，也可标记收藏</p></div>
+    <div class="top-actions"><a class="collection-link" href="collection.html">查看我的收藏</a><button class="mini-link" id="miniLink">更多功能在小程序</button></div>
   </header>
   <section class="search-panel">
     <div class="search"><input id="searchInput" placeholder="搜索名称、年份或获取方式…" autocomplete="off"><button class="clear" id="clearBtn" aria-label="清除搜索">×</button></div>
     <div class="select-filters"><label>年份<select id="yearFilter"><option value="all">全部年份</option></select></label><label>来源<select id="sourceFilter"><option value="all">全部来源</option></select></label></div>
-    <div class="filters" id="filters"></div>
+    <div class="filter-scroll" aria-label="资料分类，左右滑动查看更多"><div class="filters" id="filters"></div></div>
   </section>
   <div class="summary"><h2 id="resultTitle">全部资料</h2><span id="resultCount">加载中…</span></div>
   <section class="grid" id="grid"><div class="empty">正在整理魔法档案…</div></section>

@@ -19,6 +19,40 @@ function loadPage(name) {
   return page.data
 }
 
+function loadCbgDex() {
+  const filename = path.join(miniRoot, 'pages', 'cbg', 'cbg.js')
+  const sandbox = { Page() {}, getApp: () => ({}), wx: {}, console }
+  const expose = `;globalThis.__catalogDex={
+    clothes:DEX_CLOTHES,wands:DEX_WANDS,skins:DEX_CARDSKINS,faces:DEX_FACES,
+    icons:{clothes:Object.assign({},DEX_CLOTHES_ICON,DEX_GIFT_CLOTHES_ICON),wands:DEX_WAND_ICON,skins:DEX_CARDSKIN_ICON,faces:DEX_FACE_ICON}
+  }`
+  vm.runInNewContext(fs.readFileSync(filename, 'utf8') + expose, sandbox, { filename })
+  return sandbox.__catalogDex
+}
+
+function loadCbgFurniture() {
+  const filename = path.join(miniRoot, 'cloudfunctions', 'cbgParse', 'game_auto_config.js')
+  const sandbox = {}
+  vm.runInNewContext(fs.readFileSync(filename, 'utf8') + ';globalThis.__gameConfig=CBG_GAME_CONFIG', sandbox, { filename })
+  const decorations = sandbox.__gameConfig.decoration || {}
+  const furnitureByName = new Map()
+  Object.entries(decorations).forEach(([configId, meta]) => {
+    const type = meta.type
+    const subType = meta.sub_type
+    const icon = meta.icon || ''
+    const name = String(meta.name || '').trim()
+    if (!name) return
+    const explicitFurniture = type === 205 || (type === 800 && (
+      ['sushe', 'jiaju', 'furniture', 'chuang', 'guizi', 'zhuozi', 'yizi'].some(word => icon.includes(word)) || subType === 15
+    ))
+    const sculptureFurniture = type === 800 && ['石雕', '食槽', '雕像', '雕塑'].some(word => name.includes(word))
+    if (!explicitFurniture && !sculptureFurniture) return
+    const current = furnitureByName.get(name)
+    if (!current || (!current.icon && icon)) furnitureByName.set(name, { configId, name, icon })
+  })
+  return [...furnitureByName.values()]
+}
+
 function readJson(filename) {
   return JSON.parse(fs.readFileSync(path.join(miniRoot, filename), 'utf8').replace(/^\uFEFF/, ''))
 }
@@ -39,7 +73,7 @@ const collectibleDefinitions = [
   { key: 'animal', label: '动物', icon: '🦉', data: loadPage('animal').animalGroups },
 ]
 
-const collectibleItems = collectibleDefinitions.flatMap(category => category.data.flatMap(group => (group.items || []).map(item => ({
+const curatedCollectibleItems = collectibleDefinitions.flatMap(category => category.data.flatMap(group => (group.items || []).map(item => ({
   id: `${category.key}-${item.id}`,
   category: category.key,
   categoryLabel: category.label,
@@ -61,6 +95,52 @@ const collectibleItems = collectibleDefinitions.flatMap(category => category.dat
   details: [],
   flipEvent: item.flipEvent || null,
 }))))
+
+const cbgDex = loadCbgDex()
+const cbgFurniture = loadCbgFurniture()
+const cbgDefinitions = [
+  { key: 'outfit', label: '服饰', icon: '🧥', names: cbgDex.clothes, images: cbgDex.icons.clothes },
+  { key: 'wand', label: '魔杖', icon: '🪄', names: cbgDex.wands, images: cbgDex.icons.wands },
+  { key: 'cardskin', label: '卡牌皮肤', icon: '🃏', names: cbgDex.skins, images: cbgDex.icons.skins },
+  { key: 'face', label: '脸型', icon: '🎭', names: cbgDex.faces, images: cbgDex.icons.faces },
+  { key: 'furniture', label: '家具', icon: '🛋️', names: cbgFurniture.map(item => item.name), images: Object.fromEntries(cbgFurniture.map(item => [item.name, `https://cbg-hp.res.netease.com/game_res/${item.icon.replace(/^\/+/, '')}`])) },
+]
+
+function normalizedName(value) {
+  return String(value || '').trim().replace(/[·•]/g, '·').replace(/\s+/g, '')
+}
+
+const collectibleItems = [...curatedCollectibleItems]
+const knownNames = new Map()
+collectibleItems.forEach(item => {
+  const names = [item.name, item.alternateName, ...(item.aliases || [])].filter(Boolean)
+  if (item.category === 'cardskin' && item.name.includes('·')) {
+    const skinName = item.name.split('·')[0].trim()
+    names.push(skinName)
+    if (!item.aliases.includes(skinName)) item.aliases.push(skinName)
+  }
+  names.forEach(name => knownNames.set(`${item.category}:${normalizedName(name)}`, item))
+})
+cbgDefinitions.forEach(category => {
+  ;[...new Set(category.names)].forEach(name => {
+    const key = `${category.key}:${normalizedName(name)}`
+    const existing = knownNames.get(key)
+    if (existing) {
+      existing.cbgVerified = true
+      if (!existing.image && category.images[name]) existing.image = category.images[name]
+      return
+    }
+    const item = {
+      id: `${category.key}-cbg-${hash(normalizedName(name))}`,
+      category: category.key, categoryLabel: category.label, icon: category.icon, collectible: true,
+      year: '', date: '', name, alternateName: '', aliases: [], source: 'cbg', sourceLabel: '藏宝阁全图鉴',
+      image: category.images[name] || '', imageAlt: '', categoryDetail: '藏宝阁全图鉴补充', rarity: '', rare: false, new: false,
+      details: ['该条目来自藏宝阁解析页的完整图鉴；时间和获取方式等待资料库后续补充。'], flipEvent: null, cbgVerified: true,
+    }
+    collectibleItems.push(item)
+    knownNames.set(key, item)
+  })
+})
 
 const timeline = loadPage('new')
 function timelineItems(groups, kind) {
@@ -142,6 +222,8 @@ const items = [
 
 const categoryDefinitions = [
   ...collectibleDefinitions.map(({ data, ...rest }) => ({ ...rest, collectible: true })),
+  { key: 'face', label: '脸型', icon: '🎭', collectible: true },
+  { key: 'furniture', label: '家具', icon: '🛋️', collectible: true },
   { key: 'new', label: '上新档案', icon: '✨', collectible: false },
   { key: 'restock', label: '返场档案', icon: '↩️', collectible: false },
   { key: 'season', label: '赛季索引', icon: '🏆', collectible: false },

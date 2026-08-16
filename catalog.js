@@ -1,5 +1,5 @@
 const sb=window.supabase.createClient('https://ygslzwiznvcfujonvblq.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ5Z3Nsendpem52Y2Z1am9udmJscSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzgwMDQzODY5LCJleHAiOjIwOTU2MTk4NjB9.J9P1NyK5tiSzPZgDeLpwfS2eRaFrP5Gb4fgpmA258vA')
-const sourceLabels={gacha:'转盘',season:'赛季',luxury:'臻藏',flip:'翻牌',gift:'直售/赠礼',direct:'直售',free:'免费获取',activity:'活动',shop:'商店',none:'未注明',new:'首次上线',restock:'历史返场',balance:'平衡调整',default:'其它'}
+const sourceLabels={gacha:'转盘',season:'赛季',luxury:'臻藏',flip:'翻牌',gift:'直售/赠礼',direct:'直售',free:'免费获取',activity:'活动',shop:'商店',none:'未注明',cbg:'藏宝阁全图鉴',new:'首次上线',restock:'历史返场',balance:'平衡调整',default:'其它'}
 const OWNED_KEY='hogwarts_catalog_owned_v1'
 const params=new URLSearchParams(location.search)
 let catalog={categories:[],items:[]},active=params.get('type')||'all',query=params.get('q')||'',year=params.get('year')||'all',source=params.get('source')||'all',owned=readOwned(),detailId=params.get('item')||''
