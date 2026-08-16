@@ -1,15 +1,20 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.ProbabilityCore=api})(typeof globalThis!=='undefined'?globalThis:this,function(){
   function clamp(value,min,max){return Math.min(max,Math.max(min,Number(value)||0))}
-  function calculate({draws=0,startPity=0,baseGoldRate=0,pityMax=0,upRate=0,guaranteedUp=false,pityTargetRate}){
-    draws=Math.floor(clamp(draws,0,300));pityMax=Math.max(1,Math.floor(pityMax));startPity=Math.floor(clamp(startPity,0,pityMax-1));baseGoldRate=clamp(baseGoldRate,0,1);upRate=clamp(upRate,0,1);pityTargetRate=pityTargetRate==null?(guaranteedUp?1:upRate):clamp(pityTargetRate,0,1)
+  function calculate({draws=0,startPity=0,baseGoldRate=0,pityMax=0,upRate=0,guaranteedUp=false,pityTargetRate,pityResetRate}){
+    draws=Math.floor(clamp(draws,0,500));pityMax=Math.max(1,Math.floor(pityMax));startPity=Math.floor(clamp(startPity,0,pityMax-1));baseGoldRate=clamp(baseGoldRate,0,1);upRate=clamp(upRate,0,1);pityTargetRate=pityTargetRate==null?(guaranteedUp?1:upRate):clamp(pityTargetRate,0,1);pityResetRate=pityResetRate==null?baseGoldRate:clamp(pityResetRate,0,1)
     function metricDistribution(kind){
       let states=new Map([[`${startPity}|0`,1]])
       for(let step=0;step<draws;step++){
         const next=new Map(),push=(pity,count,prob)=>{if(prob<=0)return;const key=`${pity}|${count}`;next.set(key,(next.get(key)||0)+prob)}
         states.forEach((prob,key)=>{const [pity,count]=key.split('|').map(Number),hard=pity+1>=pityMax
           if(hard){if(kind==='gold')push(0,count+1,prob);else{push(0,count+1,prob*pityTargetRate);push(0,count,prob*(1-pityTargetRate))};return}
-          if(kind==='gold'){push(0,count+1,prob*baseGoldRate);push(pity+1,count,prob*(1-baseGoldRate))}
-          else{push(0,count+1,prob*baseGoldRate*upRate);push(0,count,prob*baseGoldRate*(1-upRate));push(pity+1,count,prob*(1-baseGoldRate))}
+          if(kind==='gold'){
+            const resetGold=Math.min(baseGoldRate,pityResetRate),otherGold=Math.max(0,baseGoldRate-resetGold)
+            push(0,count+1,prob*resetGold);push(pity+1,count+1,prob*otherGold);push(pity+1,count,prob*(1-baseGoldRate))
+          }else{
+            const targetRate=baseGoldRate*upRate,otherReset=Math.max(0,pityResetRate-targetRate)
+            push(0,count+1,prob*targetRate);push(0,count,prob*otherReset);push(pity+1,count,prob*Math.max(0,1-pityResetRate))
+          }
         });states=next
       }
       const dist={};let expected=0;states.forEach((prob,key)=>{const count=Number(key.split('|')[1]);dist[count]=(dist[count]||0)+prob;expected+=count*prob});return {dist,expected}
