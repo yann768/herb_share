@@ -6,11 +6,13 @@ const POOLS={
 }
 let pool='limited',renderTimer;const $=id=>document.getElementById(id),pct=value=>(value*100).toFixed(value>.995?1:2)+'%',fmt=value=>Number(value).toFixed(2).replace(/\.00$/,'')
 function render(){
-  const cfg=POOLS[pool],times=Math.max(1,Math.floor(Number($('draws').value)||1)),cardDraws=times*cfg.perDraw,pity=Math.min(cfg.pity-1,Number($('pity').value)||0)
+  const rawTimes=$('draws').value.trim()
+  if(rawTimes===''||!Number.isFinite(Number(rawTimes)))return
+  const cfg=POOLS[pool],times=Math.max(1,Math.floor(Number(rawTimes))),cardDraws=times*cfg.perDraw,pity=Math.min(cfg.pity-1,Number($('pity').value)||0)
   const limited=cfg.kind==='up',resetRate=limited?cfg.rate*cfg.upRate:cfg.rate
   const result=ProbabilityCore.calculate({draws:cardDraws,startPity:pity,baseGoldRate:cfg.rate,pityMax:cfg.pity,upRate:cfg.upRate,guaranteedUp:cfg.guaranteedUp,pityResetRate:resetRate})
   const mixed=pool==='mixed',singleCard=mixed?ProbabilityCore.calculate({draws:cardDraws,startPity:pity,baseGoldRate:cfg.rate,pityMax:cfg.pity,upRate:.25,pityTargetRate:.5,pityResetRate:resetRate}):result
-  $('draws').value=times;$('poolTitle').textContent=cfg.title;$('pity').max=cfg.pity-1;$('pity').value=pity;$('pityHint').textContent=limited?`已连续 ${pity} / ${cfg.pity} 张未获得 UP`:`已连续 ${pity} / ${cfg.pity} 张未出${cfg.target}`;$('ruleText').textContent=cfg.rule
+  $('poolTitle').textContent=cfg.title;$('pity').max=cfg.pity-1;$('pity').value=pity;$('pityHint').textContent=limited?`已连续 ${pity} / ${cfg.pity} 张未获得 UP`:`已连续 ${pity} / ${cfg.pity} 张未出${cfg.target}`;$('ruleText').textContent=cfg.rule
   $('mainLabel').textContent=mixed?'预计两张 UP 合计':limited?'预计获得 UP':`预计获得${cfg.target}`;$('expected').textContent=fmt(limited?result.expectedUp:result.expectedGold);$('rangeText').textContent=`${times} 次共结算 ${cardDraws} 张卡；约 80% 的结果为 ${(limited?result.upRange:result.goldRange).join('～')} 张`
   $('chanceLabel').textContent=limited?'至少 1 张任意 UP':`至少 1 张${cfg.target}`;$('atLeastOne').textContent=pct(limited?result.atLeastOneUp:result.atLeastOneGold);$('goldLabel').textContent=limited?'预计出金':`预计${cfg.target}`;$('expectedGold').textContent=fmt(result.expectedGold);$('atLeastGoldLabel').textContent=limited?'至少出金一次':`至少 1 张${cfg.target}`;$('atLeastGold').textContent=pct(result.atLeastOneGold);$('keyCost').textContent=`${times} 把${cfg.keyName}`
   $('mixedSummary').hidden=!mixed;if(mixed){$('newExpected').textContent=fmt(singleCard.expectedUp)+' 张';$('returnExpected').textContent=fmt(singleCard.expectedUp)+' 张';$('newChance').textContent=`至少 1 张：${pct(singleCard.atLeastOneUp)}`;$('returnChance').textContent=`至少 1 张：${pct(singleCard.atLeastOneUp)}`}
@@ -18,6 +20,6 @@ function render(){
   $('distTitle').textContent=mixed?'新卡数量概率分布':limited?'UP 数量概率分布':`${cfg.target}数量概率分布`;$('distribution').innerHTML=entries.length?entries.map(([count,prob])=>`<div class="dist-row"><b>${count} 张</b><div class="bar"><i style="width:${prob/max*100}%"></i></div><strong>${pct(prob)}</strong></div>`).join(''):'<div class="empty-dist">抽数较大，已切换为高效统计计算，请参考期望、获得概率和 80% 区间。</div>'
   $('explanation').innerHTML=mixed?`使用 <b>${times} 把红钥匙</b>、共结算 <b>${cardDraws} 张卡</b>时，两张 UP 合计平均约 <b>${fmt(result.expectedUp)} 张</b>；其中新卡平均约 <b>${fmt(singleCard.expectedUp)} 张</b>，至少获得一张新卡的概率为 <b>${pct(singleCard.atLeastOneUp)}</b>。`:limited?`使用 <b>${times} 把红钥匙</b>、共结算 <b>${cardDraws} 张卡</b>时，平均约有 <b>${fmt(result.expectedUp)} 张 UP</b>，至少一张 UP 的概率为 <b>${pct(result.atLeastOneUp)}</b>。`:`使用 <b>${times} 把${cfg.keyName}</b>、共结算 <b>${cardDraws} 张卡</b>时，平均约有 <b>${fmt(result.expectedGold)} 张${cfg.target}</b>，至少一张的概率为 <b>${pct(result.atLeastOneGold)}</b>。`
 }
-const scheduleRender=()=>{clearTimeout(renderTimer);renderTimer=setTimeout(render,80)}
+const scheduleRender=()=>{clearTimeout(renderTimer);renderTimer=setTimeout(render,400)}
 document.querySelector('.pool-tabs').onclick=e=>{const button=e.target.closest('[data-pool]');if(!button)return;pool=button.dataset.pool;document.querySelectorAll('[data-pool]').forEach(x=>x.classList.toggle('active',x===button));$('draws').value=POOLS[pool].times;$('pity').value=0;render()}
-document.querySelector('.quick').onclick=e=>{const button=e.target.closest('[data-draws]');if(button){$('draws').value=button.dataset.draws;render()}};$('draws').oninput=scheduleRender;$('pity').oninput=scheduleRender;render()
+document.querySelector('.quick').onclick=e=>{const button=e.target.closest('[data-draws]');if(button){$('draws').value=button.dataset.draws;render()}};$('draws').oninput=scheduleRender;$('draws').onchange=()=>{const value=Math.max(1,Math.floor(Number($('draws').value)||1));$('draws').value=value;render()};$('pity').oninput=scheduleRender;render()
