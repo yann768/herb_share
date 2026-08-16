@@ -4,7 +4,8 @@ const vm = require('vm')
 
 const miniRoot = path.resolve(__dirname, '..', '..', '..', 'miniprogram-1')
 const output = path.resolve(__dirname, '..', 'catalog-data.json')
-const sourceLabels = { gacha: '转盘', season: '赛季', luxury: '臻藏', flip: '翻牌', gift: '直售/赠礼', direct: '直售', free: '免费获取', activity: '活动', shop: '商店', none: '未注明' }
+const sourceLabels = { gacha: '转盘', season: '赛季／卡池', luxury: '作业礼盒', flip: '翻牌活动', gift: '礼包赠送', direct: '直售', free: '免费获取', activity: '活动获取', shop: '商店兑换', none: '获取方式待补充' }
+const acquisitionSources = ['gacha', 'luxury', 'flip', 'direct', 'gift', 'season', 'free', 'activity', 'shop']
 
 function loadPage(name) {
   let page
@@ -135,7 +136,7 @@ cbgDefinitions.forEach(category => {
       category: category.key, categoryLabel: category.label, icon: category.icon, collectible: true,
       year: '', date: '', name, alternateName: '', aliases: [], source: 'cbg', sourceLabel: '藏宝阁全图鉴',
       image: category.images[name] || '', imageAlt: '', categoryDetail: '藏宝阁全图鉴补充', rarity: '', rare: false, new: false,
-      details: ['该条目来自藏宝阁解析页的完整图鉴；时间和获取方式等待资料库后续补充。'], flipEvent: null, cbgVerified: true,
+      details: ['该物品的获取方式和时间等待资料库后续补充。'], flipEvent: null, cbgVerified: true,
     }
     collectibleItems.push(item)
     knownNames.set(key, item)
@@ -234,7 +235,9 @@ const categories = categoryDefinitions.map(category => ({
   count: items.filter(item => item.category === category.key).length,
 }))
 const years = [...new Set(items.map(item => String(item.year || '').replace('年', '')).filter(Boolean))].sort((a, b) => Number(b) - Number(a))
-const sources = [...new Set(items.map(item => item.source).filter(Boolean))].sort().map(key => ({ key, label: items.find(item => item.source === key).sourceLabel || key }))
+const sources = acquisitionSources
+  .filter(key => items.some(item => item.collectible !== false && item.source === key))
+  .map(key => ({ key, label: sourceLabels[key] }))
 
 const ids = new Set()
 for (const item of items) {
