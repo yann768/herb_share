@@ -1,27 +1,12 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.ProbabilityCore=api})(typeof globalThis!=='undefined'?globalThis:this,function(){
-  function clamp(value,min,max){return Math.min(max,Math.max(min,Number(value)||0))}
+  const clamp=(v,min,max)=>Math.min(max,Math.max(min,Number(v)||0))
   function calculate({draws=0,startPity=0,baseGoldRate=0,pityMax=0,upRate=0,guaranteedUp=false,pityTargetRate,pityResetRate}){
-    draws=Math.floor(clamp(draws,0,500));pityMax=Math.max(1,Math.floor(pityMax));startPity=Math.floor(clamp(startPity,0,pityMax-1));baseGoldRate=clamp(baseGoldRate,0,1);upRate=clamp(upRate,0,1);pityTargetRate=pityTargetRate==null?(guaranteedUp?1:upRate):clamp(pityTargetRate,0,1);pityResetRate=pityResetRate==null?baseGoldRate:clamp(pityResetRate,0,1)
-    function metricDistribution(kind){
-      let states=new Map([[`${startPity}|0`,1]])
-      for(let step=0;step<draws;step++){
-        const next=new Map(),push=(pity,count,prob)=>{if(prob<=0)return;const key=`${pity}|${count}`;next.set(key,(next.get(key)||0)+prob)}
-        states.forEach((prob,key)=>{const [pity,count]=key.split('|').map(Number),hard=pity+1>=pityMax
-          if(hard){if(kind==='gold')push(0,count+1,prob);else{push(0,count+1,prob*pityTargetRate);push(0,count,prob*(1-pityTargetRate))};return}
-          if(kind==='gold'){
-            const resetGold=Math.min(baseGoldRate,pityResetRate),otherGold=Math.max(0,baseGoldRate-resetGold)
-            push(0,count+1,prob*resetGold);push(pity+1,count+1,prob*otherGold);push(pity+1,count,prob*(1-baseGoldRate))
-          }else{
-            const targetRate=baseGoldRate*upRate,otherReset=Math.max(0,pityResetRate-targetRate)
-            push(0,count+1,prob*targetRate);push(0,count,prob*otherReset);push(pity+1,count,prob*Math.max(0,1-pityResetRate))
-          }
-        });states=next
-      }
-      const dist={};let expected=0;states.forEach((prob,key)=>{const count=Number(key.split('|')[1]);dist[count]=(dist[count]||0)+prob;expected+=count*prob});return {dist,expected}
-    }
-    const gold=metricDistribution('gold'),up=metricDistribution('up'),goldDist=gold.dist,upDist=up.dist,expectedGold=gold.expected,expectedUp=up.expected
-    const percentile=(dist,p)=>{let sum=0;for(const key of Object.keys(dist).map(Number).sort((a,b)=>a-b)){sum+=dist[key];if(sum>=p)return key}return 0}
-    return {draws,expectedGold,expectedUp,atLeastOneGold:1-(goldDist[0]||0),atLeastOneUp:1-(upDist[0]||0),goldDist,upDist,goldRange:[percentile(goldDist,.1),percentile(goldDist,.9)],upRange:[percentile(upDist,.1),percentile(upDist,.9)]}
+    draws=Math.max(0,Math.floor(Number(draws)||0));pityMax=Math.max(1,Math.floor(pityMax));startPity=Math.floor(clamp(startPity,0,pityMax-1));baseGoldRate=clamp(baseGoldRate,0,1);upRate=clamp(upRate,0,1);pityTargetRate=pityTargetRate==null?(guaranteedUp?1:upRate):clamp(pityTargetRate,0,1);pityResetRate=pityResetRate==null?baseGoldRate:clamp(pityResetRate,0,1)
+    const transitions=(kind,pity)=>{if(pity+1>=pityMax)return kind==='gold'?[[0,1,1]]:[[0,1,pityTargetRate],[0,0,1-pityTargetRate]];if(kind==='gold'){const reset=Math.min(baseGoldRate,pityResetRate),other=Math.max(0,baseGoldRate-reset);return [[0,1,reset],[pity+1,1,other],[pity+1,0,1-baseGoldRate]]}const target=baseGoldRate*upRate,otherReset=Math.max(0,pityResetRate-target);return [[0,1,target],[0,0,otherReset],[pity+1,0,Math.max(0,1-pityResetRate)]]}
+    function exact(kind){let states=new Map([[`${startPity}|0`,1]]);for(let step=0;step<draws;step++){const next=new Map();states.forEach((prob,key)=>{const [pity,count]=key.split('|').map(Number);transitions(kind,pity).forEach(([np,inc,q])=>{if(q<=0)return;const nk=`${np}|${count+inc}`;next.set(nk,(next.get(nk)||0)+prob*q)})});states=next}const dist={};let expected=0;states.forEach((prob,key)=>{const count=Number(key.split('|')[1]);dist[count]=(dist[count]||0)+prob;expected+=count*prob});return {dist,expected,p0:dist[0]||0}}
+    function moments(kind){let states=new Map([[startPity,{p:1,s:0,s2:0,p0:1}]]);for(let step=0;step<draws;step++){const next=new Map();states.forEach((row,pity)=>transitions(kind,pity).forEach(([np,inc,q])=>{if(q<=0)return;const out=next.get(np)||{p:0,s:0,s2:0,p0:0};out.p+=row.p*q;out.s+=(row.s+inc*row.p)*q;out.s2+=(row.s2+2*inc*row.s+inc*row.p)*q;if(!inc)out.p0+=row.p0*q;next.set(np,out)}));states=next}let s=0,s2=0,p0=0;states.forEach(row=>{s+=row.s;s2+=row.s2;p0+=row.p0});const sd=Math.sqrt(Math.max(0,s2-s*s));return {dist:{},expected:s,p0,range:[Math.max(0,Math.floor(s-1.2816*sd)),Math.ceil(s+1.2816*sd)],approximate:true}}
+    const compute=kind=>draws<=500?exact(kind):moments(kind),gold=compute('gold'),up=compute('up'),percentile=(dist,p)=>{let sum=0;for(const key of Object.keys(dist).map(Number).sort((a,b)=>a-b)){sum+=dist[key];if(sum>=p)return key}return 0}
+    return {draws,expectedGold:gold.expected,expectedUp:up.expected,atLeastOneGold:1-gold.p0,atLeastOneUp:1-up.p0,goldDist:gold.dist,upDist:up.dist,goldRange:gold.approximate?gold.range:[percentile(gold.dist,.1),percentile(gold.dist,.9)],upRange:up.approximate?up.range:[percentile(up.dist,.1),percentile(up.dist,.9)],approximate:Boolean(gold.approximate||up.approximate)}
   }
   return {calculate}
 })

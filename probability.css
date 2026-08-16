@@ -2,3 +2,4 @@
 @media(max-width:700px){.app{padding:14px 12px 50px}.calculator{grid-template-columns:1fr}h1{font-size:27px}.hero-result strong{font-size:46px}.pool-tabs button{flex:1;padding:9px 5px}.panel-head{align-items:flex-start;gap:8px}.dist-row{grid-template-columns:62px 1fr 58px}}
 .mixed-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px}.mixed-summary article{border:1px solid #dfd5be;border-radius:13px;padding:13px;background:#fffaf0}.mixed-summary span,.mixed-summary small{display:block;color:var(--muted);font-size:11px}.mixed-summary b{display:block;font-size:25px;margin:4px 0;color:var(--ink)}
 .pool-tabs{flex-wrap:wrap}@media(max-width:700px){.pool-tabs button{flex:1 1 45%}}
+.empty-dist{padding:18px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);text-align:center;font-size:12px}
