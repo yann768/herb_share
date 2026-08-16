@@ -1,0 +1,19 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#173b2b"><meta name="description" content="比较多套资源积累方案，计算目标缺口和计划支出。"><title>资源规划工作台 · 霍格沃茨互助站</title><link rel="stylesheet" href="planner.css?v=20260816-1"></head>
+<body><main class="app">
+<header class="top"><div><a href="index.html">‹ 返回互助首页</a><div class="eyebrow">RESOURCE PLANNER</div><h1>资源规划工作台</h1><p>管理当前库存、目标、活动收益和计划支出，并同时比较三套方案。</p></div><div class="header-actions"><button id="importBtn">导入</button><button id="exportBtn">导出 JSON</button><button id="csvBtn">导出 CSV</button></div></header>
+<section class="notice">计算规则来自小程序资源计算器；未来活动和奖励可能调整，请以游戏内实际内容为准。</section>
+<nav class="plan-tabs" id="planTabs" aria-label="规划方案"></nav>
+<div class="workspace">
+  <div class="editor">
+    <section class="panel"><div class="panel-head"><h2>方案设置</h2><div class="panel-actions"><span id="saveState">自动保存在本机</span><button id="copyPlanBtn">复制方案</button></div></div><div class="form-grid"><label>方案名称<input id="planName" maxlength="20"></label><label>开始日期<input id="startDate" type="date"></label><label>结束日期<input id="endDate" type="date"></label></div></section>
+    <section class="panel"><div class="panel-head"><h2>当前库存</h2><button data-add="balance">＋ 添加资源</button></div><div id="balanceRows" class="data-rows"></div></section>
+    <section class="panel"><div class="panel-head"><h2>资源目标</h2><button data-add="goal">＋ 添加目标</button></div><div id="goalRows" class="data-rows"></div></section>
+    <section class="panel"><div class="panel-head"><h2>计划支出</h2><button data-add="expense">＋ 添加支出</button></div><div id="expenseRows" class="data-rows"></div></section>
+    <section class="panel activities-panel"><div class="panel-head"><div><h2>收益计划</h2><small id="activitySummary"></small></div><div class="preset-actions"><button data-preset="leisure">休闲</button><button data-preset="full">全勤</button><button data-preset="monthly">月卡</button><button data-preset="clear">清空</button></div></div><div class="activity-groups" id="activityGroups"></div></section>
+  </div>
+  <aside class="result-panel"><div class="panel-head"><h2>当前方案结果</h2><strong id="resultDays"></strong></div><div id="warningSummary"></div><div id="resultSummary"></div><div id="goalSummary"></div></aside>
+</div>
+<section class="panel timeline-panel"><div class="panel-head"><div><h2>资源趋势与日历</h2><small>按当前选择估算，每日奖励记在当天，周期奖励记在周期末</small></div></div><div id="trendChart" class="trend-chart"></div><div id="calendarList" class="calendar-list"></div></section>
+<section class="panel compare-panel"><div class="panel-head"><div><h2>方案比较</h2><small>可复制方案后调整支出或收益，最多同时保留六套</small></div></div><div class="compare-wrap"><table><thead id="compareHead"></thead><tbody id="compareBody"></tbody></table></div></section>
+<input id="importFile" type="file" accept="application/json,.json" hidden>
+</main><script src="planner-core.js?v=20260816-2"></script><script src="planner.js?v=20260816-2"></script></body></html>

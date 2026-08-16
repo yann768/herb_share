@@ -1,0 +1,1531 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-16T13:39:48.394Z",
+  "source": "miniprogram/utils/activityData.js",
+  "resources": [
+    {
+      "name": "金币",
+      "color": "#b8860b",
+      "bg": "rgba(184,134,11,0.1)",
+      "icon": "🪙"
+    },
+    {
+      "name": "宝石",
+      "color": "#185FA5",
+      "bg": "rgba(24,95,165,0.1)",
+      "icon": "💎"
+    },
+    {
+      "name": "金钥匙",
+      "color": "#854F0B",
+      "bg": "rgba(133,79,11,0.1)",
+      "icon": "🔑"
+    },
+    {
+      "name": "银钥匙",
+      "color": "#778899",
+      "bg": "rgba(119,136,153,0.1)",
+      "icon": "🔑"
+    },
+    {
+      "name": "紫飞来",
+      "color": "#534AB7",
+      "bg": "rgba(83,74,183,0.1)",
+      "icon": "🪶"
+    },
+    {
+      "name": "蓝飞来",
+      "color": "#185FA5",
+      "bg": "rgba(24,95,165,0.1)",
+      "icon": "🪶"
+    },
+    {
+      "name": "白飞来",
+      "color": "#5F5E5A",
+      "bg": "rgba(95,94,90,0.1)",
+      "icon": "🪶"
+    },
+    {
+      "name": "红钥匙",
+      "color": "#A32D2D",
+      "bg": "rgba(163,45,45,0.1)",
+      "icon": "🔑"
+    },
+    {
+      "name": "金卡",
+      "color": "#993C1D",
+      "bg": "rgba(153,60,29,0.1)",
+      "icon": "🃏"
+    },
+    {
+      "name": "金飞来",
+      "color": "#854F0B",
+      "bg": "rgba(133,79,11,0.1)",
+      "icon": "🪶"
+    },
+    {
+      "name": "非凡卡包",
+      "color": "#993C1D",
+      "bg": "rgba(153,60,29,0.1)",
+      "icon": "📦"
+    },
+    {
+      "name": "蓝万能",
+      "color": "#185FA5",
+      "bg": "rgba(24,95,165,0.1)",
+      "icon": "✨"
+    },
+    {
+      "name": "飞来币",
+      "color": "#3B6D11",
+      "bg": "rgba(59,109,17,0.1)",
+      "icon": "🪶"
+    },
+    {
+      "name": "白万能",
+      "color": "#5F5E5A",
+      "bg": "rgba(95,94,90,0.1)",
+      "icon": "✨"
+    },
+    {
+      "name": "发条",
+      "color": "#5F5E5A",
+      "bg": "rgba(95,94,90,0.1)",
+      "icon": "⚙️"
+    },
+    {
+      "name": "紫万能",
+      "color": "#534AB7",
+      "bg": "rgba(83,74,183,0.1)",
+      "icon": "✨"
+    },
+    {
+      "name": "永恒万能卡",
+      "color": "#9a1fa0",
+      "bg": "rgba(154,31,160,0.1)",
+      "icon": "🌟"
+    }
+  ],
+  "activities": [
+    {
+      "id": "d1",
+      "group": "每日金币来源",
+      "name": "每日调查",
+      "frequency": "每日",
+      "periodDays": 1,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 500
+      },
+      "limited": false
+    },
+    {
+      "id": "d2",
+      "group": "每日金币来源",
+      "name": "金币禁林",
+      "frequency": "每日",
+      "periodDays": 1,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 2400
+      },
+      "limited": false
+    },
+    {
+      "id": "d4",
+      "group": "每日金币来源",
+      "name": "帐篷50%",
+      "frequency": "每日",
+      "periodDays": 1,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 200
+      },
+      "limited": false
+    },
+    {
+      "id": "d5",
+      "group": "每日金币来源",
+      "name": "每日上限",
+      "frequency": "每日",
+      "periodDays": 1,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 1200
+      },
+      "limited": false
+    },
+    {
+      "id": "d6",
+      "group": "每日金币来源",
+      "name": "每日作业",
+      "frequency": "每日",
+      "periodDays": 1,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 800
+      },
+      "limited": false
+    },
+    {
+      "id": "d7",
+      "group": "每日金币来源",
+      "name": "宿舍",
+      "frequency": "每日",
+      "periodDays": 1,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 100
+      },
+      "limited": false
+    },
+    {
+      "id": "d8",
+      "group": "每日金币来源",
+      "name": "15小动物",
+      "frequency": "每日",
+      "periodDays": 1,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 100
+      },
+      "limited": false
+    },
+    {
+      "id": "d9",
+      "group": "每日金币来源",
+      "name": "每日6箱",
+      "frequency": "每日",
+      "periodDays": 1,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 1100
+      },
+      "limited": false
+    },
+    {
+      "id": "d3",
+      "group": "友队加成10%",
+      "name": "友队加成10%",
+      "frequency": "每日",
+      "periodDays": 1,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "金币": 240
+      },
+      "limited": false
+    },
+    {
+      "id": "d10",
+      "group": "每日宝石来源",
+      "name": "每日上限",
+      "frequency": "每日",
+      "periodDays": 1,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 20
+      },
+      "limited": false
+    },
+    {
+      "id": "d11",
+      "group": "每日宝石来源",
+      "name": "每日6箱",
+      "frequency": "每日",
+      "periodDays": 1,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 32
+      },
+      "limited": false
+    },
+    {
+      "id": "d-mcard",
+      "group": "月卡",
+      "name": "月卡每日宝石",
+      "frequency": "每日",
+      "periodDays": 1,
+      "source": "月卡",
+      "paid": true,
+      "rewards": {
+        "宝石": 80
+      },
+      "limited": false
+    },
+    {
+      "id": "d12",
+      "group": "每周金币",
+      "name": "社团商店",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 3000
+      },
+      "limited": false
+    },
+    {
+      "id": "d13",
+      "group": "每周金币",
+      "name": "巫师友队",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 2000
+      },
+      "limited": false
+    },
+    {
+      "id": "d14",
+      "group": "每周金币",
+      "name": "感谢信",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 1000
+      },
+      "limited": false
+    },
+    {
+      "id": "d19",
+      "group": "每周金币",
+      "name": "友队加成10%",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 180
+      },
+      "limited": false
+    },
+    {
+      "id": "d15",
+      "group": "每周金币",
+      "name": "调查试炼",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 200
+      },
+      "limited": false
+    },
+    {
+      "id": "d16",
+      "group": "每周金币",
+      "name": "调查组队",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 1000
+      },
+      "limited": false
+    },
+    {
+      "id": "d17",
+      "group": "每周金币",
+      "name": "致命30+",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 1000
+      },
+      "limited": false
+    },
+    {
+      "id": "d18",
+      "group": "每周金币",
+      "name": "3次红10",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 2000
+      },
+      "limited": false
+    },
+    {
+      "id": "d20",
+      "group": "每周金币",
+      "name": "大师商店",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 12000
+      },
+      "limited": false
+    },
+    {
+      "id": "d21",
+      "group": "每周金币",
+      "name": "高价收购",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 7000
+      },
+      "limited": false
+    },
+    {
+      "id": "d22",
+      "group": "每周宝石",
+      "name": "巫师友队",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 50
+      },
+      "limited": false
+    },
+    {
+      "id": "d23",
+      "group": "每周宝石",
+      "name": "大师商店",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 90
+      },
+      "limited": false
+    },
+    {
+      "id": "d24",
+      "group": "每周宝石",
+      "name": "高价收购",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 52
+      },
+      "limited": false
+    },
+    {
+      "id": "d26",
+      "group": "每周钥匙",
+      "name": "周末福利金钥匙",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金钥匙": 2
+      },
+      "limited": false
+    },
+    {
+      "id": "d36",
+      "group": "每周钥匙",
+      "name": "巫师友队金钥匙",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金钥匙": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "d28",
+      "group": "每周钥匙",
+      "name": "社团挑战银钥匙",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "银钥匙": 2
+      },
+      "limited": false
+    },
+    {
+      "id": "d29",
+      "group": "每周钥匙",
+      "name": "巫师友队银钥匙",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "银钥匙": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "d30",
+      "group": "每周飞来",
+      "name": "社团商店紫飞来",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "紫飞来": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "d31",
+      "group": "每周飞来",
+      "name": "感谢信紫飞来",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "紫飞来": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "d32",
+      "group": "每周飞来",
+      "name": "社团商店蓝飞来",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "蓝飞来": 5
+      },
+      "limited": false
+    },
+    {
+      "id": "d33",
+      "group": "每周飞来",
+      "name": "感谢信蓝飞来",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "蓝飞来": 3
+      },
+      "limited": false
+    },
+    {
+      "id": "d34",
+      "group": "每周飞来",
+      "name": "社团商店白飞来",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "白飞来": 10
+      },
+      "limited": false
+    },
+    {
+      "id": "d35",
+      "group": "每周飞来",
+      "name": "感谢信白飞来",
+      "frequency": "每周",
+      "periodDays": 7,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "白飞来": 5
+      },
+      "limited": false
+    },
+    {
+      "id": "d37",
+      "group": "每2周金币",
+      "name": "社团挑战",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 5000
+      },
+      "limited": false
+    },
+    {
+      "id": "d38",
+      "group": "每2周金币",
+      "name": "无尽",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 14500
+      },
+      "limited": false
+    },
+    {
+      "id": "d40",
+      "group": "每2周宝石",
+      "name": "梦魇一",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 130
+      },
+      "limited": false
+    },
+    {
+      "id": "d41",
+      "group": "每2周宝石",
+      "name": "梦魇二",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 180
+      },
+      "limited": false
+    },
+    {
+      "id": "d42",
+      "group": "每2周宝石",
+      "name": "林中蹊径",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 360
+      },
+      "limited": false
+    },
+    {
+      "id": "d25",
+      "group": "每2周钥匙",
+      "name": "作业金钥匙",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金钥匙": 2
+      },
+      "limited": false
+    },
+    {
+      "id": "d27",
+      "group": "每2周钥匙",
+      "name": "作业红钥匙",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "红钥匙": 2
+      },
+      "limited": false
+    },
+    {
+      "id": "d43",
+      "group": "每2周社团奖励",
+      "name": "金卡",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "金卡": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "d44",
+      "group": "每2周社团奖励",
+      "name": "金飞来",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "金飞来": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "d45",
+      "group": "每2周社团奖励",
+      "name": "金钥匙",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "金钥匙": 3
+      },
+      "limited": false
+    },
+    {
+      "id": "d46",
+      "group": "每2周社团奖励",
+      "name": "银钥匙",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "银钥匙": 8
+      },
+      "limited": false
+    },
+    {
+      "id": "d47",
+      "group": "每2周社团奖励",
+      "name": "林中红钥匙",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "红钥匙": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "d48",
+      "group": "每2周社团奖励",
+      "name": "蓝飞来",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "蓝飞来": 8
+      },
+      "limited": false
+    },
+    {
+      "id": "d49",
+      "group": "每2周社团奖励",
+      "name": "白飞来",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "白飞来": 12
+      },
+      "limited": false
+    },
+    {
+      "id": "d50",
+      "group": "每2周社团奖励",
+      "name": "红钥匙",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "红钥匙": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "d51",
+      "group": "每2周社团奖励",
+      "name": "林中金钥匙",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "金钥匙": 6
+      },
+      "limited": false
+    },
+    {
+      "id": "d52",
+      "group": "每2周社团奖励",
+      "name": "非凡卡包",
+      "frequency": "每2周",
+      "periodDays": 14,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "非凡卡包": 2
+      },
+      "limited": false
+    },
+    {
+      "id": "d56",
+      "group": "每月社团奖励",
+      "name": "金飞来",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "金飞来": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "d59",
+      "group": "每月社团奖励",
+      "name": "非凡卡包",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "非凡卡包": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "d64",
+      "group": "每月社团奖励",
+      "name": "蓝万能",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "蓝万能": 2
+      },
+      "limited": false
+    },
+    {
+      "id": "d54",
+      "group": "每月其他",
+      "name": "飞来币",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "飞来币": 19
+      },
+      "limited": false
+    },
+    {
+      "id": "d63",
+      "group": "每月其他",
+      "name": "免费礼盒白万能",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "白万能": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "ljzx-1",
+      "group": "连环珍匣",
+      "name": "第一档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 20
+      },
+      "limited": false
+    },
+    {
+      "id": "ljzx-2",
+      "group": "连环珍匣",
+      "name": "第二档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 100,
+        "发条": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "ljzx-3",
+      "group": "连环珍匣",
+      "name": "第三档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 140,
+        "红钥匙": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "ljzx-4",
+      "group": "连环珍匣",
+      "name": "第四档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 4000
+      },
+      "limited": false
+    },
+    {
+      "id": "ljzx-5",
+      "group": "连环珍匣",
+      "name": "第五档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 3000,
+        "非凡卡包": 3
+      },
+      "limited": false
+    },
+    {
+      "id": "ljzx-6",
+      "group": "连环珍匣",
+      "name": "第六档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "非凡卡包": 5
+      },
+      "limited": false
+    },
+    {
+      "id": "ljbd-1",
+      "group": "连环宝屉",
+      "name": "第一档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "红钥匙": 2
+      },
+      "limited": false
+    },
+    {
+      "id": "ljbd-2",
+      "group": "连环宝屉",
+      "name": "第二档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "红钥匙": 3,
+        "金币": 3300,
+        "宝石": 300
+      },
+      "limited": false
+    },
+    {
+      "id": "ljbd-3",
+      "group": "连环宝屉",
+      "name": "第三档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "红钥匙": 7
+      },
+      "limited": false
+    },
+    {
+      "id": "ljbd-4",
+      "group": "连环宝屉",
+      "name": "第四档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "红钥匙": 2,
+        "非凡卡包": 4,
+        "金卡": 1,
+        "金币": 1000
+      },
+      "limited": false
+    },
+    {
+      "id": "ljbd-5",
+      "group": "连环宝屉",
+      "name": "第五档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "红钥匙": 12
+      },
+      "limited": false
+    },
+    {
+      "id": "ljbd-6",
+      "group": "连环宝屉",
+      "name": "第六档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "非凡卡包": 7,
+        "金卡": 1,
+        "金币": 1000
+      },
+      "limited": false
+    },
+    {
+      "id": "ljbd-7",
+      "group": "连环宝屉",
+      "name": "第七档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "红钥匙": 14,
+        "金币": 10000,
+        "金卡": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "ljbd-8",
+      "group": "连环宝屉",
+      "name": "第八档",
+      "frequency": "每月",
+      "periodDays": 30,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "蓝万能": 2,
+        "紫万能": 5,
+        "非凡卡包": 3,
+        "金币": 11000,
+        "永恒万能卡": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "d65",
+      "group": "赛季商店",
+      "name": "金币",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "赛季",
+      "paid": false,
+      "rewards": {
+        "金币": 80000
+      },
+      "limited": false
+    },
+    {
+      "id": "d74",
+      "group": "赛季商店",
+      "name": "宝石",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "赛季",
+      "paid": false,
+      "rewards": {
+        "宝石": 1120
+      },
+      "limited": false
+    },
+    {
+      "id": "d79",
+      "group": "赛季商店",
+      "name": "金卡",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "赛季",
+      "paid": false,
+      "rewards": {
+        "金卡": 2
+      },
+      "limited": false
+    },
+    {
+      "id": "d81",
+      "group": "赛季商店",
+      "name": "金钥匙",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "赛季",
+      "paid": false,
+      "rewards": {
+        "金钥匙": 100
+      },
+      "limited": false
+    },
+    {
+      "id": "d83",
+      "group": "赛季商店",
+      "name": "银钥匙",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "赛季",
+      "paid": false,
+      "rewards": {
+        "银钥匙": 160
+      },
+      "limited": false
+    },
+    {
+      "id": "d86",
+      "group": "赛季商店",
+      "name": "非凡卡包",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "赛季",
+      "paid": false,
+      "rewards": {
+        "非凡卡包": 4
+      },
+      "limited": false
+    },
+    {
+      "id": "d66",
+      "group": "决斗9000",
+      "name": "金币",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 6000
+      },
+      "limited": false
+    },
+    {
+      "id": "d75",
+      "group": "决斗9000",
+      "name": "宝石",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 240
+      },
+      "limited": false
+    },
+    {
+      "id": "d82",
+      "group": "决斗9000",
+      "name": "金钥匙",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金钥匙": 3
+      },
+      "limited": false
+    },
+    {
+      "id": "d84",
+      "group": "决斗9000",
+      "name": "银钥匙",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "银钥匙": 10
+      },
+      "limited": false
+    },
+    {
+      "id": "d87",
+      "group": "决斗9000",
+      "name": "非凡卡包",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "非凡卡包": 3
+      },
+      "limited": false
+    },
+    {
+      "id": "d89",
+      "group": "决斗9000",
+      "name": "紫万能",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "紫万能": 2
+      },
+      "limited": false
+    },
+    {
+      "id": "d91",
+      "group": "决斗9000",
+      "name": "蓝万能",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "蓝万能": 2
+      },
+      "limited": false
+    },
+    {
+      "id": "d92",
+      "group": "决斗9000",
+      "name": "白万能",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "白万能": 2
+      },
+      "limited": false
+    },
+    {
+      "id": "d76",
+      "group": "学院杯",
+      "name": "宝石",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 1300
+      },
+      "limited": false
+    },
+    {
+      "id": "d80",
+      "group": "学院杯",
+      "name": "红钥匙",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "红钥匙": 5
+      },
+      "limited": false
+    },
+    {
+      "id": "d67",
+      "group": "赛季其他日常",
+      "name": "赛季更新前一小时刷代币",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 1000
+      },
+      "limited": false
+    },
+    {
+      "id": "d68",
+      "group": "赛季其他日常",
+      "name": "舞会挑战",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 7500
+      },
+      "limited": false
+    },
+    {
+      "id": "d70",
+      "group": "赛季其他日常",
+      "name": "时间快跑",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 2000
+      },
+      "limited": false
+    },
+    {
+      "id": "d71",
+      "group": "赛季其他日常",
+      "name": "崭新篇章金币",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 5000
+      },
+      "limited": false
+    },
+    {
+      "id": "d72",
+      "group": "赛季其他日常",
+      "name": "裁决道具转化",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 3500
+      },
+      "limited": false
+    },
+    {
+      "id": "d73",
+      "group": "赛季其他日常",
+      "name": "茶馆约会3B+",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "金币": 500
+      },
+      "limited": false
+    },
+    {
+      "id": "d77",
+      "group": "赛季其他日常",
+      "name": "魔咒试炼2次",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "宝石": 120
+      },
+      "limited": false
+    },
+    {
+      "id": "d85",
+      "group": "赛季其他日常",
+      "name": "崭新篇章银钥匙",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "银钥匙": 5
+      },
+      "limited": false
+    },
+    {
+      "id": "d88",
+      "group": "赛季其他日常",
+      "name": "崭新篇章非凡卡",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "日常",
+      "paid": false,
+      "rewards": {
+        "非凡卡包": 1
+      },
+      "limited": false
+    },
+    {
+      "id": "d69",
+      "group": "赛季社团",
+      "name": "排名金币",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "金币": 5000
+      },
+      "limited": false
+    },
+    {
+      "id": "d78",
+      "group": "赛季社团",
+      "name": "排名宝石",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "宝石": 200
+      },
+      "limited": false
+    },
+    {
+      "id": "d90",
+      "group": "赛季社团",
+      "name": "蓝万能",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "社团",
+      "paid": false,
+      "rewards": {
+        "蓝万能": 2
+      },
+      "limited": false
+    },
+    {
+      "id": "dp-gs-key",
+      "group": "金锻商店",
+      "name": "金钥匙",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "氪金",
+      "paid": true,
+      "rewards": {
+        "金钥匙": 5
+      },
+      "limited": false
+    },
+    {
+      "id": "dp-gs-coin",
+      "group": "金锻商店",
+      "name": "金币",
+      "frequency": "每赛季",
+      "periodDays": 56,
+      "source": "氪金",
+      "paid": true,
+      "rewards": {
+        "金币": 10000
+      },
+      "limited": false
+    },
+    {
+      "id": "l1",
+      "group": "赛季预约",
+      "name": "赛季预约",
+      "frequency": "限时",
+      "periodDays": 0,
+      "source": "限时活动",
+      "paid": false,
+      "rewards": {
+        "宝石": 60
+      },
+      "limited": true
+    },
+    {
+      "id": "l2",
+      "group": "赛季剧情",
+      "name": "赛季剧情",
+      "frequency": "限时",
+      "periodDays": 0,
+      "source": "限时活动",
+      "paid": false,
+      "rewards": {
+        "宝石": 80
+      },
+      "limited": true
+    },
+    {
+      "id": "l4",
+      "group": "时间快跑宝石",
+      "name": "时间快跑宝石",
+      "frequency": "限时",
+      "periodDays": 0,
+      "source": "限时活动",
+      "paid": false,
+      "rewards": {
+        "宝石": 90
+      },
+      "limited": true
+    },
+    {
+      "id": "l5",
+      "group": "崭新篇章宝石",
+      "name": "崭新篇章宝石",
+      "frequency": "限时",
+      "periodDays": 0,
+      "source": "限时活动",
+      "paid": false,
+      "rewards": {
+        "宝石": 200
+      },
+      "limited": true
+    },
+    {
+      "id": "l6",
+      "group": "飞来币活动",
+      "name": "飞来币活动",
+      "frequency": "限时",
+      "periodDays": 0,
+      "source": "限时活动",
+      "paid": false,
+      "rewards": {
+        "飞来币": 25
+      },
+      "limited": true
+    },
+    {
+      "id": "l7",
+      "group": "社团赛季排名金卡",
+      "name": "社团赛季排名金卡",
+      "frequency": "限时",
+      "periodDays": 0,
+      "source": "限时活动",
+      "paid": false,
+      "rewards": {
+        "金卡": 2
+      },
+      "limited": true
+    },
+    {
+      "id": "l8",
+      "group": "赛季商店金飞来",
+      "name": "赛季商店金飞来",
+      "frequency": "限时",
+      "periodDays": 0,
+      "source": "限时活动",
+      "paid": false,
+      "rewards": {
+        "金飞来": 2
+      },
+      "limited": true
+    }
+  ]
+}

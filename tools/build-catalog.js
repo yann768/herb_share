@@ -111,6 +111,19 @@ function normalizedName(value) {
   return String(value || '').trim().replace(/[·•]/g, '·').replace(/\s+/g, '')
 }
 
+function furnitureDetail(name) {
+  const value = String(name || '')
+  const prefix = value.split(/[·—-]/)[0].trim()
+  const known = ['床品', '柜饰', '摆件', '帷幔', '地毯', '墙饰', '桌椅', '灯具', '雕像', '植物']
+  if (known.includes(prefix)) return prefix
+  const rules = [
+    ['床品', /床|枕|被|床幔/], ['柜饰', /柜|书架|衣橱/], ['桌椅', /桌|椅|凳|沙发/],
+    ['灯具', /灯|烛台/], ['地毯', /毯/], ['墙饰', /壁画|挂画|墙饰/], ['帷幔', /帷幔|窗帘/],
+    ['植物', /花盆|盆栽|植物/], ['雕像', /雕像|雕塑|石雕/],
+  ]
+  return rules.find(([, pattern]) => pattern.test(value))?.[0] || '其他家具'
+}
+
 const collectibleItems = [...curatedCollectibleItems]
 const knownNames = new Map()
 collectibleItems.forEach(item => {
@@ -135,7 +148,7 @@ cbgDefinitions.forEach(category => {
       id: `${category.key}-cbg-${hash(normalizedName(name))}`,
       category: category.key, categoryLabel: category.label, icon: category.icon, collectible: true,
       year: '', date: '', name, alternateName: '', aliases: [], source: 'cbg', sourceLabel: '藏宝阁全图鉴',
-      image: category.images[name] || '', imageAlt: '', categoryDetail: '藏宝阁全图鉴补充', rarity: '', rare: false, new: false,
+      image: category.images[name] || '', imageAlt: '', categoryDetail: category.key === 'furniture' ? furnitureDetail(name) : '', rarity: '', rare: false, new: false,
       details: ['该物品的获取方式和时间等待资料库后续补充。'], flipEvent: null, cbgVerified: true,
     }
     collectibleItems.push(item)

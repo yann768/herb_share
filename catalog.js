@@ -4,9 +4,10 @@ const OWNED_KEY='hogwarts_catalog_owned_v1'
 const params=new URLSearchParams(location.search)
 let catalog={categories:[],items:[]},active=params.get('type')||'all',query=params.get('q')||'',year=params.get('year')||'all',source=params.get('source')||'all',owned=readOwned(),detailId=params.get('item')||''
 const grid=document.getElementById('grid'),input=document.getElementById('searchInput'),mask=document.getElementById('detailMask'),yearSelect=document.getElementById('yearFilter'),sourceSelect=document.getElementById('sourceFilter')
+const filterScroll=document.getElementById('filterScroll'),filterPrev=document.getElementById('filterPrev'),filterNext=document.getElementById('filterNext')
 
 input.value=query
-fetch('catalog-data.json').then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).then(data=>{catalog=data;buildFilters();render();if(detailId)openDetail(detailId,false)}).catch(()=>{grid.innerHTML='<div class="empty"><b>资料暂时没有同步</b><br>请稍后刷新重试</div>';document.getElementById('resultCount').textContent='加载失败'})
+fetch('catalog-data.json').then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).then(data=>{catalog=data;buildFilters();render();updateFilterArrows();if(detailId)openDetail(detailId,false)}).catch(()=>{grid.innerHTML='<div class="empty"><b>资料暂时没有同步</b><br>请稍后刷新重试</div>';document.getElementById('resultCount').textContent='加载失败'})
 function buildFilters(){
   if(!catalog.categories.some(x=>x.key===active))active='all'
   document.getElementById('filters').innerHTML=[{key:'all',label:'全部',icon:'✦',count:catalog.items.length},...catalog.categories].map(x=>`<button class="chip ${x.key===active?'active':''}" data-key="${x.key}">${x.icon} ${x.label} · ${x.count}</button>`).join('')
@@ -33,4 +34,16 @@ function readOwned(){try{return new Set(JSON.parse(localStorage.getItem(OWNED_KE
 function toggleOwned(){if(!detailId)return;owned.has(detailId)?owned.delete(detailId):owned.add(detailId);localStorage.setItem(OWNED_KEY,JSON.stringify([...owned]));render();openDetail(detailId,false)}
 function esc(s){return String(s??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]))}
 document.getElementById('miniLink').onclick=()=>document.querySelector('#miniProgramEntry .mp-fab')?.click()
+function updateFilterArrows(){const max=Math.max(0,filterScroll.scrollWidth-filterScroll.clientWidth);filterPrev.disabled=filterScroll.scrollLeft<=2;filterNext.disabled=filterScroll.scrollLeft>=max-2}
+filterPrev.onclick=()=>filterScroll.scrollBy({left:-Math.max(220,filterScroll.clientWidth*.75),behavior:'smooth'})
+filterNext.onclick=()=>filterScroll.scrollBy({left:Math.max(220,filterScroll.clientWidth*.75),behavior:'smooth'})
+filterScroll.addEventListener('scroll',updateFilterArrows,{passive:true})
+window.addEventListener('resize',updateFilterArrows,{passive:true})
+filterScroll.addEventListener('wheel',e=>{const delta=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(!delta)return;const max=filterScroll.scrollWidth-filterScroll.clientWidth;if((delta<0&&filterScroll.scrollLeft>0)||(delta>0&&filterScroll.scrollLeft<max)){e.preventDefault();filterScroll.scrollLeft+=delta}},{passive:false})
+let dragStartX=0,dragStartScroll=0,dragging=false,suppressFilterClick=false
+filterScroll.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0)return;dragging=true;suppressFilterClick=false;dragStartX=e.clientX;dragStartScroll=filterScroll.scrollLeft;filterScroll.setPointerCapture(e.pointerId);filterScroll.classList.add('dragging')})
+filterScroll.addEventListener('pointermove',e=>{if(!dragging)return;const distance=e.clientX-dragStartX;if(Math.abs(distance)>4)suppressFilterClick=true;filterScroll.scrollLeft=dragStartScroll-distance})
+function stopFilterDrag(){dragging=false;filterScroll.classList.remove('dragging')}
+filterScroll.addEventListener('pointerup',stopFilterDrag);filterScroll.addEventListener('pointercancel',stopFilterDrag)
+filterScroll.addEventListener('click',e=>{if(!suppressFilterClick)return;e.preventDefault();e.stopPropagation();suppressFilterClick=false},true)
 HW.mountMiniProgramEntry(sb)
