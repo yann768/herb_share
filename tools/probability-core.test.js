@@ -15,4 +15,5 @@ result=core.calculate({draws:1000,startPity:0,baseGoldRate:.01231,pityMax:50,upR
 assert.equal(result.draws,1000)
 assert.equal(result.approximate,true)
 assert.ok(result.expectedUp>0)
+assert.ok(Object.keys(result.upDist).length>1)
 console.log('probability-core tests passed')
