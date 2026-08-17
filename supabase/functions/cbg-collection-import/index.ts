@@ -43,10 +43,10 @@ Deno.serve(async request => {
     const top = JSON.parse(text)
     const equip = typeof top.equip_desc === 'string' ? JSON.parse(top.equip_desc) : top.equip_desc
     const tabs = Array.isArray(equip && equip.display_content) ? equip.display_content : []
-    const decorationTab = tabs.find((tab: Record<string, unknown>) => tab && tab.tab_name === '装饰')
-    const contents = decorationTab && Array.isArray(decorationTab.contents) ? decorationTab.contents : []
+    const decorationTab = tabs.find((tab: any) => tab && tab.tab_name === '装饰') as any
+    const contents: any[] = decorationTab && Array.isArray(decorationTab.contents) ? decorationTab.contents : []
     const decorations = contents[0] && Array.isArray(contents[0].contents) ? contents[0].contents : []
-    const decorationIds = [...new Set(decorations.map((item: Record<string, unknown>) => item && item.id).filter((id: unknown) => id != null).map(String))]
+    const decorationIds = [...new Set(decorations.map((item: any) => item && item.id).filter((id: unknown) => id != null).map(String))]
     if (!decorationIds.length) return json({ ok: false, message: '账号资料中没有可识别的装饰数据' }, 422)
 
     return json({ ok: true, decorationIds })
