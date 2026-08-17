@@ -5,6 +5,16 @@ const POOLS={
   silver:{title:'银钥匙 · 常驻卡池',kind:'standard',target:'史诗卡',times:10,pity:30,rate:.0189,upRate:0,guaranteedUp:false,perDraw:2,keyName:'银钥匙',rule:'每次消耗 1 把银钥匙，结算 2 张卡 · 单张出史诗率 1.89% · 连续 30 张未出史诗时保底史诗卡'},
 }
 let pool='limited',renderTimer;const $=id=>document.getElementById(id),pct=value=>(value*100).toFixed(value>.995?1:2)+'%',fmt=value=>Number(value).toFixed(2).replace(/\.00$/,'')
+const LEGEND_COST={9:1,10:2,11:3,12:4,13:5,14:6,15:8,16:10,17:12}
+function levelFromCopies(copies){let level=copies>0?9:0,left=Math.max(0,copies-1);while(level>=9&&level<18&&left>=(LEGEND_COST[level]||Infinity)){left-=LEGEND_COST[level];level++}return level}
+const levelLabel=level=>level?`Lv.${level}`:'未获得'
+function renderUpgrade(dist,range,mixed){
+  const owned=Math.max(0,Math.floor(Number($('ownedCopies').value)||0)),levels={}
+  Object.entries(dist).forEach(([count,prob])=>{const level=levelFromCopies(owned+Number(count));levels[level]=(levels[level]||0)+prob})
+  const rows=Object.entries(levels).map(([level,prob])=>[Number(level),prob]).filter(([,prob])=>prob>=.001).sort((a,b)=>a[0]-b[0]),likely=rows.reduce((best,row)=>row[1]>best[1]?row:best,[0,-1])
+  $('upgradePanel').hidden=false;$('upgradeTarget').textContent=mixed?'混池 · 新 UP 卡':'单 UP 卡';$('likelyLevel').textContent=levelLabel(likely[0]);$('levelRange').textContent=`约 80% 的结果为 ${levelLabel(levelFromCopies(owned+range[0]))} ～ ${levelLabel(levelFromCopies(owned+range[1]))}`
+  $('levelDistribution').innerHTML=rows.map(([level,prob])=>`<div class="level-chip"><b>${levelLabel(level)}</b><span>${pct(prob)}</span></div>`).join('')
+}
 function render(){
   const rawTimes=$('draws').value.trim()
   if(rawTimes===''||!Number.isFinite(Number(rawTimes)))return
@@ -19,8 +29,9 @@ function render(){
   $('mixedSummary').hidden=!mixed;if(mixed){$('newExpected').textContent=fmt(singleCard.expectedUp)+' 张';$('returnExpected').textContent=fmt(singleCard.expectedUp)+' 张';$('newChance').textContent=`至少 1 张：${pct(singleCard.atLeastOneUp)}`;$('returnChance').textContent=`至少 1 张：${pct(singleCard.atLeastOneUp)}`}
   const dist=limited?(mixed?singleCard.upDist:result.upDist):result.goldDist,entries=Object.entries(dist).map(([count,prob])=>[Number(count),prob]).filter(([,prob])=>prob>=.001).sort((a,b)=>a[0]-b[0]),max=Math.max(...entries.map(x=>x[1]),1)
   $('distTitle').textContent=(mixed?'新卡数量概率分布':limited?'UP 数量概率分布':`${cfg.target}数量概率分布`)+(result.approximate?'（近似）':'');$('distribution').innerHTML=entries.map(([count,prob])=>`<div class="dist-row"><b>${count} 张</b><div class="bar"><i style="width:${prob/max*100}%"></i></div><strong>${pct(prob)}</strong></div>`).join('')
+  if(limited)renderUpgrade(dist,mixed?singleCard.upRange:result.upRange,mixed);else $('upgradePanel').hidden=true
   $('explanation').innerHTML=mixed?`使用 <b>${times} 把红钥匙</b>、共结算 <b>${cardDraws} 张卡</b>时，两张 UP 合计平均约 <b>${fmt(result.expectedUp)} 张</b>；其中新卡平均约 <b>${fmt(singleCard.expectedUp)} 张</b>，至少获得一张新卡的概率为 <b>${pct(singleCard.atLeastOneUp)}</b>。`:limited?`使用 <b>${times} 把红钥匙</b>、共结算 <b>${cardDraws} 张卡</b>时，平均约有 <b>${fmt(result.expectedUp)} 张 UP</b>，至少一张 UP 的概率为 <b>${pct(result.atLeastOneUp)}</b>。`:`使用 <b>${times} 把${cfg.keyName}</b>、共结算 <b>${cardDraws} 张卡</b>时，平均约有 <b>${fmt(result.expectedGold)} 张${cfg.target}</b>，至少一张的概率为 <b>${pct(result.atLeastOneGold)}</b>。`
 }
 const scheduleRender=()=>{clearTimeout(renderTimer);renderTimer=setTimeout(render,400)}
 document.querySelector('.pool-tabs').onclick=e=>{const button=e.target.closest('[data-pool]');if(!button)return;pool=button.dataset.pool;document.querySelectorAll('[data-pool]').forEach(x=>x.classList.toggle('active',x===button));$('draws').value=POOLS[pool].times;$('pity').value=0;render()}
-document.querySelector('.quick').onclick=e=>{const button=e.target.closest('[data-draws]');if(button){$('draws').value=button.dataset.draws;render()}};$('draws').oninput=scheduleRender;$('draws').onchange=()=>{const value=Math.max(1,Math.floor(Number($('draws').value)||1));$('draws').value=value;render()};$('pity').oninput=scheduleRender;render()
+document.querySelector('.quick').onclick=e=>{const button=e.target.closest('[data-draws]');if(button){$('draws').value=button.dataset.draws;render()}};$('draws').oninput=scheduleRender;$('draws').onchange=()=>{const value=Math.max(1,Math.floor(Number($('draws').value)||1));$('draws').value=value;render()};$('ownedCopies').oninput=scheduleRender;$('ownedCopies').onchange=()=>{const value=Math.max(0,Math.floor(Number($('ownedCopies').value)||0));$('ownedCopies').value=value;render()};$('pity').oninput=scheduleRender;render()
