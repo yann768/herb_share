@@ -8,5 +8,15 @@
     const compute=kind=>draws<=500?exact(kind):moments(kind),gold=compute('gold'),up=compute('up'),percentile=(dist,p)=>{let sum=0;for(const key of Object.keys(dist).map(Number).sort((a,b)=>a-b)){sum+=dist[key];if(sum>=p)return key}return 0}
     return {draws,expectedGold:gold.expected,expectedUp:up.expected,atLeastOneGold:1-gold.p0,atLeastOneUp:1-up.p0,goldDist:gold.dist,upDist:up.dist,goldRange:gold.approximate?gold.range:[percentile(gold.dist,.1),percentile(gold.dist,.9)],upRange:up.approximate?up.range:[percentile(up.dist,.1),percentile(up.dist,.9)],approximate:Boolean(gold.approximate||up.approximate)}
   }
-  return {calculate}
+  function calculateBatch({draws=0,startPity=0,cardRate=0,pityMax=1,batchSize=1}){
+    draws=Math.max(0,Math.floor(Number(draws)||0));pityMax=Math.max(1,Math.floor(pityMax));startPity=Math.floor(clamp(startPity,0,pityMax-1));cardRate=clamp(cardRate,0,1);batchSize=Math.max(1,Math.floor(batchSize))
+    const choose=(n,k)=>{let value=1;for(let i=1;i<=k;i++)value=value*(n-k+i)/i;return value},mass=[]
+    for(let k=0;k<=batchSize;k++)mass.push(choose(batchSize,k)*cardRate**k*(1-cardRate)**(batchSize-k))
+    const transitions=pity=>mass.map((q,k)=>{const forced=k===0&&pity+1>=pityMax;return [k>0||forced?0:pity+1,forced?1:k,q]})
+    function exact(){let states=new Map([[`${startPity}|0`,1]]);for(let step=0;step<draws;step++){const next=new Map();states.forEach((prob,key)=>{const [pity,count]=key.split('|').map(Number);transitions(pity).forEach(([np,inc,q])=>{const nk=`${np}|${count+inc}`;next.set(nk,(next.get(nk)||0)+prob*q)})});states=next}const dist={};let expected=0;states.forEach((prob,key)=>{const count=Number(key.split('|')[1]);dist[count]=(dist[count]||0)+prob;expected+=count*prob});return {dist,expected,p0:dist[0]||0}}
+    function moments(){let states=new Map([[startPity,{p:1,s:0,s2:0,p0:1}]]);for(let step=0;step<draws;step++){const next=new Map();states.forEach((row,pity)=>transitions(pity).forEach(([np,inc,q])=>{const out=next.get(np)||{p:0,s:0,s2:0,p0:0};out.p+=row.p*q;out.s+=(row.s+inc*row.p)*q;out.s2+=(row.s2+2*inc*row.s+inc*inc*row.p)*q;if(!inc)out.p0+=row.p0*q;next.set(np,out)}));states=next}let s=0,s2=0,p0=0;states.forEach(row=>{s+=row.s;s2+=row.s2;p0+=row.p0});const sd=Math.sqrt(Math.max(0,s2-s*s)),dist={};if(sd<1e-9)dist[Math.round(s)]=1;else{const erf=x=>{const sign=x<0?-1:1,a=Math.abs(x),t=1/(1+.3275911*a);return sign*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-a*a))},cdf=x=>(1+erf(x/Math.SQRT2))/2,min=Math.max(0,Math.floor(s-4*sd)),max=Math.ceil(s+4*sd);for(let k=min;k<=max;k++)dist[k]=Math.max(0,cdf((k+.5-s)/sd)-cdf((k-.5-s)/sd))}return {dist,expected:s,p0,range:[Math.max(0,Math.floor(s-1.2816*sd)),Math.ceil(s+1.2816*sd)],approximate:true}}
+    const result=draws<=120?exact():moments(),percentile=(dist,p)=>{let sum=0;for(const key of Object.keys(dist).map(Number).sort((a,b)=>a-b)){sum+=dist[key];if(sum>=p)return key}return 0}
+    return {draws,expectedGold:result.expected,expectedUp:0,atLeastOneGold:1-result.p0,atLeastOneUp:0,goldDist:result.dist,upDist:{0:1},goldRange:result.approximate?result.range:[percentile(result.dist,.1),percentile(result.dist,.9)],upRange:[0,0],approximate:Boolean(result.approximate)}
+  }
+  return {calculate,calculateBatch}
 })
