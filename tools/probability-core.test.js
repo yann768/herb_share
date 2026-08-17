@@ -22,4 +22,8 @@ result=core.calculateBatch({draws:20,startPity:0,cardRate:0,pityMax:20,batchSize
 assert.equal(result.expectedGold,1)
 result=core.calculateBatch({draws:1,startPity:0,cardRate:.01914,pityMax:20,batchSize:5})
 assert.ok(Math.abs(result.expectedGold-.0957)<1e-10)
+result=core.calculateUpBatch({draws:1,startPity:49,targetRate:0,otherResetRate:0,pityMax:50,batchSize:3,hardTargetRate:1})
+assert.equal(result.expectedUp,1)
+result=core.calculateUpBatch({draws:1,startPity:49,targetRate:0,otherResetRate:0,pityMax:50,batchSize:3,hardTargetRate:.5})
+assert.equal(result.atLeastOneUp,.5)
 console.log('probability-core tests passed')

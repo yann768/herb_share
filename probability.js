@@ -1,6 +1,6 @@
 const POOLS={
-  limited:{title:'红钥匙 · 单 UP 限定池',kind:'up',target:'UP',times:10,pity:50,rate:.01231,upRate:.5,guaranteedUp:true,perDraw:3,keyName:'红钥匙',rule:'每次消耗 1 把红钥匙，结算 3 张卡 · 单张出金率 1.231% · 连续 50 张未获得 UP 时保底当期 UP · 只有获得 UP 才重置保底'},
-  mixed:{title:'红钥匙 · 双 UP 混池',kind:'up',target:'UP',times:10,pity:50,rate:.01231,upRate:.5,guaranteedUp:true,perDraw:3,keyName:'红钥匙',rule:'每次消耗 1 把红钥匙，结算 3 张卡 · 新卡和返场卡共享 50% UP，各占 25% · 连续 50 张未获得 UP 时随机获得其中一张 · 只有获得任意 UP 才重置保底'},
+  limited:{title:'红钥匙 · 单 UP 限定池',kind:'up',target:'UP',times:10,pity:50,rate:.01231,upRate:.5,guaranteedUp:true,perDraw:3,keyName:'红钥匙',rule:'每次消耗 1 把红钥匙，结算 3 张卡 · 单张出金率 1.231% · 连续 50 次红钥匙未获得 UP 时保底当期 UP · 只有获得 UP 才重置保底'},
+  mixed:{title:'红钥匙 · 双 UP 混池',kind:'up',target:'UP',times:10,pity:50,rate:.01231,upRate:.5,guaranteedUp:true,perDraw:3,keyName:'红钥匙',rule:'每次消耗 1 把红钥匙，结算 3 张卡 · 新卡和返场卡共享 50% UP，各占 25% · 连续 50 次红钥匙未获得 UP 时随机获得其中一张 · 只有获得任意 UP 才重置保底'},
   gold:{title:'金钥匙 · 常驻卡池',kind:'standard',target:'金卡',times:10,pity:20,rate:.01914,upRate:0,guaranteedUp:false,perDraw:5,keyName:'金钥匙',rule:'每次消耗 1 把金钥匙，结算 5 张卡 · 单张出金率 1.914% · 连续 20 次金钥匙未出金时保底金卡'},
   silver:{title:'银钥匙 · 常驻卡池',kind:'standard',target:'史诗卡',times:10,pity:30,rate:.0189,upRate:0,guaranteedUp:false,perDraw:2,keyName:'银钥匙',rule:'每次消耗 1 把银钥匙，结算 2 张卡 · 单张出史诗率 1.89% · 连续 30 张未出史诗时保底史诗卡'},
 }
@@ -9,10 +9,11 @@ function render(){
   const rawTimes=$('draws').value.trim()
   if(rawTimes===''||!Number.isFinite(Number(rawTimes)))return
   const cfg=POOLS[pool],times=Math.max(1,Math.floor(Number(rawTimes))),cardDraws=times*cfg.perDraw,pity=Math.min(cfg.pity-1,Number($('pity').value)||0)
-  const limited=cfg.kind==='up',resetRate=limited?cfg.rate*cfg.upRate:cfg.rate
-  const result=limited?ProbabilityCore.calculate({draws:cardDraws,startPity:pity,baseGoldRate:cfg.rate,pityMax:cfg.pity,upRate:cfg.upRate,guaranteedUp:cfg.guaranteedUp,pityResetRate:resetRate}):ProbabilityCore.calculateBatch({draws:times,startPity:pity,cardRate:cfg.rate,pityMax:cfg.pity,batchSize:cfg.perDraw})
-  const mixed=pool==='mixed',singleCard=mixed?ProbabilityCore.calculate({draws:cardDraws,startPity:pity,baseGoldRate:cfg.rate,pityMax:cfg.pity,upRate:.25,pityTargetRate:.5,pityResetRate:resetRate}):result
-  $('poolTitle').textContent=cfg.title;$('pity').max=cfg.pity-1;$('pity').value=pity;$('pityHint').textContent=limited?`已连续 ${pity} / ${cfg.pity} 张未获得 UP`:`已连续 ${pity} / ${cfg.pity} 次未出${cfg.target}`;$('ruleText').textContent=cfg.rule
+  const limited=cfg.kind==='up',resetRate=limited?cfg.rate*cfg.upRate:cfg.rate,mixed=pool==='mixed'
+  let result=limited?ProbabilityCore.calculateUpBatch({draws:times,startPity:pity,targetRate:resetRate,otherResetRate:0,pityMax:cfg.pity,batchSize:cfg.perDraw,hardTargetRate:1}):ProbabilityCore.calculateBatch({draws:times,startPity:pity,cardRate:cfg.rate,pityMax:cfg.pity,batchSize:cfg.perDraw})
+  if(limited){const naturalUp=cardDraws*resetRate,forced=Math.max(0,result.expectedUp-naturalUp),hardReached=times>=cfg.pity-pity;result.expectedGold=cardDraws*cfg.rate+forced;result.atLeastOneGold=hardReached?1:1-Math.pow(1-cfg.rate,cardDraws);result.goldDist={};result.goldRange=[0,0]}
+  const singleCard=mixed?ProbabilityCore.calculateUpBatch({draws:times,startPity:pity,targetRate:cfg.rate*.25,otherResetRate:cfg.rate*.25,pityMax:cfg.pity,batchSize:cfg.perDraw,hardTargetRate:.5}):result
+  $('poolTitle').textContent=cfg.title;$('pity').max=cfg.pity-1;$('pity').value=pity;$('pityHint').textContent=limited?`已连续 ${pity} / ${cfg.pity} 次未获得 UP`:`已连续 ${pity} / ${cfg.pity} 次未出${cfg.target}`;$('ruleText').textContent=cfg.rule
   $('mainLabel').textContent=mixed?'预计两张 UP 合计':limited?'预计获得 UP':`预计获得${cfg.target}`;$('expected').textContent=fmt(limited?result.expectedUp:result.expectedGold);$('rangeText').textContent=`${times} 次共结算 ${cardDraws} 张卡；约 80% 的结果为 ${(limited?result.upRange:result.goldRange).join('～')} 张`
   $('chanceLabel').textContent=limited?'至少 1 张任意 UP':`至少 1 张${cfg.target}`;$('atLeastOne').textContent=pct(limited?result.atLeastOneUp:result.atLeastOneGold);$('goldLabel').textContent=limited?'预计出金':`预计${cfg.target}`;$('expectedGold').textContent=fmt(result.expectedGold);$('atLeastGoldLabel').textContent=limited?'至少出金一次':`至少 1 张${cfg.target}`;$('atLeastGold').textContent=pct(result.atLeastOneGold);$('keyCost').textContent=`${times} 把${cfg.keyName}`
   $('mixedSummary').hidden=!mixed;if(mixed){$('newExpected').textContent=fmt(singleCard.expectedUp)+' 张';$('returnExpected').textContent=fmt(singleCard.expectedUp)+' 张';$('newChance').textContent=`至少 1 张：${pct(singleCard.atLeastOneUp)}`;$('returnChance').textContent=`至少 1 张：${pct(singleCard.atLeastOneUp)}`}
