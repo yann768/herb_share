@@ -357,6 +357,7 @@ async function loadPosts() {
     const { data, error } = await sb
       .from('trade_posts')
       .select('*')
+      .neq('want_rarity', 'anniversary_word')
       .order('created_at', { ascending: false })
       .limit(200)
     if (error) throw error
