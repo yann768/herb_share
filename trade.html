@@ -314,12 +314,15 @@ const RARITY_LABELS = { legend:'传说', epic:'史诗', rare:'稀有', common:'�
 let allPosts = [], filteredPosts = [], activeFilter = 'all', searchKw = ''
 let selectedRarity = 'legend'
 let myOwnerId = ''
+let myLocalIdentity = false
 let myGameId = ''
 let pendingOffers = [{ card:'', count:'' }]
 let editingPostId = null
 
 async function init() {
-  myOwnerId = (await HW.ensureAuth(sb)).id
+  const identity = await HW.ensureAuth(sb)
+  myOwnerId = identity.id
+  myLocalIdentity = Boolean(identity.isLocalIdentity)
   myGameId = localStorage.getItem(GAME_ID_KEY) || ''
   document.getElementById('myIdDisplay').textContent = myGameId || '（未设置）'
 
@@ -599,16 +602,17 @@ async function submitPost() {
       if (error) throw error
       saveLastForm(); closePublish(); showToast('修改成功！🃏')
     } else {
-      const { error } = await sb.from('trade_posts').insert({
+      const row = {
         game_id: gameId,
         want_card: wantCard,
         want_rarity: selectedRarity,
         offer_cards: JSON.stringify(validOffers),
         remark,
         owner_id: myOwnerId,
-        user_id: myOwnerId,
         created_at: Date.now(),
-      })
+      }
+      if (!myLocalIdentity) row.user_id = myOwnerId
+      const { error } = await sb.from('trade_posts').insert(row)
       if (error) throw error
       saveLastForm(); closePublish(); showToast('发布成功！🃏')
     }
@@ -625,7 +629,8 @@ async function deletePost(id) {
   if (!confirm('确认删除这条换卡信息？')) return
   showLoading(true)
   try {
-    const { error } = await sb.from('trade_posts').delete().eq('id', id).eq('user_id', myOwnerId)
+    const ownerColumn = myLocalIdentity ? 'owner_id' : 'user_id'
+    const { error } = await sb.from('trade_posts').delete().eq('id', id).eq(ownerColumn, myOwnerId)
     if (error) throw error
     showToast('已删除')
   } catch(e) {
@@ -648,7 +653,7 @@ function showToast(msg, isErr=false) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2500)
 }
 
-async function completePost(id){if(!confirm('标记为已完成并从列表隐藏？'))return;const{error}=await sb.from('trade_posts').update({completed_at:Date.now()}).eq('id',id).eq('user_id',myOwnerId);if(error)return showToast('操作失败：'+error.message,true);showToast('已完成')}
+async function completePost(id){if(!confirm('标记为已完成并从列表隐藏？'))return;const ownerColumn=myLocalIdentity?'owner_id':'user_id',query=sb.from('trade_posts').update({completed_at:Date.now()}).eq('id',id).eq(ownerColumn,myOwnerId),{error}=await query;if(error)return showToast('操作失败：'+error.message,true);showToast('已完成')}
 async function moderatePost(id){try{if(await HW.report(sb,'trade',id)){allPosts=allPosts.filter(p=>String(p.id)!==String(id));applyFilter();showToast('已举报并屏蔽')}}catch(err){showToast('举报失败：'+err.message,true)}}
 HW.mountMiniProgramEntry(sb,'trade')
 init().then(async()=>{try{const imported=await HW.consumeScene(sb);if(imported){openPublish();const el=document.querySelector(`#rarityPicker [data-r="${imported.rarity||'legend'}"]`);if(el)setRarity(el);document.getElementById('fGameId').value=imported.gameId||'';document.getElementById('fRemark').value=imported.note||'';pendingOffers=(imported.offers||[]).map(x=>({card:x.name,count:String(x.quantity||1)}));renderOfferInputs();setTimeout(()=>document.getElementById('fWantCard').value=imported.wantCard||'',0);showToast('已安全导入小程序表单');return}if(HW.shouldPublish()){openPublish();const p=HW.params(),rarity=p.get('rarity');if(rarity){const el=document.querySelector(`#rarityPicker [data-r="${rarity}"]`);if(el)setRarity(el)}const want=p.get('want');if(want)setTimeout(()=>document.getElementById('fWantCard').value=want,0);const offers=HW.importedItems('offers');if(offers.length){pendingOffers=offers.map(card=>({card,count:'1'}));renderOfferInputs()}HW.sourceNotice(showToast)}}catch(e){showToast(e.message,true)}})

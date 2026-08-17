@@ -21,4 +21,12 @@
 
 网站反向入口由 `syncMiniProgramEntries` 云函数维护。该函数生成小程序首页码与 URL Link，上传公开码图并更新 `mini_program_entries`；网站所有页面统一展示该首页入口。具体环境变量和运行方法见该云函数目录的 README。
 
+“我的收藏”支持粘贴藏宝阁角色商品链接导入。首次部署需在仓库根目录执行：
+
+```sh
+supabase functions deploy cbg-collection-import --project-ref ygslzwiznvcfujonvblq
+```
+
+该函数只提取藏宝阁展示资料中的装饰配置 ID；网页在用户确认后将匹配结果合并到浏览器本地收藏。
+
 小程序码统一使用首页码。网页优先读取 Supabase `mini_program_entries` 中的 `home` 记录；也可以直接将首页小程序码命名为 `miniprogram-code.png`，放在网站根目录（与 `index.html` 同级）作为备用图片。

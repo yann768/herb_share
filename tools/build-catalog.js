@@ -32,10 +32,7 @@ function loadCbgDex() {
 }
 
 function loadCbgFurniture() {
-  const filename = path.join(miniRoot, 'cloudfunctions', 'cbgParse', 'game_auto_config.js')
-  const sandbox = {}
-  vm.runInNewContext(fs.readFileSync(filename, 'utf8') + ';globalThis.__gameConfig=CBG_GAME_CONFIG', sandbox, { filename })
-  const decorations = sandbox.__gameConfig.decoration || {}
+  const decorations = cbgGameConfig.decoration || {}
   const furnitureByName = new Map()
   Object.entries(decorations).forEach(([configId, meta]) => {
     const type = meta.type
@@ -52,6 +49,13 @@ function loadCbgFurniture() {
     if (!current || (!current.icon && icon)) furnitureByName.set(name, { configId, name, icon })
   })
   return [...furnitureByName.values()]
+}
+
+function loadCbgGameConfig() {
+  const filename = path.join(miniRoot, 'cloudfunctions', 'cbgParse', 'game_auto_config.js')
+  const sandbox = {}
+  vm.runInNewContext(fs.readFileSync(filename, 'utf8') + ';globalThis.__gameConfig=CBG_GAME_CONFIG', sandbox, { filename })
+  return sandbox.__gameConfig || {}
 }
 
 function readJson(filename) {
@@ -97,6 +101,7 @@ const curatedCollectibleItems = collectibleDefinitions.flatMap(category => categ
   flipEvent: item.flipEvent || null,
 }))))
 
+const cbgGameConfig = loadCbgGameConfig()
 const cbgDex = loadCbgDex()
 const cbgFurniture = loadCbgFurniture()
 const cbgDefinitions = [
@@ -154,6 +159,23 @@ cbgDefinitions.forEach(category => {
     collectibleItems.push(item)
     knownNames.set(key, item)
   })
+})
+
+// Keep the original CBG decoration IDs with catalog records. The web importer
+// can match an account without shipping the large game config to the browser.
+const cbgIdsByName = new Map()
+Object.entries(cbgGameConfig.decoration || {}).forEach(([configId, meta]) => {
+  const key = normalizedName(meta && meta.name)
+  if (!key) return
+  if (!cbgIdsByName.has(key)) cbgIdsByName.set(key, [])
+  cbgIdsByName.get(key).push(String(configId))
+})
+collectibleItems.forEach(item => {
+  const ids = new Set()
+  ;[item.name, item.alternateName, ...(item.aliases || [])].forEach(name => {
+    ;(cbgIdsByName.get(normalizedName(name)) || []).forEach(id => ids.add(id))
+  })
+  if (ids.size) item.cbgIds = [...ids]
 })
 
 const timeline = loadPage('new')
