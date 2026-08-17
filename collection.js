@@ -1,6 +1,6 @@
 const OWNED_KEY='hogwarts_catalog_owned_v1'
 let catalog={categories:[],items:[]},owned=readOwned(),category='all',state='all',query='',year='all',view='all'
-fetch('catalog-data.json').then(r=>r.json()).then(data=>{catalog=data;owned=new Set([...owned].filter(id=>catalog.items.some(x=>x.id===id&&x.collectible!==false)));build();render()}).catch(()=>{document.getElementById('collectionGrid').innerHTML='<div class="empty">资料加载失败，请稍后刷新</div>'})
+fetch('catalog-data.json?v=20260817-1').then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).then(data=>{catalog=data;owned=new Set([...owned].filter(id=>catalog.items.some(x=>x.id===id&&x.collectible!==false)));build();render()}).catch(()=>{document.getElementById('collectionGrid').innerHTML='<div class="empty">资料加载失败，请稍后刷新</div>'})
 function items(){return catalog.items.filter(x=>x.collectible!==false)}
 function readOwned(){try{return new Set(JSON.parse(localStorage.getItem(OWNED_KEY)||'[]'))}catch{return new Set()}}
 function saveOwned(){localStorage.setItem(OWNED_KEY,JSON.stringify([...owned]))}

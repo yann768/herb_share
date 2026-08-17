@@ -7,7 +7,7 @@ const grid=document.getElementById('grid'),input=document.getElementById('search
 const filterScroll=document.getElementById('filterScroll'),filterPrev=document.getElementById('filterPrev'),filterNext=document.getElementById('filterNext')
 
 input.value=query
-fetch('catalog-data.json').then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).then(data=>{catalog=data;buildFilters();render();updateFilterArrows();if(detailId)openDetail(detailId,false)}).catch(()=>{grid.innerHTML='<div class="empty"><b>资料暂时没有同步</b><br>请稍后刷新重试</div>';document.getElementById('resultCount').textContent='加载失败'})
+fetch('catalog-data.json?v=20260817-1').then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).then(data=>{catalog=data;buildFilters();render();updateFilterArrows();if(detailId)openDetail(detailId,false)}).catch(()=>{grid.innerHTML='<div class="empty"><b>资料暂时没有同步</b><br>请稍后刷新重试</div>';document.getElementById('resultCount').textContent='加载失败'})
 function buildFilters(){
   if(!catalog.categories.some(x=>x.key===active))active='all'
   document.getElementById('filters').innerHTML=[{key:'all',label:'全部',icon:'✦',count:catalog.items.length},...catalog.categories].map(x=>`<button class="chip ${x.key===active?'active':''}" data-key="${x.key}">${x.icon} ${x.label} · ${x.count}</button>`).join('')

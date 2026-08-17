@@ -200,7 +200,7 @@ const balanceItems = (balanceData.records || []).flatMap(record => (record.chang
   alternateName: '',
   aliases: [record.season, record.seasonName, change.category, change.rarity].filter(Boolean),
   source: 'balance',
-  sourceLabel: record.status === 'image_verified' ? '公告图片核验' : '文字资料整理',
+  sourceLabel: record.status === 'image_verified' ? '官方公告' : '资料整理',
   image: '',
   categoryDetail: [change.category, change.rarity].filter(Boolean).join(' · '),
   rarity: change.rarity || '',

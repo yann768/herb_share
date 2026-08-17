@@ -32,7 +32,7 @@
   <header><div><div class="eyebrow">HOGWARTS HELP</div><h1 class="brand">霍格沃茨互助站</h1><p class="subtitle">更快找到你需要的草药、菜品和卡牌</p></div><button class="avatar" onclick="openMine()" aria-label="打开我的页面">♙</button></header>
   <div class="search"><input id="searchInput" placeholder="搜索草药、菜品、卡牌或玩家ID" oninput="onSearch()"><button id="clearBtn" class="clear" onclick="clearSearch()" aria-label="清除搜索">×</button></div>
   <section class="hero"><h2 id="matchTitle">正在寻找匹配信息…</h2><p id="matchCopy">保存你的需求，互助站会自动从全部分类中查找。</p><div class="hero-row"><button class="primary" onclick="openNeeds()">＋ 添加我的需求</button><button class="secondary" onclick="showMatches()">查看匹配</button></div></section>
-  <div class="quick"><button onclick="setType('herb')"><b>🌿</b><span>找草药</span></button><button onclick="setType('cook')"><b>🍲</b><span>找菜品</span></button><button onclick="setType('trade')"><b>🃏</b><span>换卡牌</span></button><button onclick="location.href='catalog.html'"><b>🔎</b><span>资料档案</span></button><button onclick="location.href='collection.html'"><b>📚</b><span>我的收藏</span></button><button onclick="location.href='planner.html'"><b>📈</b><span>资源规划</span></button><button onclick="location.href='probability.html'"><b>🎯</b><span>卡池概率</span></button></div>
+  <div class="quick"><button onclick="setType('herb')"><b>🌿</b><span>找草药</span></button><button onclick="setType('cook')"><b>🍲</b><span>找菜品</span></button><button onclick="setType('trade')"><b>🃏</b><span>换卡牌</span></button><button id="wordEntry" onclick="location.href='word.html'"><b>🎁</b><span>限时换字</span></button><button onclick="location.href='catalog.html'"><b>🔎</b><span>资料档案</span></button><button onclick="location.href='collection.html'"><b>📚</b><span>我的收藏</span></button><button onclick="location.href='planner.html'"><b>📈</b><span>资源规划</span></button><button onclick="location.href='probability.html'"><b>🎯</b><span>卡池概率</span></button></div>
   <section class="section"><div class="section-head"><h2 id="listTitle">互助动态</h2><small id="resultCount">加载中</small></div><div class="chips"><button class="chip active" data-type="all" onclick="setType('all')">全部</button><button class="chip" data-type="match" onclick="setType('match')">与我匹配</button><button class="chip" data-type="herb" onclick="setType('herb')">草药</button><button class="chip" data-type="cook" onclick="setType('cook')">烹饪</button><button class="chip" data-type="trade" onclick="setType('trade')">换卡</button></div><div id="postList" class="list"><div class="skeleton"></div><div class="skeleton"></div></div></section>
 </main>
 <nav class="bottom" aria-label="主要导航"><button class="active" onclick="setType('all')"><b>⌂</b>首页</button><a href="herb.html"><b>🌿</b>草药</a><button class="publish" onclick="openPublish()"><b>＋</b>发布</button><a href="trade.html"><b>🃏</b>换卡</a><button onclick="openMine()"><b>♙</b>我的</button></nav>
@@ -64,7 +64,7 @@ async function loadAll(){
     const [h,c,t]=await Promise.all([
       sb.from('herb_posts').select('*').gt('expire_time',now).order('mature_time',{ascending:true}).limit(200),
       sb.from('cook_posts').select('*').gt('expire_time',now).order('expire_time',{ascending:true}).limit(200),
-      sb.from('trade_posts').select('*').order('created_at',{ascending:false}).limit(200)
+      sb.from('trade_posts').select('*').neq('want_rarity','anniversary_word').order('created_at',{ascending:false}).limit(200)
     ]);
     const errors=[h.error,c.error,t.error].filter(Boolean);if(errors.length===3)throw errors[0];
     allPosts=[...(h.data||[]).map(normalizeHerb),...(c.data||[]).map(normalizeCook),...(t.data||[]).map(normalizeTrade)].sort((a,b)=>sortTime(a)-sortTime(b));
@@ -126,6 +126,8 @@ function wrapText(c,text,x,y,max,line){let s='';for(const ch of text){if(c.measu
 function maskId(v){v=String(v);return v.length>6?v.slice(0,3)+'***'+v.slice(-2):v}
 function esc(s){return String(s??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]))}function js(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r?\n/g,' ')}
 let toastTimer;function toast(s){const el=document.getElementById('toast');el.textContent=s;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),1800)}
+const WORD_END=Date.parse('2026-09-14T16:00:00Z');
+if(Date.now()>=WORD_END)document.getElementById('wordEntry')?.remove();
 loadAll();HW.mountMiniProgramEntry(sb,'home');
 </script>
 </body>
