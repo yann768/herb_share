@@ -15,8 +15,8 @@ document.getElementById('categoryFilters').onclick=e=>{const b=e.target.closest(
 document.querySelector('.state-tabs').onclick=e=>{const b=e.target.closest('[data-state]');if(!b)return;state=b.dataset.state;view=b.dataset.state==='recent'?'recent':'all';if(view==='recent')state='all';document.querySelectorAll('[data-state]').forEach(x=>x.classList.toggle('active',x===b));render()}
 document.getElementById('collectionSearch').oninput=e=>{query=e.target.value.trim();render()};document.getElementById('collectionYear').onchange=e=>{year=e.target.value;view='all';render()}
 document.getElementById('collectionGrid').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;owned.has(b.dataset.id)?owned.delete(b.dataset.id):owned.add(b.dataset.id);saveOwned();build();render()}
-document.getElementById('exportBtn').onclick=()=>download(`hogwarts-collection-${today()}.json`,JSON.stringify({schemaVersion:1,exportedAt:new Date().toISOString(),owned:[...owned]},null,2),'application/json')
-document.getElementById('missingBtn').onclick=()=>{const missing=items().filter(x=>!owned.has(x.id)&&(category==='all'||x.category===category));download(`hogwarts-missing-${today()}.txt`,missing.map(x=>`${x.categoryLabel}\t${x.name}\t${[x.year,x.date].filter(Boolean).join(' ')}`).join('\n'),'text/plain;charset=utf-8')}
+document.getElementById('exportBtn').onclick=()=>exportCollectionCsv(items(),`霍格沃茨收藏清单-${today()}.csv`)
+document.getElementById('missingBtn').onclick=()=>exportCollectionCsv(items().filter(x=>!owned.has(x.id)&&(category==='all'||x.category===category)),`霍格沃茨缺失清单-${today()}.csv`)
 document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click()
 document.getElementById('importFile').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;try{const data=JSON.parse(await file.text()),ids=Array.isArray(data)?data:data.owned;if(!Array.isArray(ids))throw Error('备份中没有 owned 数组');const valid=[...new Set(ids.filter(id=>items().some(x=>x.id===id)))];if(!confirm(`备份中有 ${valid.length} 条有效收藏。\n确定与本机现有 ${owned.size} 条记录合并吗？`))return;valid.forEach(id=>owned.add(id));saveOwned();build();render();alert(`已恢复收藏，共 ${owned.size} 条。`)}catch(err){alert('导入失败：'+err.message)}}
 document.getElementById('cbgImportBtn').onclick=importFromCbg
@@ -41,6 +41,8 @@ async function importFromCbg(){
 }
 function setCbgStatus(message,type){const el=document.getElementById('cbgStatus');el.textContent=message;el.className='cbg-status'+(type?' '+type:'')}
 function friendlyCbgError(message){if(/Failed to fetch|fetch/i.test(message))return '暂时无法连接解析服务，请稍后重试';if(/NOT_FOUND|404/i.test(message))return '商品资料不存在或已下架，请换一个仍在公示中的链接';return message}
+function csvCell(value){let text=String(value??'');if(/^[=+\-@]/.test(text))text=`'${text}`;return `"${text.replace(/"/g,'""')}"`}
+function exportCollectionCsv(rows,filename){const header=['分类','名称','别名','年份','月份/日期','获取方式','拥有状态'];const body=rows.map(x=>[x.categoryLabel,x.name,x.alternateName||'',x.year||'',x.date||'',x.sourceLabel||x.source||'',owned.has(x.id)?'已拥有':'未拥有']);download(filename,'\uFEFF'+[header,...body].map(row=>row.map(csvCell).join(',')).join('\r\n'),'text/csv;charset=utf-8')}
 function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function today(){return new Date().toISOString().slice(0,10)}
 function esc(s){return String(s??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]))}
